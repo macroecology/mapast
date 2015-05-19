@@ -5,7 +5,44 @@ library(rgdal)
 library (paleobioDB)
 library(rgbif)
 
+? get_paleomap
 
+
+#' get_paleomap
+#' 
+#' gets the shapefile for the map of a choosen time interval (e.g. "triassic")
+#' 
+#' @usage get_paleomap (interval)
+#' 
+#' @param interval time interval of interest
+#' @return a shape file for the choosen time interval
+#' @export 
+#' @examples \dontrun{
+#' shapefile <- get_paleomap(interval) 
+#' plot(shapefile)
+#'}
+#'
+
+
+? getdata_paleomap
+
+
+#' getdata_paleomap
+#' 
+#' gets paleontological data from paleobiodb and gbif
+#' 
+#' @usage getdata_paleomap (base_name, interval, database)
+#' 
+#' @param base_name name of the base (e.g reptiles) you want to get data from
+#' @param interval time interval of interest (e.g. jurassic)
+#' @param database database which you want to get you data from (either paleobiodb or gbif)
+#' @return a shape file for the choosen time interval
+#' @export 
+#' @examples \dontrun{
+#' data <- getdata_paleomap (base_name, interval, database)
+#' show(data)
+#'}
+#'
 get_paleomap <- function (interval){
   wd <- getwd()
   file <- paste(gsub("paleoMap", "paleoMap/data/", wd), paste(interval, ".shp", sep=""), sep="")
