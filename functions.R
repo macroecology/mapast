@@ -46,7 +46,8 @@ library(rgbif)
 get_paleomap <- function (interval){
   wd <- getwd()
   file <- paste(gsub("paleoMap", "paleoMap/data/", wd), paste(interval, ".shp", sep=""), sep="")
-  shape <- readShapePoly(file, IDvar=NULL, proj4string=CRS(as.character(NA)), verbose=FALSE, repair=TRUE, force_ring=TRUE)
+  shape <- readShapePoly(file, IDvar=NULL, proj4string=CRS(as.character(NA)), 
+  verbose=FALSE, repair=TRUE, force_ring=TRUE)
   shape
 }
 
@@ -59,7 +60,9 @@ getdata_paleomap <- function(base_name, interval, database){
     data <- data.frame(occ)
   }
   if(database=="gbif"){
-    occ <-occ_search(scientificName = base_name, hasCoordinate=TRUE, fields = c("family","genus","species","decimalLatitude","decimalLongitude", "earliestEpochOrLowestSeries"), return = "all")
+    occ <-occ_search(scientificName = base_name, hasCoordinate=TRUE, 
+    fields = c("family","genus","species","decimalLatitude","decimalLongitude", "earliestEpochOrLowestSeries"), 
+    return = "all")
     df <- data.frame(occ[3])
     if(length(df$data.earliestEpochOrLowestSeries)!=0){
       for(i in 1:length(df$data.earliestEpochOrLowestSeries)){
