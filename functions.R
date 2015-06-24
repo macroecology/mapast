@@ -1,13 +1,8 @@
 library(raster)
 library(maptools)
-library(RCurl)
-library(rgdal)
 library (paleobioDB)
-library(rgbif)
 
 ? get_paleomap
-
-
 #' get_paleomap
 #' 
 #' gets the shapefile for the map of a choosen time interval (e.g. "triassic")
@@ -23,19 +18,15 @@ library(rgbif)
 #'}
 #'
 
-
 ? getdata_paleomap
-
-
 #' getdata_paleomap
 #' 
-#' gets paleontological data from paleobiodb and gbif
+#' gets paleontological data from paleobiodb
 #' 
-#' @usage getdata_paleomap (base_name, interval, database)
+#' @usage getdata_paleomap (base_name, interval)
 #' 
 #' @param base_name name of the base (e.g reptiles) you want to get data from
 #' @param interval time interval of interest (e.g. jurassic)
-#' @param database database which you want to get you data from (either paleobiodb or gbif)
 #' @return a shape file for the choosen time interval
 #' @export 
 #' @examples \dontrun{
@@ -43,6 +34,44 @@ library(rgbif)
 #' show(data)
 #'}
 #'
+
+?plot_paleomap
+#' plot_paleomap
+#' 
+#' plots the wanted base_name from paleobioDB directly on the map of the time interval
+#' if you do not want to save and process the data and shape file before plotting it
+#' 
+#' @usage plot_paleomap (base_name, interval)
+#' 
+#' @param base_name name of the base (e.g reptiles) you want to get data from
+#' @param interval time interval of interest (e.g. jurassic)
+#' @return plot with map of the time intervall and the fossil occurences
+#' @export 
+#' @examples \dontrun{
+#' plot_paleomap (base_name, interval)
+#'}
+#'
+
+?raster_paleomap
+#' raster_paleomap
+#' 
+#' creates a raster of the fossil occurences
+#' also makes a plot of the map, raster and occurences
+#' 
+#' @usage raster_paleomap (data, shape)
+#' 
+#' @param data a data frame which needs to have a column called paleolat and a column called paleolng, can be created with getdata_paleomap
+#' @param the shape file from the time interval of interest. Can be created with get_paleomap
+#' @return plot with map of the time intervall, the fossil occurences and the raster file. And the raster file itself
+#' @export 
+#' @examples \dontrun{
+#' myraster <- raster_paleomap (data, shape)
+#' plot(myraster)
+#'}
+#'
+
+
+
 get_paleomap <- function (interval){
   wd <- getwd()
   file <- paste(gsub("paleoMap", "paleoMap/data/", wd), paste(interval, ".shp", sep=""), sep="")
@@ -53,41 +82,25 @@ get_paleomap <- function (interval){
 
 getdata_paleomap <- function(base_name, interval){
   data <- c()
-#   if(database=="paleobiodb"){
     occ <- pbdb_occurrences (base_name=base_name, interval=interval, 
                       show=c("paleoloc"), 
                       vocab="pbdb")
     data <- data.frame(occ)
-#   }
-#   #not sure
-#   if(database=="gbif"){
-#     occ <-occ_search(scientificName = base_name, hasCoordinate=TRUE, 
-#     fields = c("family","genus","species","decimalLatitude","decimalLongitude", 
-#                "earliestEpochOrLowestSeries"), 
-#                return = "all")
-#     df <- data.frame(occ[3])
-#     if(length(df$data.earliestEpochOrLowestSeries)!=0){
-#       for(i in 1:length(df$data.earliestEpochOrLowestSeries)){
-#         if(!is.na(df$data.earliestEpochOrLowestSeries[i])){
-#           if(grep(interval, df$data.earliestEpochOrLowestSeries[i])==1){
-#             data <- rbind(data,df[i,])
-#           }
-#         }
-#       }
-#     }
-#     if(length(df$data.earliestEpochOrLowestSeries)==0 || length(data)==0){
-#       print("No occurences found!")
-#     }
-#   }
   data
 }
 
 plot_paleomap <- function(base_name, interval){
+  title <-paste("Time interval: ", interval, sep="")
+  subtitle <- paste("Base name: ",base_name, sep="")
   shape <- get_paleomap(interval=interval)
   data <- getdata_paleomap(base_name=base_name, interval=interval)
   
   x11()
-  plot(shape)
+  plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
+       , xlab="paleolongitude", ylab="paleolatitude"
+       , main=title)
+  mtext(subtitle)
+  plot(shape, add=T)
   points (data$paleolng, data$paleolat, pch=19, col="red")
 }
 
@@ -95,7 +108,10 @@ raster_paleomap <- function(shape, data){
     ras <- raster(shape)
     r<-rasterize(data[,14:15],ras,fun=sum)
     x11()
-    plot(r)
+    plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
+         , xlab="paleolongitude", ylab="paleolatitude"
+         , main="Raster of occurences")
+    plot(r, add=T)
     plot(shape, add=TRUE)
     points(data$paleolng, data$paleolat, pch=19, col="red")
     r
