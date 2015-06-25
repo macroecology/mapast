@@ -2,7 +2,7 @@ library(raster)
 library(maptools)
 library (paleobioDB)
 
-? get_paleomap
+
 #' get_paleomap
 #' 
 #' gets the shapefile for the map of a choosen time interval (e.g. "triassic")
@@ -13,12 +13,20 @@ library (paleobioDB)
 #' @return a shape file for the choosen time interval
 #' @export 
 #' @examples \dontrun{
-#' shapefile <- get_paleomap(interval) 
-#' plot(shapefile)
+#' shapefile_quat <- get_paleomap(interval="Quaternary") 
+#' plot(shapefile_quat)
 #'}
 #'
 
-? getdata_paleomap
+get_paleomap <- function (interval){
+  wd <- getwd()
+  file <- paste(gsub("paleoMap", "paleoMap/data/", wd), paste(interval, ".shp", sep=""), sep="")
+  shape <- readShapePoly(file, IDvar=NULL, proj4string=CRS(as.character(NA)), 
+  verbose=FALSE, repair=TRUE, force_ring=TRUE)
+  shape
+}
+
+
 #' getdata_paleomap
 #' 
 #' gets paleontological data from paleobiodb
@@ -30,12 +38,20 @@ library (paleobioDB)
 #' @return a shape file for the choosen time interval
 #' @export 
 #' @examples \dontrun{
-#' data <- getdata_paleomap (base_name, interval, database)
-#' show(data)
+#' getdata_paleomap (base_name="Canis", interval="Quaternary", database=??)
 #'}
 #'
 
-?plot_paleomap
+getdata_paleomap <- function(base_name, interval){
+  data <- c()
+    occ <- pbdb_occurrences (base_name=base_name, interval=interval, 
+                      show=c("paleoloc"), 
+                      vocab="pbdb")
+    data <- data.frame(occ)
+  return (data)
+}
+
+
 #' plot_paleomap
 #' 
 #' plots the wanted base_name from paleobioDB directly on the map of the time interval
@@ -48,46 +64,9 @@ library (paleobioDB)
 #' @return plot with map of the time intervall and the fossil occurences
 #' @export 
 #' @examples \dontrun{
-#' plot_paleomap (base_name, interval)
+#' plot_paleomap (base_name= "Canis", interval="Quaternary")
 #'}
 #'
-
-?raster_paleomap
-#' raster_paleomap
-#' 
-#' creates a raster of the fossil occurences
-#' also makes a plot of the map, raster and occurences
-#' 
-#' @usage raster_paleomap (data, shape)
-#' 
-#' @param data a data frame which needs to have a column called paleolat and a column called paleolng, can be created with getdata_paleomap
-#' @param the shape file from the time interval of interest. Can be created with get_paleomap
-#' @return plot with map of the time intervall, the fossil occurences and the raster file. And the raster file itself
-#' @export 
-#' @examples \dontrun{
-#' myraster <- raster_paleomap (data, shape)
-#' plot(myraster)
-#'}
-#'
-
-
-
-get_paleomap <- function (interval){
-  wd <- getwd()
-  file <- paste(gsub("paleoMap", "paleoMap/data/", wd), paste(interval, ".shp", sep=""), sep="")
-  shape <- readShapePoly(file, IDvar=NULL, proj4string=CRS(as.character(NA)), 
-  verbose=FALSE, repair=TRUE, force_ring=TRUE)
-  shape
-}
-
-getdata_paleomap <- function(base_name, interval){
-  data <- c()
-    occ <- pbdb_occurrences (base_name=base_name, interval=interval, 
-                      show=c("paleoloc"), 
-                      vocab="pbdb")
-    data <- data.frame(occ)
-  data
-}
 
 plot_paleomap <- function(base_name, interval){
   title <-paste("Time interval: ", interval, sep="")
@@ -103,6 +82,23 @@ plot_paleomap <- function(base_name, interval){
   plot(shape, add=T)
   points (data$paleolng, data$paleolat, pch=19, col="red")
 }
+
+
+#' raster_paleomap
+#' 
+#' creates a raster of the fossil occurences
+#' also makes a plot of the map, raster and occurences
+#' 
+#' @usage raster_paleomap (data, shape)
+#' 
+#' @param data a data frame which needs to have a column called paleolat and a column called paleolng, can be created with getdata_paleomap
+#' @param the shape file from the time interval of interest. Can be created with get_paleomap
+#' @return plot with map of the time intervall, the fossil occurences and the raster file. And the raster file itself
+#' @export 
+#' @examples \dontrun{
+#' myraster <- raster_paleomap (data, shape)
+#' plot(myraster)
+#'}
 
 raster_paleomap <- function(shape, data){
     ras <- raster(shape)
