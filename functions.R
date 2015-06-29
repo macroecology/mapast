@@ -1,7 +1,9 @@
+###########################libraries#############################
 library(raster)
 library(maptools)
 library (paleobioDB)
 
+###########################get_paleomap#############################
 
 #' get_paleomap
 #' 
@@ -26,6 +28,7 @@ get_paleomap <- function (interval){
   shape
 }
 
+################getdata_paleomap##############################
 
 #' getdata_paleomap
 #' 
@@ -51,6 +54,7 @@ getdata_paleomap <- function(base_name, interval){
   return (data)
 }
 
+####################plot_paleomap#################################
 
 #' plot_paleomap
 #' 
@@ -73,20 +77,24 @@ plot_paleomap <- function(base_name, interval){
   subtitle <- paste("Base name: ",base_name, sep="")
   shape <- get_paleomap(interval=interval)
   data <- getdata_paleomap(base_name=base_name, interval=interval)
+
   
   x11()
   plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
-       , xlab="paleolongitude", ylab="paleolatitude"
+       , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
+       , xlab="longitude", ylab="latitude"
        , main=title)
+  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col="lightblue")
   mtext(subtitle)
-  plot(shape, add=T)
-  points (data$paleolng, data$paleolat, pch=19, col="red")
+  plot(shape, col="lightgrey", border="grey", add=T)
+  points (data$paleolng, data$paleolat, pch=19, col=rgb(0,0.3,0, alpha=0.4))
 }
 
+#####################raster_paleomap##############################
 
 #' raster_paleomap
 #' 
-#' creates a raster of the fossil occurences
+#' creates a raster of the fossil occurences (sampling effort)
 #' also makes a plot of the map, raster and occurences
 #' 
 #' @usage raster_paleomap (data, shape)
@@ -105,10 +113,32 @@ raster_paleomap <- function(shape, data){
     r<-rasterize(data[,14:15],ras,fun=sum)
     x11()
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
-         , xlab="paleolongitude", ylab="paleolatitude"
-         , main="Raster of occurences")
-    plot(r, add=T)
-    plot(shape, add=TRUE)
-    points(data$paleolng, data$paleolat, pch=19, col="red")
+         , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
+         , xlab="longitude", ylab="latitude"
+         , main="Raster of occurences - sampling effort")
+    rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col="lightblue")
+    plot(shape, col="lightgrey", border="grey", add=TRUE)
+    plot(r,col=c(mycols(100)), add=T)
     r
 }
+
+######################spraster_paleomap####################
+
+#do not know if correct?
+spraster_paleomap <- function(shape, data){
+  ras <- raster(shape)
+  data <- subset(data, taxon_rank=="species")
+  r<-rasterize(data[,14:15],ras,fun=sum)
+  x11()
+  plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
+       , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
+       , xlab="longitude", ylab="latitude"
+       , main="Raster - richness of species")
+  plot(shape, col="lightgrey", border="grey", add=TRUE)
+  plot(r, col= mycols(100), add=T)
+  r
+}
+
+
+##############################color palette ########################################
+mycols <- colorRampPalette(colors=c(rgb(0,1,0,0.5), rgb(0,1,1,0.5), rgb(0,0,1,0.5)), alpha=TRUE)
