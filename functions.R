@@ -26,7 +26,6 @@ get_paleomap <- function (interval, plot=TRUE){
   shape <- readShapePoly(file, IDvar=NULL, proj4string=CRS(as.character(NA)), 
   verbose=FALSE, repair=TRUE, force_ring=TRUE)
   if(plot==TRUE){
-    x11()
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
          , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
          , xlab="longitude", ylab="latitude"
@@ -87,8 +86,6 @@ plot_paleomap <- function(interval, base_name){
   shape <- get_paleomap(interval=interval)
   data <- getdata_paleomap(base_name=base_name, interval=interval)
 
-  
-  x11()
   plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
        , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
        , xlab="longitude", ylab="latitude"
@@ -121,7 +118,6 @@ raster_paleomap <- function(shape, data){
     ras <- raster(shape)
     r<-rasterize(data[,14:15],ras
                  ,fun=sum)
-    x11()
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
          , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
          , xlab="longitude", ylab="latitude"
@@ -154,7 +150,6 @@ spraster_paleomap <- function(shape, data){
   data <- subset(data, taxon_rank=="species")
   fdata <- species_filter(data)
   r<-rasterize(fdata[,14:15],ras,fun=sum)
-  x11()
   plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
        , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
        , xlab="longitude", ylab="latitude"

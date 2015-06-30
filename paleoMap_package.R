@@ -13,6 +13,7 @@
 #' @docType package
 #' @title paleoMap: An R-package for getting and using paleontoligcal maps.
 #' @author Sonja Rothkugel \email{rothkugelsonja@aol.de}
+#' @author Sara Varela \email{sara_varela@yahoo.com}
 #' @references ?
 #' 
 #' @keywords package
@@ -30,27 +31,31 @@
 #' 
 #'@examples \dontrun{
 #'
-#'#save and display the shp-file of the Aeronian map
-#'aalenian <- get_paleomap(interval="aalenian")
-#'plot(aeronian)
+#'#save and display the shp-file of the Aalenian map and creates plot is plot=TRUE
+#'aalenian <- get_paleomap(interval="aalenian", plot=TRUE)
 #'
 #'#get and save the fossil occurences of mammalia found in the Aalenian
 #'reptilia_aalenian <- getdata_paleomap(base_name="reptilia", interval="aalenian")
 #'
-#'plot the fossil occurences on the map
+#'#plot the fossil occurences on the map
 #'plot(aalenian) #shape file saved before
-#'points(reptilia_aalenian$paleolng, reptilia_aalenian$paleolat, pch=19, col="red")
+#'points(reptilia_aalenian$paleolng, reptilia_aalenian$paleolat, pch=19, col="green")
 #'
 #'
 #'#directly plotting reptilia on aalenian without saving them before
 #'plot_paleomap(base_name="reptilia", interval="aalenian")
 #'
-#'#reating a raster file
+#'#creating a raster file for the sampling effort
 #'jurassic <- get_paleomap(interval="jurassic")
 #'reptilia_jurassic <- getdata_paleomap(base_name="reptilia", interval="jurassic")
 #'myraster <- raster_paleomap(shape=jurassic, data=reptilia_jurassic)
 #'show(myraster)
 #'
+#'#creating a raster file of the species richness
+#'jurassic <- get_paleomap(interval="jurassic")
+#'reptilia_jurassic <- getdata_paleomap(base_name="reptilia", interval="jurassic")
+#'myraster <- spraster_paleomap(shape=jurassic, data=reptilia_jurassic)
+#'show(myraster)
 #'
 #' }
 #'
