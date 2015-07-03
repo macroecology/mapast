@@ -21,10 +21,13 @@ library (paleobioDB)
 #'
 
 get_paleomap <- function (interval, plot=TRUE){
+  #getting working directory & directory for shape file
   wd <- getwd()
-  file <- paste(gsub("paleoMap", "paleoMap/data/", wd), paste(interval, ".shp", sep=""), sep="")
+  file <- paste(gsub("paleoMap/R", "paleoMap/data/", wd), paste(interval, ".shp", sep=""), sep="")
+  #read in shape file and save it
   shape <- readShapePoly(file, IDvar=NULL, proj4string=CRS(as.character(NA)), 
   verbose=FALSE, repair=TRUE, force_ring=TRUE)
+  #if user does not set plot=FALSE plot the shape file
   if(plot==TRUE){
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
          , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
@@ -33,6 +36,7 @@ get_paleomap <- function (interval, plot=TRUE){
     rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col="lightblue")
     plot(shape, col="lightgrey", border="grey", add=TRUE)
   }
+  #return the shape file
   shape
 }
 
@@ -54,11 +58,15 @@ get_paleomap <- function (interval, plot=TRUE){
 #'
 
 getdata_paleomap <- function(interval,base_name){
-  data <- c()
+  #create an empty data variable for storing occurences
+    data <- c()
+    #get data from paleobioDB
     occ <- pbdb_occurrences (base_name=base_name, interval=interval, 
                       show=c("paleoloc"), 
                       vocab="pbdb")
+    #save data from paleobiodb as data frae
     data <- data.frame(occ)
+    #return data frame
   return (data)
 }
 
@@ -81,11 +89,13 @@ getdata_paleomap <- function(interval,base_name){
 #'
 
 plot_paleomap <- function(interval, base_name){
+  #create variables for labeling the plot
   title <-paste("Time interval: ", interval, sep="")
   subtitle <- paste("Base name: ",base_name, sep="")
+  #getting the shape file for the map and the data for plotting it on the map
   shape <- get_paleomap(interval=interval)
   data <- getdata_paleomap(base_name=base_name, interval=interval)
-
+  #plotting the map and the data
   plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
        , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
        , xlab="longitude", ylab="latitude"
@@ -104,7 +114,6 @@ plot_paleomap <- function(interval, base_name){
 #' also makes a plot of the map and raster
 #' 
 #' @usage raster_paleomap (shape, data)
-#' 
 #' @param the shape file from the time interval of interest. Can be created with get_paleomap
 #' @param data a data frame which needs to have a column called paleolat and a column called paleolng, can be created with getdata_paleomap
 #' @return plot with map of the time intervall, the fossil occurences and the raster file. And the raster file itself
@@ -115,9 +124,12 @@ plot_paleomap <- function(interval, base_name){
 #'}
 
 raster_paleomap <- function(shape, data){
+    #creating a raster in the size of the shape
     ras <- raster(shape)
+    #raster of the occurences (sampling effort)
     r<-rasterize(data[,14:15],ras
                  ,fun=sum)
+    #plotting the map and the raster on the map
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
          , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
          , xlab="longitude", ylab="latitude"
@@ -125,6 +137,7 @@ raster_paleomap <- function(shape, data){
     rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col="lightblue")
     plot(shape, col="lightgrey", border="grey", add=TRUE)
     plot(r,col=c(mycols(100)), add=T)
+    #returning the raster
     r
 }
 
@@ -146,10 +159,13 @@ raster_paleomap <- function(shape, data){
 #' plot(myraster)
 #'}
 spraster_paleomap <- function(shape, data){
+  #creating a raster in size of the shape file
   ras <- raster(shape)
-  data <- subset(data, taxon_rank=="species")
+  #getting only species data and no duplictaed in a raster field
   fdata <- species_filter(data)
+  #getting the raster of the species richness
   r<-rasterize(fdata[,14:15],ras,fun=sum)
+  #plotting the map and the raster
   plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
        , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
        , xlab="longitude", ylab="latitude"
@@ -157,18 +173,39 @@ spraster_paleomap <- function(shape, data){
   rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col="lightblue")
   plot(shape, col="lightgrey", border="grey", add=TRUE)
   plot(r, col= mycols(100), add=T)
+  #return the raster
   r
 }
 
 
 ##############################color palette ########################################
+
+#creating a color palette for the raster
 mycols <- colorRampPalette(colors=c(rgb(0.255*3,0.255*3,0,0.5), rgb(0.144*3,0.238*3,0.144,0.5), rgb(0,1,0,0.5)), alpha=TRUE)
 
 
 #################filter#######################
+#filters all occurences which are not species and duplicates in raster cells
+
+
+#' species_filter
+#' 
+#' filters the data frame so tehre are only species left 
+#' and for each raster every species only once
+#' 
+#' @usage species_filer (data)
+#' @param data a data frame which needs to have a column called paleolat and a column called paleolng, can be created with getdata_paleomap
+#' @return filtered data frame with only species
+#' @examples \dontrun{
+#' filtered_data <- filter_data (data)
+#' show(data)
+#'}
 species_filter <- function(data){
+  #gets colnames for new data frame
   filter <- data[0,]
+  #filters only species
   data <- subset(data, taxon_rank=="species")
+  #getting each species only once in 10*10 raster cell
   for(i in seq(-180,180,10)){
     frame <- data[0,]
     for (j in seq(-90,90,10)){
@@ -179,7 +216,9 @@ species_filter <- function(data){
       }
       
     }
+    #add for each raster the filtered data
     filter <- rbind(filter, subset(frame, !duplicated(frame$taxon_name)))
   }
+  #return filtered data frame
   filter
 }
