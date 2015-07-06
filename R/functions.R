@@ -63,7 +63,7 @@ getdata_paleomap <- function(interval,base_name){
     #get data from paleobioDB
     occ <- pbdb_occurrences (base_name=base_name, interval=interval, 
                       show=c("paleoloc"), 
-                      vocab="pbdb")
+                      vocab="pbdb", limit="all")
     #save data from paleobiodb as data frae
     data <- data.frame(occ)
     #return data frame
