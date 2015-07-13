@@ -25,9 +25,8 @@ pm_getmap <- function (interval, plot=TRUE, colsea="#E5E5E520",
   ## interval <- NULL
   ## rm(interval)
   
-  # read in shape file and save it
-  shape <- readShapePoly(interval, IDvar= NULL, proj4string= CRS(as.character(NA)), 
-  verbose= FALSE, repair= TRUE, force_ring=TRUE)
+  data (interval)
+  
   # if user does not set plot=FALSE plot the shape file
   if(plot== TRUE){
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
@@ -35,11 +34,11 @@ pm_getmap <- function (interval, plot=TRUE, colsea="#E5E5E520",
          , xlab="Longitude", ylab="Latitude"
          , main=interval, xaxs="i", yaxs="i")
     rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, border=FALSE)
-    plot(shape, col=colland, border=colborder, add=TRUE)
+    plot(kk, col=colland, border=colborder, add=TRUE)
     box(which="plot")
   }
   # return the shape file
-  shape
+  kk
 }
 
 
@@ -277,7 +276,7 @@ pm_ngl <- function(data) {
 ##############################color palette ########################################
 
 #creating a color palette for the raster
-mycols <- colorRampPalette(colors=c(rgb(0.255*3,0.255*3,0,0.5), rgb(0.144*3,0.238*3,0.144,0.5), rgb(0,1,0,0.5)), alpha=TRUE)
+mycols <- colorRampPalette(colors=c(rgb(0.255*3,0.255*3,0,0.5), rgb(0.144*3,0.238*3,0.144,0.5), rgb(0,1,0,0.5)))
 
 
 #################filter#######################
