@@ -97,6 +97,8 @@ pm_getdata <- function(interval, base_name, limit="all"){
 #' 
 #' @param interval time interval of interest (e.g. jurassic)
 #' @param base_name larger taxonomic rank for the query to the paleobioDB (e.g reptiles) 
+#' @param limit enables the user to set the maximum number of 
+#' records downloaded from the paleobioDB (e.g. 1000)
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
 #' @param colborder color of the landmass borders
@@ -140,21 +142,27 @@ pm_plot <- function(interval, base_name,
 #' creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
 #' (a proxy for the sampling effort)
 #' 
-#' @usage pm_occraster (shape, data, colsea, colland, colborder)
-#' @param the shape file from the time interval of interest. Can be created with get_paleomap
+#' @usage pm_occraster (shape, data, rank, colsea, colland, colborder)
+#' @param shape shapefile from the time interval of interest. 
+#' Can be created with get_paleomap
 #' @param data a data frame which needs to have a column called paleolat 
 #' and a column called paleolng, can be created with getdata_paleomap
+#' @param rank text. Taxonomic rank of interest (e.g. genus, family, etc.)
+#' @param res resolution of the cells in the raster (10 degrees by default)
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
 #' @param colborder color of the landmass borders
 #' @return a raster file and a plot of the time intervall, the fossil occurences and the raster file.
 #' @export 
 #' @examples \dontrun{
-#' myraster <-  pm_occraster (shape, data, colsea, colland, colborder)
+#' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' pm_occraster (shape, data, colsea, colland, colborder)
 #'}
 
 pm_occraster <- function(shape, data, rank= "genus", res=10,
-                         colsea="#E5E5E520", colland="#66666680", colborder="#2B2B2B30"){
+                         colsea="#E5E5E520", colland="#66666680", 
+                         colborder="#2B2B2B30"){
     
   #filter data for rank
   fdata <- rfilter(data, rank)
@@ -185,16 +193,21 @@ pm_occraster <- function(shape, data, rank= "genus", res=10,
 #' 
 #' @usage pm_richraster (shape, data, res, rank, colsea, colland, colborder)
 #' 
-#' @param the shape file from the time interval of interest. Can be created with get_paleomap
-#' @param data a data frame which needs to have a column called paleolat and a column called paleolng, can be created with getdata_paleomap
-#' @param res resollution of the raster/ size of the grid cell
+#' @param the shape file from the time interval of interest. 
+#' Can be created with get_paleomap
+#' @param data a data frame which needs to have a column called 
+#' paleolat and a column called paleolng, can be created with getdata_paleomap
+#' @param res resolution of the raster/ size of the grid cell
 #' @param rank gives the rank for the richness raster (e.g. species, genus,...)
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
 #' @param colborder color of the landmass borders
-#' @return plot with map of the time intervall, the fossil occurences and the raster file. And the raster file itself
+#' @return plot with map of the time intervall, the fossil occurences and the 
+#' raster file. And the raster file itself
 #' @export 
 #' @examples \dontrun{
+#' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' myraster <- pm_richraster (shape, data)
 #' plot(myraster)
 #'}
