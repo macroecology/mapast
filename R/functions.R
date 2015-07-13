@@ -8,6 +8,8 @@ library(maptools)
 # install.packages("paleobioDB")
 library(paleobioDB)
 
+
+
 ###########################pm_getmap#############################
 
 #' pm_getmap
@@ -17,27 +19,29 @@ library(paleobioDB)
 #' @usage pm_getmap (interval, plot, colsea, colland, colborder)
 #' 
 #' @param interval time interval of interest
-#' @param plot is by default TRUE, if TRUE you get plot of the map directly
-#' @param colsea color of the ocean in the plot
-#' @param colland color of the land masses
-#' @param colborder border color of the land masses
-#' @return a shape file for the choosen time interval
+#' @param plot TRUE/FALSE, if TRUE the output includes a plot
+#' @param colsea to set the color of the ocean in the plot
+#' @param colland to set the color of the land masses
+#' @param colborder to set the color of the borders of the land masses
+#' @return a shape file for the choosen time interval and a plot (if plot=TRUE)
 #' @export 
 #' @examples \dontrun{
-#' shapefile_quat <- pm_getmap(interval="Quaternary") 
+#' pm_getmap(interval="Quaternary") 
 #'}
 #'
 
-pm_getmap <- function (interval, plot=TRUE, colsea="#E5E5E520", colland="#66666680", colborder="#2B2B2B30"){
-  #getting working directory & directory for shape file
-  wd <- getwd()
-  file <- paste(gsub("paleoMap/R", "paleoMap/data/", wd), 
-                paste(interval, ".shp", sep=""), sep="")
-  #read in shape file and save it
-  shape <- readShapePoly(file, IDvar=NULL, proj4string=CRS(as.character(NA)), 
-  verbose=FALSE, repair=TRUE, force_ring=TRUE)
-  #if user does not set plot=FALSE plot the shape file
-  if(plot==TRUE){
+pm_getmap <- function (interval, plot=TRUE, colsea="#E5E5E520", 
+                       colland="#66666680", colborder="#2B2B2B30"){
+  ## hack for avoiding NOTE on check: 'no visible binding for global variable'
+  ## see: http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
+  ## interval <- NULL
+  ## rm(interval)
+  
+  # read in shape file and save it
+  shape <- readShapePoly(interval, IDvar= NULL, proj4string= CRS(as.character(NA)), 
+  verbose= FALSE, repair= TRUE, force_ring=T RUE)
+  # if user does not set plot=FALSE plot the shape file
+  if(plot== TRUE){
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
          , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
          , xlab="Longitude", ylab="Latitude"
@@ -46,37 +50,40 @@ pm_getmap <- function (interval, plot=TRUE, colsea="#E5E5E520", colland="#666666
     plot(shape, col=colland, border=colborder, add=TRUE)
     box(which="plot")
   }
-  #return the shape file
+  # return the shape file
   shape
 }
+
+
 
 ################pm_getdata##############################
 
 #' pm_getdata
 #' 
-#' gets paleontological data from paleobiodb
-#' 
+#' uses paleobioDB R package to get data from paleobiology Database
+#'  
 #' @usage pm_getdata (interval, base_name, limit)
 #' 
 #' @param interval time interval of interest (e.g. jurassic)
 #' @param base_name name of the base (e.g reptiles) you want to get data from
-#' @param limit how many entrances from pbdb you want to have, e.g. 500 or "all" 
+#' @param limit how many entrances from pbdb you want to have, e.g. 500. 
+#' There is no limit by default 
 #' @return a shape file for the choosen time interval
 #' @export 
 #' @examples \dontrun{
-#' pm_getdata (base_name="Canis", interval="Quaternary", database=??)
+#' pm_getdata (base_name="Canis", interval="Quaternary")
 #'}
 #'
 
 pm_getdata <- function(interval, base_name, limit="all"){
-  #create an empty data variable for storing occurences
+    # create an empty data variable for storing occurences
     data <- c()
-    #get data from paleobioDB
+    # get data from paleobioDB
     occ <- data.frame(pbdb_occurrences (base_name=base_name, interval=interval, 
                       show=c("paleoloc", "phylo"), 
                       vocab="pbdb", limit=limit))
-    #save data from paleobiodb as data frame
-#     data <- data.frame(occ)
+    # save data from paleobiodb as data frame
+    # data <- data.frame(occ)
     data <- data.frame(occ$matched_name, occ$matched_rank,
                        occ$early_interval, occ$late_interval,
                        occ$paleolng, occ$paleolat, occ$geoplate,
@@ -89,23 +96,27 @@ pm_getdata <- function(interval, base_name, limit="all"){
   return (data)
 }
 
+
+
 ####################pm_plot#################################
 
 #' pm_plot
 #' 
-#' plots the wanted base_name from paleobioDB directly on the map of the time interval
-#' if you do not want to save and process the data and shape file before plotting it
+#' plots your query from paleobioDB directly onto the map of the selected time interval
 #' 
-#' @usage pm_plot (interval, base_name, limit, colsea, colland, colborder, colpoints, colpointborder)
+#' 
+#' @usage pm_plot (interval, base_name, limit, colsea, colland, 
+#' colborder, colpoints, colpointborder)
 #' 
 #' @param interval time interval of interest (e.g. jurassic)
-#' @param base_name name of the base (e.g reptiles) you want to get data from
+#' @param base_name larger taxonomic rank for the query to the paleobioDB (e.g reptiles) 
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
 #' @param colborder color of the landmass borders
 #' @param colpoints color of the points of the occurences
 #' @param colpointborder color of the border of the points
-#' @return plot with map of the time intervall and the fossil occurences
+#' @return a plot with the configuration of the continents at the selected time interval 
+#' and the fossil occurrences
 #' @export 
 #' @examples \dontrun{
 #' pm_plot (base_name= "Canis", interval="Quaternary")
@@ -114,8 +125,8 @@ pm_getdata <- function(interval, base_name, limit="all"){
 
 pm_plot <- function(interval, base_name,
                     limit="all",
-                    colsea="#E5E5E520", colland="#66666680", colborder="#2B2B2B30", 
-                    colpoints="#9ACD3250",
+                    colsea="#E5E5E520", colland="#66666680", 
+                    colborder="#2B2B2B30", colpoints="#9ACD3250",
                     colpointborder="black"){
   #create variables for labeling the plot
   title <-paste("Time interval: ", interval, sep="")
@@ -139,28 +150,26 @@ pm_plot <- function(interval, base_name,
 
 #' pm_occraster
 #' 
-#' creates a raster of the fossil occurences (sampling effort)
-#' also makes a plot of the map and raster
+#' creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
+#' (a proxy for the sampling effort)
 #' 
 #' @usage pm_occraster (shape, data, colsea, colland, colborder)
 #' @param the shape file from the time interval of interest. Can be created with get_paleomap
-#' @param data a data frame which needs to have a column called paleolat and a column called paleolng, can be created with getdata_paleomap
+#' @param data a data frame which needs to have a column called paleolat 
+#' and a column called paleolng, can be created with getdata_paleomap
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
 #' @param colborder color of the landmass borders
-#' @return plot with map of the time intervall, the fossil occurences and the raster file. And the raster file itself
+#' @return a raster file and a plot of the time intervall, the fossil occurences and the raster file.
 #' @export 
 #' @examples \dontrun{
 #' myraster <-  pm_occraster (shape, data, colsea, colland, colborder)
 #'}
 
-pm_occraster <- function(shape,
-                         data,
-                         rank,
-                         res=10,
+pm_occraster <- function(shape, data, rank, res=10,
                          colsea="#E5E5E520", colland="#66666680", colborder="#2B2B2B30"){
     
-  #flter data for rank
+  #filter data for rank
   fdata <- rfilter(data, rank)
   #creating a raster in the size of the shape
     ras <- raster(shape, res=res)
@@ -257,7 +266,7 @@ pm_ngl <- function(data) {
   colnames(nsites) <- as.vector(dfnames[,1])
   
   #verbessere funktion
-  # -filter großen df nach lat_i & lng_i vorm suchen
+  # -filter gro?en df nach lat_i & lng_i vorm suchen
   
   
   for (i in 1:length(nsites[,1])) {
