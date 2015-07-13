@@ -214,7 +214,7 @@ pm_richraster <- function(shape,
   #getting the raster of the species richness
   r<-rasterize(fdata[,5:6],ras,fun=sum)
   #plotting the map and the raster
-  plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
+   plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
        , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
        , xlab="longitude", ylab="latitude"
        , main=paste("Raster - richness of ", rank), xaxs="i", yaxs="i")
@@ -226,6 +226,56 @@ pm_richraster <- function(shape,
   r
 }
 
+
+
+########pm_ngl###################
+#number of genus per locality
+pm_ngl <- function(data) {
+  genus_data <-rfilter(data, "genus")
+  loc <-data.frame(genus_data$paleolat, genus_data$paleolng)
+  names(loc) <- c("paleolat", "paleolng")
+  uloc <- unique(loc)
+  genus <- data.frame(genus_data$genus)
+  ugenus <- unique(genus)
+  
+  
+  helpnames <- data.frame(c("paleolat", "paleolng"))
+  colnames(helpnames) <- "genus_data.genus"
+  dfnames <- rbind(helpnames, ugenus)
+  n <- c()
+  for (i in 1:length(dfnames$genus_data.genus)) {
+    n <- c(n, as.vector(dfnames[i,1]))
+  }
+  
+  nsites <- NULL
+  nsites <- cbind(nsites, uloc$paleolat)
+  nsites <- cbind(nsites, uloc$paleolng)
+  for (i in 1:length(ugenus[,1])) {
+    nsites <- cbind(nsites, rep(-1, length(uloc$paleolat)))
+  }
+  
+  colnames(nsites) <- as.vector(dfnames[,1])
+  
+  #verbessere funktion
+  # -filter großen df nach lat_i & lng_i vorm suchen
+  
+  
+  for (i in 1:length(nsites[,1])) {
+    lat_i <- as.numeric(as.character(nsites[i,1]))
+    lng_i <- as.numeric(as.character(nsites[i,2]))
+    for (j in 1:length(ugenus[,1])) {
+      count <- 0
+      genus_j <- as.character(ugenus[j,1])
+      flat <-
+        subset(genus_data, genus_data$paleolat == lat_i)
+      flatlng <- subset(flat, flat$paleolng == lng_i)
+      fgen <- subset(flatlng, flatlng$genus == genus_j)
+      count <- length(fgen$genus)
+      nsites[i, j + 2] <- count
+    }
+  }
+  nsites
+}
 
 ##############################color palette ########################################
 
