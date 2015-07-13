@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/macroecology/paleoMap.svg)](https://travis-ci.org/macroecology/paleoMap)
 
-paleobioDB
+paleoMap
 =======
 
 ### About
