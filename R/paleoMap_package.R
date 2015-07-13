@@ -1,10 +1,9 @@
 
 #'We have developed paleoMap, an R-package designed to make palaeontolgical maps 
-#'available and using them for plotting the fossil occurences from the paleobio 
-#'database on the maps of the past.  
+#'available to plot the fossil occurences from paleontological databases onto the maps of the past.  
 #'
 #'
-#'We programmed functions for getting the shape file of the maps in the past, 
+#'We programmed functions for getting the shape files of the paleo-maps, 
 #'functions to get fossil data from the paleobilogy database and plotting this 
 #'data on the maps.
 #'
@@ -12,8 +11,8 @@
 #' @aliases paleoMap-package
 #' @docType package
 #' @title paleoMap: An R-package for getting and using paleontoligcal maps.
-#' @author Sonja Rothkugel \email{rothkugelsonja@aol.de}
-#' @author Sara Varela \email{sara_varela@yahoo.com}
+#' @author Sonja Rothkugel \email{rothkugelsonja@@aol.de}
+#' @author Sara Varela \email{svarela@@paleobiogeography.org}
 #' @references ?
 #' 
 #' @keywords package
@@ -21,18 +20,23 @@
 #' @details \tabular{ll}{
 #' Package: \tab paleoMap\cr
 #' Type: \tab Package\cr
-#' Version: \tab ? \cr
-#' Date: \tab ? \cr
-#' License: \tab ? \cr
+#' Version: \tab 0.1\cr
+#' Date: \tab 2015-08-01\cr
+#' License: \tab GPL-2\cr
 #' }
 #' 
+#'@seealso {
+#'\url{http://www.gplates.org/}
+#'\url{http://paleobiodb.org}
+#' }
 #' 
 #' @import raster maptools paleobioDB 
 #' 
 #'@examples \dontrun{
 #'
 #'#save and display the shp-file of the Aalenian map and creates plot is plot=TRUE
-#'aalenian <- pm_getmap(interval="aalenian", plot=TRUE, colsea="#00005020", colland="#2B2B2B80", colborder="#2B2B2B30")
+#'aalenian <- pm_getmap(interval="aalenian", plot=TRUE, colsea="#00005020", 
+#'colland="#2B2B2B80", colborder="#2B2B2B30")
 #'
 #'#get and save the fossil occurences of mammalia found in the Aalenian
 #'reptilia_aalenian <- pm_getdata(base_name="reptilia", interval="aalenian", limit=1000)

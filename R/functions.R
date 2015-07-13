@@ -166,7 +166,7 @@ pm_plot <- function(interval, base_name,
 #' myraster <-  pm_occraster (shape, data, colsea, colland, colborder)
 #'}
 
-pm_occraster <- function(shape, data, rank, res=10,
+pm_occraster <- function(shape, data, rank= "genus", res=10,
                          colsea="#E5E5E520", colland="#66666680", colborder="#2B2B2B30"){
     
   #filter data for rank
@@ -211,10 +211,10 @@ pm_occraster <- function(shape, data, rank, res=10,
 #' myraster <- pm_richraster (shape, data)
 #' plot(myraster)
 #'}
-pm_richraster <- function(shape,
-                          data,
-                          res=10,
-                          rank,
+#'
+
+
+pm_richraster <- function(shape, data, res=10, rank,
                           colsea="#E5E5E520", colland="#66666680", colborder="#2B2B2B30"){
   #creating a raster in size of the shape file
   ras <- raster(shape, res=res)
