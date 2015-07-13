@@ -1,15 +1,3 @@
-###########################libraries#############################
-library(raster)
-# install.packages("maptools")
-library(maptools)
-# install.packages("devtools")
-# library(devtools)
-# install_github ("ropensci/paleobioDB")
-# install.packages("paleobioDB")
-library(paleobioDB)
-
-
-
 ###########################pm_getmap#############################
 
 #' pm_getmap
@@ -39,7 +27,7 @@ pm_getmap <- function (interval, plot=TRUE, colsea="#E5E5E520",
   
   # read in shape file and save it
   shape <- readShapePoly(interval, IDvar= NULL, proj4string= CRS(as.character(NA)), 
-  verbose= FALSE, repair= TRUE, force_ring=T RUE)
+  verbose= FALSE, repair= TRUE, force_ring=TRUE)
   # if user does not set plot=FALSE plot the shape file
   if(plot== TRUE){
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)

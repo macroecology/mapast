@@ -13,7 +13,7 @@
 #' @title paleoMap: An R-package for getting and using paleontoligcal maps.
 #' @author Sonja Rothkugel \email{rothkugelsonja@@aol.de}
 #' @author Sara Varela \email{svarela@@paleobiogeography.org}
-#' @references ?
+#' # @references
 #' 
 #' @keywords package
 #'
