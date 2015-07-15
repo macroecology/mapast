@@ -144,7 +144,7 @@ pm_plot <- function(interval, base_name,
 #' 
 #' @usage pm_occraster (shape, data, rank, colsea, colland, colborder)
 #' @param shape shapefile from the time interval of interest. 
-#' Can be created with get_paleomap
+#' Can be created with pm_getmap
 #' @param data a data frame which needs to have a column called paleolat 
 #' and a column called paleolng, can be created with getdata_paleomap
 #' @param rank text. Taxonomic rank of interest (e.g. genus, family, etc.)
@@ -155,7 +155,7 @@ pm_plot <- function(interval, base_name,
 #' @return a raster file and a plot of the time intervall, the fossil occurences and the raster file.
 #' @export 
 #' @examples \dontrun{
-#' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' shape<- pm_getmap(interval="Quaternary") 
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' pm_occraster (shape, data, colsea, colland, colborder)
 #'}
