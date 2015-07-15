@@ -1,0 +1,6 @@
+.DS_Store
+README.Rmd
+^.*\.Rproj$
+^\.Rproj\.user$
+## Ignore travis config file
+^\.travis\.yml$

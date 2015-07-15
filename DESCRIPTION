@@ -15,9 +15,9 @@ BugReports: https://github.com/macroecology/paleoMap/issues
 URL: https://github.com/macroecology/paleoMap
 LazyData: true
 Imports:
-   maptools,
-   paleobioDB
+    maptools
 Depends:
+    paleobioDB,
     raster
 Suggests:
     roxygen2,

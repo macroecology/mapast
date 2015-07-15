@@ -7,41 +7,39 @@
 #' @usage pm_getmap (interval, plot, colsea, colland, colborder)
 #' 
 #' @param interval time interval of interest
-#' @param plot TRUE/FALSE, if TRUE the output includes a plot
 #' @param colsea to set the color of the ocean in the plot
 #' @param colland to set the color of the land masses
 #' @param colborder to set the color of the borders of the land masses
+#' @param do.plot TRUE/FALSE, if TRUE the output includes a plot
 #' @return a shape file for the choosen time interval and a plot (if plot=TRUE)
 #' @export 
-#' @examples \dontrun{
+#' @examples /dontrun{
 #' pm_getmap(interval="Quaternary") 
 #'}
 #'
 
-pm_getmap <- function (interval, plot=TRUE, colsea="#E5E5E520", 
-                       colland="#66666680", colborder="#2B2B2B30"){
-  ## hack for avoiding NOTE on check: 'no visible binding for global variable'
+pm_getmap <- function (interval, colsea="#E5E5E520", 
+                       colland="#66666680", colborder="#2B2B2B30", 
+                       do.plot=TRUE){
+  ## we might hack this with "with" or "null" for avoiding NOTE on check: 'no visible binding for global variable'
   ## see: http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
-  ## interval <- NULL
-  ## rm(interval)
   
-  data (interval)
-  
+  load (paste (interval, ".rda", sep=""), 
+        envir=environment())
   # if user does not set plot=FALSE plot the shape file
-  if(plot== TRUE){
+  if(do.plot== TRUE){
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
          , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
          , xlab="Longitude", ylab="Latitude"
          , main=interval, xaxs="i", yaxs="i")
-    rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, border=FALSE)
-    plot(kk, col=colland, border=colborder, add=TRUE)
+    rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
+         border=FALSE)
+    plot(map, col=colland, border=colborder, add=TRUE)
     box(which="plot")
   }
   # return the shape file
-  kk
+  map
 }
-
-
 
 ################pm_getdata##############################
 
@@ -57,7 +55,7 @@ pm_getmap <- function (interval, plot=TRUE, colsea="#E5E5E520",
 #' There is no limit by default 
 #' @return a shape file for the choosen time interval
 #' @export 
-#' @examples \dontrun{
+#' @examples /dontrun{
 #' pm_getdata (base_name="Canis", interval="Quaternary")
 #'}
 #'
@@ -71,16 +69,21 @@ pm_getdata <- function(interval, base_name, limit="all"){
                       vocab="pbdb", limit=limit))
     # save data from paleobiodb as data frame
     # data <- data.frame(occ)
-    data <- data.frame(occ$matched_name, occ$matched_rank,
-                       occ$early_interval, occ$late_interval,
-                       occ$paleolng, occ$paleolat, occ$geoplate,
-                       occ$genus, occ$family, occ$order, occ$class, occ$phylum)
-    colnames(data) <- c("matched_name", "matched_rank",
-                        "early_interval", "late_interval",
-                        "paleolng", "paleolat", "geoplate",
-                        "genus", "family", "order", "class", "phylum")
     #return data frame
-  return (data)
+    if (nrow (occ)!= 0){
+      data <- data.frame(occ$matched_name, occ$matched_rank,
+                         occ$early_interval, occ$late_interval,
+                         occ$paleolng, occ$paleolat, occ$geoplate,
+                         occ$genus, occ$family, occ$order, occ$class, occ$phylum)
+      colnames(data) <- c("matched_name", "matched_rank",
+                          "early_interval", "late_interval",
+                          "paleolng", "paleolat", "geoplate",
+                          "genus", "family", "order", "class", "phylum")
+      return (data) 
+    }else{
+      print ("There is no data that matches your query on the paleobioDB. Check if the spelling, temporal intervals, etc. are correct")
+      return (0)
+    }
 }
 
 
@@ -107,8 +110,8 @@ pm_getdata <- function(interval, base_name, limit="all"){
 #' @return a plot with the configuration of the continents at the selected time interval 
 #' and the fossil occurrences
 #' @export 
-#' @examples \dontrun{
-#' pm_plot (base_name= "Canis", interval="Quaternary")
+#' @examples /dontrun{
+#' pm_plot (interval="Quaternary", base_name= "Canis")
 #'}
 #'
 
@@ -119,11 +122,12 @@ pm_plot <- function(interval, base_name,
                     colpointborder="black"){
   #create variables for labeling the plot
   title <-paste("Time interval: ", interval, sep="")
-  subtitle <- paste("Base name: ",base_name, sep="")
+  subtitle <- paste("Base name: ", base_name, sep="")
   #getting the shape file for the map and the data for plotting it on the map
-  shape <- pm_getmap(interval=interval, plot=FALSE)
-  data <- pm_getdata(base_name=base_name, interval=interval, limit)
+  shape <- pm_getmap(interval=interval, do.plot=FALSE)
+  data <- pm_getdata(interval=interval, base_name=base_name, limit=limit)
   #plotting the map and the data
+  if (class (data) == "data.frame"){
   plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
        , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
        , xlab="Longitude", ylab="Latitude"
@@ -133,6 +137,7 @@ pm_plot <- function(interval, base_name,
   plot(shape, col=colland, border=colborder, add=TRUE)
   points (data$paleolng, data$paleolat, pch=21, col=colpointborder, bg=colpoints)
   box(which="plot")
+  }
 }
 
 #####################pm_occraster##############################
@@ -154,10 +159,10 @@ pm_plot <- function(interval, base_name,
 #' @param colborder color of the landmass borders
 #' @return a raster file and a plot of the time intervall, the fossil occurences and the raster file.
 #' @export 
-#' @examples \dontrun{
+#' @examples /dontrun{
 #' shape<- pm_getmap(interval="Quaternary") 
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' pm_occraster (shape, data, colsea, colland, colborder)
+#' pm_occraster (shape, data)
 #'}
 
 pm_occraster <- function(shape, data, rank= "genus", res=10,
@@ -172,9 +177,10 @@ pm_occraster <- function(shape, data, rank= "genus", res=10,
     r<-rasterize(fdata[,5:6],ras
                  ,fun=sum)
     #plotting the map and the raster on the map
+    par (mar=c(5,5,5,5))
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
          , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
-         , xlab="longitude", ylab="latitude"
+         , xlab="Longitude", ylab="Latitude"
          , main=paste("Raster - sampling effort of ", rank), xaxs="i", yaxs="i")
     rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea)
     plot(shape, col=colland, border=colborder, add=TRUE)
@@ -193,7 +199,7 @@ pm_occraster <- function(shape, data, rank= "genus", res=10,
 #' 
 #' @usage pm_richraster (shape, data, res, rank, colsea, colland, colborder)
 #' 
-#' @param the shape file from the time interval of interest. 
+#' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
 #' @param data a data frame which needs to have a column called 
 #' paleolat and a column called paleolng, can be created with getdata_paleomap
@@ -205,7 +211,7 @@ pm_occraster <- function(shape, data, rank= "genus", res=10,
 #' @return plot with map of the time intervall, the fossil occurences and the 
 #' raster file. And the raster file itself
 #' @export 
-#' @examples \dontrun{
+#' @examples /dontrun{
 #' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' myraster <- pm_richraster (shape, data)
@@ -215,7 +221,8 @@ pm_occraster <- function(shape, data, rank= "genus", res=10,
 
 
 pm_richraster <- function(shape, data, res=10, rank,
-                          colsea="#E5E5E520", colland="#66666680", colborder="#2B2B2B30"){
+                          colsea="#E5E5E520", colland="#66666680", 
+                          colborder="#2B2B2B30"){
   #creating a raster in size of the shape file
   ras <- raster(shape, res=res)
   #getting only species data and no duplictaed in a raster field
@@ -307,7 +314,7 @@ mycols <- colorRampPalette(colors=c(rgb(0.255*3,0.255*3,0,0.5), rgb(0.144*3,0.23
 #' @param res resolution of the raster file
 #' @param rank rank of interest
 #' @return filtered data frame with only species
-#' @examples \dontrun{
+#' @examples /dontrun{
 #' filtered_data <- rank_filter (data, res, rank)
 #' show(data)
 #'}
