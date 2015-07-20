@@ -68,7 +68,6 @@ pm_getdata <- function(interval, base_name, limit="all"){
                       show=c("paleoloc", "phylo"), 
                       vocab="pbdb", limit=limit))
     # save data from paleobiodb as data frame
-    # data <- data.frame(occ)
     #return data frame
     if (nrow (occ)!= 0){
       data <- data.frame(occ$matched_name, occ$matched_rank,
@@ -242,10 +241,24 @@ pm_richraster <- function(shape, data, res=10, rank,
   r
 }
 
-
-
 ########pm_ngl###################
-#number of genus per locality
+#' pm_ngl
+#' 
+#' calculates the number of genus per locality
+#' 
+#' @usage pm_ngl (data)
+#' 
+#' @param data a data frame with fossil occurrences 
+#' Can be created with pm_getdata(interval, base_name)
+#' @return data frame with number of genus per locality
+#' @export 
+#' @examples /dontrun{
+#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' my_ngl <- pm_ngl (data)
+#' show(my_ngl)
+#'}
+#'
+
 pm_ngl <- function(data) {
   genus_data <-rfilter(data, "genus")
   loc <-data.frame(genus_data$paleolat, genus_data$paleolng)
@@ -293,6 +306,102 @@ pm_ngl <- function(data) {
   nsites
 }
 
+###################################pm_latrich###################
+#' pm_ngl
+#' 
+#' calculates the latitudinal richness of the rank
+#' 
+#' @usage pm_ngl (data, rank)
+#' 
+#' @param data a data frame with fossil occurrences 
+#' Can be created with pm_getdata(interval, base_name)
+#' @param res resolution in of the segmentation of the latitude
+#' @return data frame with richness of rank
+#' @export 
+#' @examples /dontrun{
+#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' latrich <- pm_latrich (data, rank="genus")
+#' show(latrich)
+#'}
+#'
+pm_latrich <- function(data, res){
+  lr <- data.frame(seq(-90,90-res,res), seq(-90+res, 90, res))
+  richn <- c()
+  for(lat in seq(-90,90-res,res)){
+    sub1 <- subset(data, data$paleolat>=lat)
+    sub2 <- subset(sub1, sub1$paleolat<(lat+res))
+    sub2 <- na.omit(sub2$genus)
+    sub3 <- unique(sub2)
+    
+    richn <- c(richn, length(sub3))
+  }
+  lr <- cbind(lr,richn)
+  colnames(lr) <- c("min paleolat", "max paleolat", "richness")
+  
+  lr
+  
+}
+
+
+#########################pm_nloc#############################
+#' pm_ngl
+#' 
+#' calculates the number of localities per grid cell for genus
+#' 
+#' @usage pm_nloc (data, rank)
+#' 
+#' @param data a data frame with fossil occurrences 
+#' Can be created with pm_getdata(interval, base_name)
+#' @param res resolution in of the segmentation of the latitude
+#' @return data frame with number of localities
+#' @export 
+#' @examples /dontrun{
+#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' numloc <- pm_nloc (data, res=10)
+#' show(numloc)
+#'}
+#'
+pm_nloc <- function(data, res){
+  fdata <- subset(data, data$genus!="NA")
+  loc <- data.frame(fdata$paleolat, fdata$paleolng)
+  colnames(loc)<-c("paleolat", "paleolng")
+  
+  nloc <- data.frame()
+  for(i in 1:((180/res))){
+    nloc <- rbind(nloc, rep(-1,((360/res))))
+  }
+  coln <-c()
+  rown<-c()
+  for(lng in seq(-180,180-res,res)){
+    
+    coln <- c(coln, paste(as.character(lng), as.character(lng+res), sep=";"))
+  }
+  for(lat in seq(-90,90-res,res)){
+    rown <- c(rown, paste(as.character(lat), as.character(lat+res), sep=";"))
+  }
+  colnames(nloc) <- coln
+  rownames(nloc) <- rown
+  i <- 1
+  for(lng in seq(-180,180-res,res)){
+    j<-1
+    for(lat in seq(-90,90-res,res)){
+      lloc <--1
+      tloc <- subset(loc, loc$paleolat>=lat)
+      tloc <- subset(tloc, tloc$paleolat <lat+res)
+      tloc <- subset(tloc, tloc$paleolng>=lng)
+      tloc <- subset(tloc, tloc$paleolng <lng+res)
+      
+      utloc <- unique(tloc)
+      lloc <- length(utloc$paleolat)
+      
+      nloc[j, i] <- lloc
+      j <- j+1
+    }
+    i <- i+1
+  }
+  nloc
+}
+
 ##############################color palette ########################################
 
 #creating a color palette for the raster
@@ -323,19 +432,7 @@ mycols <- colorRampPalette(colors=c(rgb(0.255*3,0.255*3,0,0.5), rgb(0.144*3,0.23
 rank_filter <- function(data, res, rank){
   #gets colnames for new data frame
   filter <- data[0,]
-  #filters only species
-  if(rank=="species"){
-    data <- subset(data, matched_rank=="species")
-  }
-  if(rank=="genus"){
-    data <- subset(data, genus!="NA")
-  }
-  if(rank=="family"){
-    data <- subset(data, family!="NA")
-  }
-  if(rank=="order"){
-    data <- subset(data, order!="NA")
-  }
+  data <- rfilter(data, rank)
   #getting each species only once in 10*10 raster cell
   for(i in seq(-180,180,res)){
     frame <- data[0,]
