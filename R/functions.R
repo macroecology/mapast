@@ -214,7 +214,7 @@ pm_occraster <- function(shape, data, rank= "genus", res=10,
 #' @examples /dontrun{
 #' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' myraster <- pm_richraster (shape, data)
+#' myraster <- pm_richraster (shape, data, rank="genus")
 #' plot(myraster)
 #'}
 #'
