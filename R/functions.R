@@ -409,9 +409,6 @@ mycols <- colorRampPalette(colors=c(rgb(0.255*3,0.255*3,0,0.5), rgb(0.144*3,0.23
 
 
 #################filter#######################
-#filters all occurences which are not species and duplicates in raster cells
-
-
 #' rank_filter
 #' 
 #' filters the data frame so tehre are only species left 
@@ -428,7 +425,6 @@ mycols <- colorRampPalette(colors=c(rgb(0.255*3,0.255*3,0,0.5), rgb(0.144*3,0.23
 #' show(data)
 #'}
 #'
-
 rank_filter <- function(data, res, rank){
   #gets colnames for new data frame
   filter <- data[0,]
@@ -463,6 +459,21 @@ rank_filter <- function(data, res, rank){
   filter
 }
 
+#' rfilter
+#' 
+#' filters the data frame so tehre are only species left 
+#' and for each raster every species only once
+#' 
+#' @usage rfiler (data, rank)
+#' @param data a data frame which needs to have a column called paleolat and a column called paleolng,
+#'  can be created with getdata_paleomap
+#' @param rank rank of interest
+#' @return filtered data frame with only species
+#' @examples /dontrun{
+#' filtered_data <- rfilter (data, rank)
+#' show(data)
+#'}
+#'
 rfilter <- function(data, rank){
   if(rank=="species"){
     data <- subset(data, matched_rank=="species")
