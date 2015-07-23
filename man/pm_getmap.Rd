@@ -4,27 +4,27 @@
 \alias{pm_getmap}
 \title{pm_getmap}
 \usage{
-pm_getmap (interval, plot, colsea, colland, colborder)
+pm_getmap (interval, do.plot, colsea, colland, colborder)
 }
 \arguments{
 \item{interval}{time interval of interest}
-
-\item{plot}{TRUE/FALSE, if TRUE the output includes a plot}
 
 \item{colsea}{to set the color of the ocean in the plot}
 
 \item{colland}{to set the color of the land masses}
 
 \item{colborder}{to set the color of the borders of the land masses}
+
+\item{do.plot}{TRUE/FALSE, if TRUE the output includes a plot}
 }
 \value{
-a shape file for the choosen time interval and a plot (if plot=TRUE)
+a shape file for the choosen time interval and a plot (if do.plot=TRUE)
 }
 \description{
 gets the shapefile for the map of a choosen time interval (e.g. "triassic")
 }
 \examples{
-\dontrun{
+/dontrun{
 pm_getmap(interval="Quaternary")
 }
 }

@@ -4,14 +4,14 @@
 #' 
 #' gets the shapefile for the map of a choosen time interval (e.g. "triassic")
 #' 
-#' @usage pm_getmap (interval, plot, colsea, colland, colborder)
+#' @usage pm_getmap (interval, do.plot, colsea, colland, colborder)
 #' 
 #' @param interval time interval of interest
 #' @param colsea to set the color of the ocean in the plot
 #' @param colland to set the color of the land masses
 #' @param colborder to set the color of the borders of the land masses
 #' @param do.plot TRUE/FALSE, if TRUE the output includes a plot
-#' @return a shape file for the choosen time interval and a plot (if plot=TRUE)
+#' @return a shape file for the choosen time interval and a plot (if do.plot=TRUE)
 #' @export 
 #' @examples /dontrun{
 #' pm_getmap(interval="Quaternary") 
@@ -24,9 +24,6 @@ pm_getmap <- function (interval, colsea="#E5E5E520",
   ## we might hack this with "with" or "null" for avoiding NOTE on check: 'no visible binding for global variable'
   ## see: http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
   
-  load (paste (interval, ".rda", sep=""), 
-        envir=environment())
-  # if user does not set plot=FALSE plot the shape file
   if(do.plot== TRUE){
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
          , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
@@ -34,7 +31,7 @@ pm_getmap <- function (interval, colsea="#E5E5E520",
          , main=interval, xaxs="i", yaxs="i")
     rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
          border=FALSE)
-    plot(map, col=colland, border=colborder, add=TRUE)
+    plot(as.name(paste(interval, ": map", sep="")), col=colland, border=colborder, add=TRUE)
     box(which="plot")
   }
   # return the shape file
@@ -146,12 +143,12 @@ pm_plot <- function(interval, base_name,
 #' creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
 #' (a proxy for the sampling effort)
 #' 
-#' @usage pm_occraster (shape, data, rank, colsea, colland, colborder)
+#' @usage pm_occraster (shape, data, rank, res, colsea, colland, colborder)
 #' @param shape shapefile from the time interval of interest. 
 #' Can be created with pm_getmap
 #' @param data a data frame which needs to have a column called paleolat 
 #' and a column called paleolng, can be created with getdata_paleomap
-#' @param rank text. Taxonomic rank of interest (e.g. genus, family, etc.)
+#' @param rank Taxonomic rank of interest (e.g. genus, family, etc.)
 #' @param res resolution of the cells in the raster (10 degrees by default)
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
@@ -285,10 +282,7 @@ pm_ngl <- function(data) {
   
   colnames(nsites) <- as.vector(dfnames[,1])
   
-  #verbessere funktion
-  # -filter gro?en df nach lat_i & lng_i vorm suchen
-  
-  
+
   for (i in 1:length(nsites[,1])) {
     lat_i <- as.numeric(as.character(nsites[i,1]))
     lng_i <- as.numeric(as.character(nsites[i,2]))
@@ -307,11 +301,11 @@ pm_ngl <- function(data) {
 }
 
 ###################################pm_latrich###################
-#' pm_ngl
+#' pm_latrich
 #' 
-#' calculates the latitudinal richness of the rank
+#' calculates the latitudinal richness of the genus
 #' 
-#' @usage pm_ngl (data, rank)
+#' @usage pm_latrich (data, res)
 #' 
 #' @param data a data frame with fossil occurrences 
 #' Can be created with pm_getdata(interval, base_name)
@@ -320,7 +314,7 @@ pm_ngl <- function(data) {
 #' @export 
 #' @examples /dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' latrich <- pm_latrich (data, rank="genus")
+#' latrich <- pm_latrich (data, res=10)
 #' show(latrich)
 #'}
 #'
@@ -344,7 +338,7 @@ pm_latrich <- function(data, res){
 
 
 #########################pm_nloc#############################
-#' pm_ngl
+#' pm_nloc
 #' 
 #' calculates the number of localities per grid cell for genus
 #' 
@@ -352,7 +346,7 @@ pm_latrich <- function(data, res){
 #' 
 #' @param data a data frame with fossil occurrences 
 #' Can be created with pm_getdata(interval, base_name)
-#' @param res resolution in of the segmentation of the latitude
+#' @param rank taxonomic rank of interest
 #' @return data frame with number of localities
 #' @export 
 #' @examples /dontrun{
@@ -421,8 +415,9 @@ mycols <- colorRampPalette(colors=c(rgb(0.255*3,0.255*3,0,0.5), rgb(0.144*3,0.23
 #' @param rank rank of interest
 #' @return filtered data frame with only species
 #' @examples /dontrun{
+#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' filtered_data <- rank_filter (data, res, rank)
-#' show(data)
+#' show(filtered_data)
 #'}
 #'
 rank_filter <- function(data, res, rank){
@@ -470,8 +465,9 @@ rank_filter <- function(data, res, rank){
 #' @param rank rank of interest
 #' @return filtered data frame with only species
 #' @examples /dontrun{
+#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' filtered_data <- rfilter (data, rank)
-#' show(data)
+#' show(filtered_data)
 #'}
 #'
 rfilter <- function(data, rank){

@@ -2,6 +2,9 @@
 
 export(pm_getdata)
 export(pm_getmap)
+export(pm_latrich)
+export(pm_ngl)
+export(pm_nloc)
 export(pm_occraster)
 export(pm_plot)
 export(pm_richraster)

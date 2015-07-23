@@ -22,9 +22,10 @@ filters the data frame so tehre are only species left
 and for each raster every species only once
 }
 \examples{
-\dontrun{
+/dontrun{
+data<- pm_getdata (base_name="Canis", interval="Quaternary")
 filtered_data <- rank_filter (data, res, rank)
-show(data)
+show(filtered_data)
 }
 }
 

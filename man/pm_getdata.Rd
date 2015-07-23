@@ -21,7 +21,7 @@ a shape file for the choosen time interval
 uses paleobioDB R package to get data from paleobiology Database
 }
 \examples{
-\dontrun{
+/dontrun{
 pm_getdata (base_name="Canis", interval="Quaternary")
 }
 }
