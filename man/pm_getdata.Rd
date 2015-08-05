@@ -9,13 +9,13 @@ pm_getdata (interval, base_name, limit)
 \arguments{
 \item{interval}{time interval of interest (e.g. jurassic)}
 
-\item{base_name}{name of the base (e.g reptiles) you want to get data from}
+\item{base_name}{name of the base (e.g reptilia, mammalia, canis) you want to get data from}
 
 \item{limit}{how many entrances from pbdb you want to have, e.g. 500.
 There is no limit by default}
 }
 \value{
-a shape file for the choosen time interval
+a data frame with the occurrences and the values needed for the other functions in paleoMap
 }
 \description{
 uses paleobioDB R package to get data from paleobiology Database

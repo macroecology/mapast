@@ -4,13 +4,13 @@
 \alias{pm_nloc}
 \title{pm_nloc}
 \usage{
-pm_nloc (data, rank)
+pm_nloc (data, res)
 }
 \arguments{
 \item{data}{a data frame with fossil occurrences
 Can be created with pm_getdata(interval, base_name)}
 
-\item{rank}{taxonomic rank of interest}
+\item{res}{resolution of the grid cells}
 }
 \value{
 data frame with number of localities

@@ -13,7 +13,7 @@ Can be created with pm_getmap}
 \item{data}{a data frame which needs to have a column called paleolat
 and a column called paleolng, can be created with getdata_paleomap}
 
-\item{rank}{Taxonomic rank of interest (e.g. genus, family, etc.)}
+\item{rank}{taxonomic rank of interest (e.g. genus, family, etc.)}
 
 \item{res}{resolution of the cells in the raster (10 degrees by default)}
 
@@ -24,7 +24,7 @@ and a column called paleolng, can be created with getdata_paleomap}
 \item{colborder}{color of the landmass borders}
 }
 \value{
-a raster file and a plot of the time intervall, the fossil occurences and the raster file.
+a raster file and a plot of the time interval, the fossil occurrences and the raster file.
 }
 \description{
 creates a raster and a plot of the fossil occurences by taxonomic rank per cell
