@@ -43,7 +43,7 @@ returns the shapefile of a choosen paleogeographical time interval
 
 ```coffee
 > map<-  pm_getmap (pm_getmap(interval="Jurassic", do.plot=TRUE))
-![plot of chunk map](figure/pm_getmap-jurassic.jpeg)
+![plot of chunk map](inst/assets/pm_getmap-jurassic.jpeg)
 ```
 
 ```coffee
