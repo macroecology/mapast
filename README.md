@@ -5,7 +5,7 @@ paleoMap
 
 ### About
 
-`paleoMap` is a package for downloading, visualizing and processing data from [Paleobiology Database](http://paleobiodb.org/) combined with [GPlates](http://www.gplates.org/).
+`paleoMap` is a package for downloading, visualizing and processing data from [Paleobiology Database](http://paleobiodb.org/) combined with maps from [GPlates](http://www.gplates.org/).
 
 
 ### Quick start
@@ -42,15 +42,39 @@ library(paleoMap)
 returns the shapefile of a choosen paleogeographical time interval
 
 ```coffee
-> map<-  pm_getmap (pm_getmap(interval="Jurassic", do.plot=TRUE))
+> map  <-  pm_getmap(interval="Jurassic", do.plot=TRUE)
+```
+
+```coffee
+##class       : SpatialPolygonsDataFrame 
+##features    : 77 
+##extent      : -180, 180, -82.9491, 89.0674  (xmin, xmax, ymin, ymax)
+##coord. ref. : NA 
+##variables   : 13
+##names       : PLATEID1,               GPGIM_TYPE, TYPE, FROMAGE, TOAGE, NAME, DESCR,                                   FEATURE_ID, PLATEID2, L_PLATE, R_PLATE, RECON_METH, SPREAD_ASY 
+##min values  :        0, gpml:UnclassifiedFeature,   NA,       0,     0,   NA,    NA, GPlates-049b54d5-0c8d-4c48-ab2c-c01af79bb31f,        0,       0,       0,         NA,          0 
+##max values  :        0, gpml:UnclassifiedFeature,   NA,       0,     0,   NA,    NA, GPlates-f6cb6ad6-6c48-42f0-a1c2-52badd007c73,        0,       0,       0,         NA,          0 
 ```
 ![plot of chunk map](figure/pm_getmap-jurassic.png)
 
-```coffee
 
+**pm_getdata**
+returns the needed parameter of the fossil record
+
+```coffee
+data  <-  pm_getdata (base_name="Canis", interval="Quaternary")
+head(data)
 ```
 
-
+```coffee
+##       matched_name matched_rank   early_interval late_interval paleolng paleolat geoplate genus   family     order    class   phylum
+##1             Canis        genus Late Hemphillian       Blancan   -83.09    41.51      101 Canis	 Canidae Carnivora Mammalia Chordata
+##2             Canis        genus Late Hemphillian       Blancan   -83.09    41.51      101 Canis	 Canidae Carnivora Mammalia Chordata
+##3    Canis edwardii      species          Blancan  Irvingtonian  -111.39    36.51      101 Canis   Canidae Carnivora Mammalia Chordata
+##4    Canis edwardii      species          Blancan  Irvingtonian  -111.39    36.51      101 Canis   Canidae Carnivora Mammalia Chordata
+##5 Canis armbrusteri      species          Blancan  Irvingtonian  -111.39    36.51      101 Canis   Canidae Carnivora Mammalia Chordata
+##6 Canis armbrusteri      species          Blancan  Irvingtonian  -111.39    36.51      101 Canis   Canidae Carnivora Mammalia Chordata
+```
 ## Map the fossil records
 
 **pbdb_map**
