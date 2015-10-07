@@ -318,7 +318,7 @@ To cite package `paleoMap` in publications use:
 ```coffee
 To cite package `paleoMap` in publications use:
 
-...
+Sonja Rothkugel, Sara Varela (2015). paleoMap:  An R-package for getting and using paleontoligcal maps. R package version xx. https://github.com/NonaR/paleoMap
 
 A BibTeX entry for LaTeX users is
 
