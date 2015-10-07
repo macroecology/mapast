@@ -1,4 +1,4 @@
-##[![Build Status](https://travis-ci.org/macroecology/paleoMap.svg)](https://travis-ci.org/macroecology/paleoMap)
+[![Build Status](https://travis-ci.org/macroecology/paleoMap.svg)](https://travis-ci.org/macroecology/paleoMap)
 
 paleoMap
 =======
