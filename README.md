@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/macroecology/paleoMap.svg)](https://travis-ci.org/macroecology/paleoMap)
+##[![Build Status](https://travis-ci.org/macroecology/paleoMap.svg)](https://travis-ci.org/macroecology/paleoMap)
 
 paleoMap
 =======
@@ -24,7 +24,7 @@ Install paleoMap developing version from github
 ```coffee
 install.packages("devtools")
 library(devtools)
-install_github("macroecology/paleoMap")
+install_github("NonaR/paleoMap")
 library(paleoMap)
 ```
 
