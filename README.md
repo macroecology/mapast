@@ -28,30 +28,22 @@ install_github("macroecology/paleoMap")
 library(paleoMap)
 ```
 
-
-
-####from here!!!! Sonja, change and describe what you did in the package! :-)
-
-
 **General overview**
 
-`paleoMap` version 0.1 has xx functions...
+`paleoMap` version xx has 3 functions for getting and visualising paleogeographical maps and fossil data, 
+5 functions for doing paleogeographical analyses and 2 functions for biodversity analyses.
 
 
 
 
-## Download fossil occurrences from the PaleobioDB
+## Get and visualise paleogeograhical maps and fossil data
 
-**pbdb_occurrences** 
-
-e.g., to download all the fossil data that belongs to the family Canidae, set base_name = "Canidae".  
+**pm_getmap** 
+returns the shapefile of a choosen paleogeographical time interval
 
 ```coffee
-> canidae<-  pbdb_occurrences (limit="all",
-                             base_name="canidae", vocab="pbdb",
-                             interval="Quaternary",             
-                             show=c("coords", "phylo", "ident"))
-head(canidae)
+> map<-  pm_getmap (pm_getmap(interval="Jurassic", do.plot=TRUE))
+![plot of chunk map](figure/pm_getmap-jurassic.jpeg)
 ```
 
 ```coffee

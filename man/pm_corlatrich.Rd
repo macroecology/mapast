@@ -17,7 +17,7 @@ data frame with shannon corrected richness of rank
 calculates the shannon corrected latitudinal richness of the genus
 }
 \examples{
-/dontrun{
+\dontrun{
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 ngl_data <- pm_ngl(data)
 corlatrich <- pm_corlatrich (ngl_data)

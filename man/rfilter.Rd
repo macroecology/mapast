@@ -4,7 +4,7 @@
 \alias{rfilter}
 \title{rfilter}
 \usage{
-rfiler (data, rank)
+rfilter (data, rank)
 }
 \arguments{
 \item{data}{a data frame which needs to have a column called paleolat and a column called paleolng,
@@ -20,7 +20,7 @@ filters the data frame so tehre are only species left
 and for each raster every species only once
 }
 \examples{
-/dontrun{
+\dontrun{
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 filtered_data <- rfilter (data, rank="genus")
 show(filtered_data)

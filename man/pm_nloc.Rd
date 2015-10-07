@@ -19,7 +19,7 @@ data frame with number of localities
 calculates the number of localities per grid cell for genus
 }
 \examples{
-/dontrun{
+\dontrun{
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 numloc <- pm_nloc (data, res=10)
 show(numloc)

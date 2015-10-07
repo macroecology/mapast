@@ -1,6 +1,6 @@
 Package: paleoMap
 Version: 0.0.0.9001
-Date: 2015-08-01
+Date: 2015-10-01
 Title: Spatial Paleobiodiversity Combined with Paleogeography
 Authors@R: c(person("Sonja", "Rothkugel", role = c("aut"),
     email = "rothugelsonja@aol.de"),
@@ -8,12 +8,12 @@ Authors@R: c(person("Sonja", "Rothkugel", role = c("aut"),
     email = "svarela@paleobiogeography.org"))
 Maintainer: Sara Varela <svarela@paleobiogeography.org>
 Depends:
+	roxygen2,
 	paleobioDB,
-    	raster,
+    raster,
 	vegan,
 	maptools
 Imports:
-	roxygen2
 Suggests:
 Description: For downloading and visulualizing paleomaps and fossil data. There are also tools for paleogeographic and biodiversity analysis.
 Encoding: UTF-8

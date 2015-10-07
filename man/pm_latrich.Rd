@@ -19,7 +19,7 @@ data frame with richness of rank
 calculates the latitudinal richness of the genus
 }
 \examples{
-/dontrun{
+\dontrun{
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 latrich <- pm_latrich (data, res=10)
 show(latrich)

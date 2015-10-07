@@ -13,10 +13,11 @@
 #' @param colborder to set the color of the borders of the land masses
 #' @return a shape file for the choosen time interval and a plot (if do.plot=TRUE)
 #' @export 
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' pm_getmap(interval="Quaternary") 
 #'}
-#'
+
 
 pm_getmap <- function (interval, do.plot=TRUE, colsea="#E5E5E520", 
                        colland="#66666680", colborder="#2B2B2B30"
@@ -54,12 +55,14 @@ pm_getmap <- function (interval, do.plot=TRUE, colsea="#E5E5E520",
 #' There is no limit by default 
 #' @return a data frame with the occurrences and the values needed for the other functions in paleoMap
 #' @export 
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' pm_getdata (base_name="Canis", interval="Quaternary")
 #'}
-#'
+
 
 pm_getdata <- function(interval, base_name, limit="all"){
+  pbdb_occurences <- function(){}
   # create an empty data variable for storing occurences
   data <- c()
   # get data from paleobioDB
@@ -111,7 +114,8 @@ pm_getdata <- function(interval, base_name, limit="all"){
 #' @return a plot with the configuration of the continents at the selected time interval 
 #' and the fossil occurrences
 #' @export 
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' pm_plot (interval="Quaternary", base_name= "Canis")
 #'}
 #'
@@ -166,7 +170,8 @@ pm_plot <- function(interval, base_name,
 #' @param colborder color of the landmass borders
 #' @return a raster file and a plot of the time interval, the fossil occurrences and the raster file.
 #' @export 
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' shape<- pm_getmap(interval="Quaternary") 
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' pm_occraster (shape, data)
@@ -175,7 +180,7 @@ pm_plot <- function(interval, base_name,
 pm_occraster <- function(shape, data, rank= "genus", res=10,
                          colsea="#E5E5E520", colland="#66666680", 
                          colborder="#2B2B2B30"){
-  
+  raster <- rasterize <- NULL
   #filter data for rank
   fdata <- rfilter(data, rank)
   #creating a raster in the size of the shape
@@ -218,17 +223,18 @@ pm_occraster <- function(shape, data, rank= "genus", res=10,
 #' @return plot with map of the time intervall, the fossil occurences and the 
 #' raster file. And the raster file itself
 #' @export 
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' myraster <- pm_richraster (shape, data)
 #' plot(myraster)
-#'}
-#'
+#' }
 
 pm_richraster <- function(shape, data, res=10, rank,
                           colsea="#E5E5E520", colland="#66666680", 
                           colborder="#2B2B2B30"){
+  raster <- rasterize <- NULL
   #creating a raster in size of the shape file
   ras <- raster(shape, res=res)
   #getting only taxon rank data and no duplictaed in a raster field
@@ -268,18 +274,19 @@ pm_richraster <- function(shape, data, res=10, rank,
 #' @return plot with map of the time intervall, the fossil occurences and the 
 #' raster file. And the raster file itself
 #' @export 
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' ngl_data <- pm_ngl(data)
 #' myraster <- pm_corrichraster (shape, ngl_data)
 #' plot(myraster)
 #'}
-#'
 
 pm_corrichraster <- function(shape, ngl_data, res=10,
                              colsea="#E5E5E520", colland="#66666680", 
                              colborder="#2B2B2B30"){
+  raster <- diversity <- rasterize <- NULL
   #creating a raster in size of the shape file
   ras <- raster(shape, res=res)
   #getting only species data and no duplictaed in a raster field
@@ -326,12 +333,12 @@ pm_corrichraster <- function(shape, ngl_data, res=10,
 #' Can be created with pm_getdata(interval, base_name)
 #' @return data frame with number of genus per locality
 #' @export 
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' my_ngl <- pm_ngl (data)
 #' show(my_ngl)
 #'}
-#'
 
 pm_ngl <- function(data) {
   #only getting occurences with a known genus
@@ -342,6 +349,7 @@ pm_ngl <- function(data) {
   #getting unique locations
   uloc <- unique(loc)
   #getting list of unique genus
+  genus <- NULL
   genus <- data.frame(genus_data$genus)
   ugenus <- unique(genus)
   
@@ -399,12 +407,13 @@ pm_ngl <- function(data) {
 #' @param res resolution in of the segmentation of the latitude
 #' @return data frame with richness of rank
 #' @export 
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' latrich <- pm_latrich (data, res=10)
 #' show(latrich)
 #'}
-#'
+
 pm_latrich <- function(data, res){
   #setting min and max value for lat
   lr <- data.frame(seq(-90,90-res,res), seq(-90+res, 90, res))
@@ -441,12 +450,13 @@ pm_latrich <- function(data, res){
 #' @param res resolution of the grid cells
 #' @return data frame with number of localities
 #' @export 
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' numloc <- pm_nloc (data, res=10)
 #' show(numloc)
 #'}
-#'
+
 pm_nloc <- function(data, res){
   #get all genus
   fdata <- subset(data, data$genus!="NA")
@@ -514,14 +524,16 @@ pm_nloc <- function(data, res){
 #' Can be created with pm_getdata(interval, base_name)
 #' @return data frame with shannon corrected richness of rank
 #' @export 
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' ngl_data <- pm_ngl(data)
 #' corlatrich <- pm_corlatrich (ngl_data)
 #' show(corlatrich)
 #'}
-#'
+
 pm_corlatrich <- function(ngl_data){
+  diversity <- NULL
   #calculate the shannon diversity
   H_data <- diversity(ngl_data[,3:ncol(ngl_data)])
   

@@ -21,7 +21,7 @@ a data frame with the occurrences and the values needed for the other functions 
 uses paleobioDB R package to get data from paleobiology Database
 }
 \examples{
-/dontrun{
+\dontrun{
 pm_getdata (base_name="Canis", interval="Quaternary")
 }
 }

@@ -20,8 +20,8 @@
 #' @details \tabular{ll}{
 #' Package: \tab paleoMap\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.1\cr
-#' Date: \tab 2015-08-01\cr
+#' Version: \tab 0.0.0.9001\cr
+#' Date: \tab 2015-10-01\cr
 #' License: \tab GPL-2\cr
 #' }
 #' 
@@ -30,9 +30,10 @@
 #'\url{http://paleobiodb.org}
 #' }
 #' 
-#' @import raster maptools paleobioDB 
+#' @depends raster maptools paleobioDB 
 #' 
-#'@examples \dontrun{
+#'@examples 
+#'\dontrun{
 #'
 #'#save and display the shp-file of the Aalenian map and creates plot is plot=TRUE
 #'aalenian <- pm_getmap(interval="aalenian", plot=TRUE, colsea="#00005020", 

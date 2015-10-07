@@ -14,13 +14,14 @@ mycols <- colorRampPalette(colors=c(rgb(0.255*3,0.255*3,0,0.5),
 #' filters the data frame so tehre are only species left 
 #' and for each raster every species only once
 #' 
-#' @usage rank_filer (data, res, rank)
+#' @usage rank_filter (data, res, rank)
 #' @param data a data frame which needs to have a column called paleolat and a column called paleolng,
 #'  can be created with getdata_paleomap
 #' @param res resolution of the raster file
 #' @param rank rank of interest
 #' @return filtered data frame with only species
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' filtered_data <- rank_filter (data, res=10, rank="genus")
 #' show(filtered_data)
@@ -65,12 +66,13 @@ rank_filter <- function(data, res, rank){
 #' filters the data frame so tehre are only species left 
 #' and for each raster every species only once
 #' 
-#' @usage rfiler (data, rank)
+#' @usage rfilter (data, rank)
 #' @param data a data frame which needs to have a column called paleolat and a column called paleolng,
 #'  can be created with getdata_paleomap
 #' @param rank rank of interest
 #' @return filtered data frame with only species
-#' @examples /dontrun{
+#' @examples 
+#' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' filtered_data <- rfilter (data, rank="genus")
 #' show(filtered_data)
@@ -78,6 +80,8 @@ rank_filter <- function(data, res, rank){
 
 rfilter <- function(data, rank){
   if(rank=="species"){
+    matched_rank <- NULL
+    genus <- NULL
     data <- subset(data, matched_rank=="species")
   }
   if(rank=="genus"){
@@ -97,8 +101,8 @@ rfilter <- function(data, rank){
 #we need this function because we cannot open lazyload data with an input parameter because it is no value.
 
 ## we might hack this with "with" or "null" for avoiding NOTE on check: 'no visible binding for global variable'
-## see: http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
-
+## see: http://stackoverflw.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
+Aalenian <- Aeronian <- Albian <- Anisian <- Aptian <- Aquitanian <- Artinskian <- Asselian <- Bajocian <- Barremian <- Bartonian <- Bashkirian <- Bathonian <- Berriasian <- Burdigalian <- Calabrian <- Callovian <- Cambrian <- Campanian <- Capitanian <- Carboniferous <- Carnian <- Cenomanian <- Cenozoic <- Changhsingian <- Chattian <- Cisuralian <- Coniacian <- Cretaceous <- Danian <- Dapingian <- Darriwilian <- Devonian <- Drumian <- Early_Cretaceous <- Early_Devonian <- Early_Jurassic <- Early_Ordovician<- Early_Triassic <- Eifelian <- Emsian <- Eocene <- Famennian <- Floian <- Fortunian <- Frasnian <- Furongian <- Gelasian <- Givetian <- Gorstian <- Guadalupian <- Guzhangian <- Gzhelian <- Hauterivian <- Hettangian <- Hirnantian <- Holocene <- Homerian <- Induan <- Jiangshanian <- Jurassic <- Kasimovian <- Katian <- Kimmeridgian <- Kungurian <- Ladinian <- Langhian <- Late_Cretaceous <- Late_Devonian <- Late_Jurassic <- Late_Pleistocene <- Late_Ordovician <- Late_Triassic <- Llandovery <- Lochkovian <- Lopingian <- Ludfordian <- Ludlow <- Lutetian <- Maastrichtian <- Mesozoic <- Messinian <- Middle_Devonian <- Middle_Jurassic <- Middle_Ordovician <- Middle_Pleistocene <- Middle_Triassic <- Miocene <- Mississippian <- Moscovian <- Neogene <- Norian <- Olenekian <- Oligocene <- Ordovician <- Oxfordian <- Paibian <- Paleocene <- Paleogene <- Paleozoic <- Pennsylvanian <- Permian <- Phanerozoic <- Piacenzian <- Pleistocene <- Pliensbachian <- Pliocene <- Pragian <- Priabonian <- Pridoli <- Quaternary <- Rhaetian <- Rhuddanian <- Roadian <- Rupelian <- Sakmarian <- Sandbian <- Santonian <- Selandian <- Series_2 <- Series_3 <- Serpukhovian <- Serravallian <- Sheinwoodian <- Silurian <- Sinemurian <- Stage_2 <- Stage_3 <- Stage_4 <- Stage_5 <- Stage_10 <- Telychian <- Terreneuvian <- Thanetian <- Tithonian <- Toarcian <- Tortonian <- Tournaisian <- Tremadocian <- Triassic <- Turonian <- Valanginian <- Visean <- Wenlock <- Wordian <- Wuchiapingian <- Ypresian <- Zanclean <- NULL 
 getshape <- function(interval, colland, colborder, do.plot){
   if(interval=="Paleozoic" || interval=="paleozoic")
     if(do.plot== TRUE){{
@@ -206,7 +210,7 @@ getshape <- function(interval, colland, colborder, do.plot){
     if(do.plot== TRUE){
       plot(Early_Ordovician, col=colland, border=colborder, add=TRUE)
     }
-    return(Early_ordovician)
+    return(Early_Ordovician)
   }
   if(interval=="Tremadocian" || interval=="tremadocian"){
     if(do.plot== TRUE){ 
@@ -916,11 +920,11 @@ getshape <- function(interval, colland, colborder, do.plot){
     }
     return(Aquitanian)
   }
-  if(interval=="Burdigalian" || interval=="burgidalian"){
+  if(interval=="Burdigalian" || interval=="burdigalian"){
     if(do.plot== TRUE){
-      plot(Burgidalian, col=colland, border=colborder, add=TRUE)
+      plot(Burdigalian, col=colland, border=colborder, add=TRUE)
     }
-    return(Burgidalian)
+    return(Burdigalian)
   }
   if(interval=="Calabrian" || interval=="calabrian"){
     if(do.plot== TRUE){

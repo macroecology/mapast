@@ -17,7 +17,7 @@ data frame with number of genus per locality
 calculates the number of genus per locality
 }
 \examples{
-/dontrun{
+\dontrun{
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 my_ngl <- pm_ngl (data)
 show(my_ngl)

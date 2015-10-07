@@ -24,7 +24,7 @@ a shape file for the choosen time interval and a plot (if do.plot=TRUE)
 gets the shapefile for the map of a choosen time interval (e.g. "triassic")
 }
 \examples{
-/dontrun{
+\dontrun{
 pm_getmap(interval="Quaternary")
 }
 }

@@ -32,7 +32,7 @@ creates a raster of species richness
 and makes a plot of the map and raster
 }
 \examples{
-/dontrun{
+\dontrun{
 shape<- pm_getdata (base_name="Canis", interval="Quaternary")
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 myraster <- pm_richraster (shape, data)

@@ -33,7 +33,7 @@ and the fossil occurrences
 plots your query from paleobioDB directly onto the map of the selected time interval
 }
 \examples{
-/dontrun{
+\dontrun{
 pm_plot (interval="Quaternary", base_name= "Canis")
 }
 }
