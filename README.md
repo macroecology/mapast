@@ -42,7 +42,8 @@ library(paleoMap)
 returns the shapefile of a choosen paleogeographical time interval
 
 ```coffee
-> map  <-  pm_getmap(interval="Jurassic", do.plot=TRUE)
+> shape  <-  pm_getmap(interval="Jurassic", do.plot=TRUE)
+> shape
 ```
 
 ```coffee
@@ -62,30 +63,83 @@ returns the shapefile of a choosen paleogeographical time interval
 returns the needed parameter of the fossil record
 
 ```coffee
-data  <-  pm_getdata (base_name="Canis", interval="Quaternary")
-head(data)
+> data  <-  pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
+> head(data)
 ```
 
 ```coffee
-##       matched_name matched_rank   early_interval late_interval paleolng paleolat geoplate genus   family     order    class   phylum
-##1             Canis        genus Late Hemphillian       Blancan   -83.09    41.51      101 Canis	 Canidae Carnivora Mammalia Chordata
-##2             Canis        genus Late Hemphillian       Blancan   -83.09    41.51      101 Canis	 Canidae Carnivora Mammalia Chordata
-##3    Canis edwardii      species          Blancan  Irvingtonian  -111.39    36.51      101 Canis   Canidae Carnivora Mammalia Chordata
-##4    Canis edwardii      species          Blancan  Irvingtonian  -111.39    36.51      101 Canis   Canidae Carnivora Mammalia Chordata
-##5 Canis armbrusteri      species          Blancan  Irvingtonian  -111.39    36.51      101 Canis   Canidae Carnivora Mammalia Chordata
-##6 Canis armbrusteri      species          Blancan  Irvingtonian  -111.39    36.51      101 Canis   Canidae Carnivora Mammalia Chordata
+##             matched_name   matched_rank early_interval  late_interval paleolng paleolat geoplate
+##1   Chaoyangsaurus youngi        species Late Tithonian    Valanginian   127.48    50.66      604
+##2   Chaoyangsaurus youngi        species Late Tithonian    Valanginian   127.48    50.66      604
+##3               Theropoda unranked clade     Hettangian     Sinemurian    -9.08    21.08      101
+##4               Theropoda unranked clade     Hettangian     Sinemurian    -9.08    21.08      101
+##5 Amygdalodon patagonicus        species  Late Toarcian Early Aalenian   -16.23   -44.08      291
+##6 Amygdalodon patagonicus        species  Late Toarcian Early Aalenian   -16.23   -44.08      291
+##           genus           family     order        class   phylum
+##1 Chaoyangsaurus Chaoyangsauridae      <NA> Ornithischia Chordata
+##2 Chaoyangsaurus Chaoyangsauridae      <NA> Ornithischia Chordata
+##3           <NA>             <NA> Theropoda   Saurischia Chordata
+##4           <NA>             <NA> Theropoda   Saurischia Chordata
+##5    Amygdalodon             <NA>      <NA>   Saurischia Chordata
+##6    Amygdalodon             <NA>      <NA>   Saurischia Chordata
 ```
-## Map the fossil records
 
-**pbdb_map**
-
-Returns a map with the species occurrences.
+*pm_plot*
+Returns a map with the fossil occurrences.
 
 ```coffee
-> pbdb_map(canidae)
+> pm_plot (interval="Jurassic", base_name= "Reptilia", limit=50)
+```
+
+![plot of chunk map](figure/pm_plot-jurassic-reptilia.png)
+
+## Functions for paleogeographical analyses
+
+**pm_occraster**
+Returns a RasterLayer of the sampling effort and a map with the raster on it.
+
+```coffee
+> shape <- pm_getmap(interval="Jurassic") 
+> data <- pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
+> pm_occraster (shape, data)
 ``` 
-![plot of chunk map](figure/pbdb_map.png) 
 
+```coffee
+##class       : RasterLayer 
+##dimensions  : 17, 36, 612  (nrow, ncol, ncell)
+##resolution  : 10, 10  (x, y)
+##extent      : -180, 180, -80.9326, 89.0674  (xmin, xmax, ymin, ymax)
+##coord. ref. : NA 
+##data source : in memory
+##names       : layer 
+##values      : 3, 1405  (min, max)
+```
+
+![plot of chunk map](figure/pm_occraster-jurassic-reptilia.png) 
+
+**pm_richraster**
+Returns a RasterLayer of richness and a map with the raster on it.
+
+```coffee
+> shape <- pm_getmap(interval="Jurassic") 
+> data <- pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
+> pm_richraster (shape, data, rank="genus")
+``` 
+
+```coffee
+##class       : RasterLayer 
+##dimensions  : 17, 36, 612  (nrow, ncol, ncell)
+##resolution  : 10, 10  (x, y)
+##extent      : -180, 180, -80.9326, 89.0674  (xmin, xmax, ymin, ymax)
+##coord. ref. : NA 
+##data source : in memory
+##names       : layer 
+##values      : 1, 69  (min, max)
+```
+
+![plot of chunk map](figure/pm_richraster-jurassic-reptilia.png) 
+
+#######bis hier
 
 **pbdb_map_occur**
 Returns a map and a raster object with the sampling effort (number of fossil records per cell).

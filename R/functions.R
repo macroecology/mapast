@@ -228,7 +228,6 @@ pm_occraster <- function(shape, data, rank= "genus", res=10,
 #' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' myraster <- pm_richraster (shape, data)
-#' plot(myraster)
 #' }
 
 pm_richraster <- function(shape, data, res=10, rank,
