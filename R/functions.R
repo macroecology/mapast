@@ -401,10 +401,18 @@ pm_ngl <- function(data) {
 #' 
 #' @usage pm_latrich (data, res)
 #' 
+#' @param shape a shape file of the corresponding time map
 #' @param data a data frame with fossil occurrences 
 #' Can be created with pm_getdata(interval, base_name)
 #' @param res resolution in of the segmentation of the latitude
-#' @return data frame with richness of rank
+#' @param do.plot TRUE if plot is wanted, false otherwise
+#' @param bar.side defines wether the barplot of the latitudinal richness is on the right or on the left side of the map
+#' @param colsea defines the color of the sea
+#' @param colland defines the color f the landmasses
+#' @param colborder defines the color of the borders of the land masses
+#' @param colpoints defines the colo of the points for the occurrences
+#' @param colpointborder defines color of the border of the occurrence points
+#' @return data frame with richness of rank and a plot of the continental masses with the occurrences and a barplot of the latitudinal richness
 #' @export 
 #' @examples 
 #' \dontrun{
@@ -413,7 +421,9 @@ pm_ngl <- function(data) {
 #' show(latrich)
 #'}
 
-pm_latrich <- function(data, res){
+pm_latrich <- function(shape, data, res, do.plot=TRUE, bar.side="right", colsea="#E5E5E520", colland="#66666680", 
+                       colborder="#2B2B2B30", colpoints="#9ACD3250",
+                       colpointborder="black"){
   #setting min and max value for lat
   lr <- data.frame(seq(-90,90-res,res), seq(-90+res, 90, res))
   #creating empty richness data frame
@@ -430,6 +440,23 @@ pm_latrich <- function(data, res){
   #combine min,max lat and richness
   lr <- cbind(lr,richn)
   colnames(lr) <- c("min paleolat", "max paleolat", "richness")
+  
+  if(do.plot==TRUE){
+   #create plot & barplot
+    if(bar.side=="left"){
+      barplot(lr$richness, horiz=TRUE, xlim=c(max(lr$richness),0))
+    }
+   plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
+        , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
+        , xlab="Longitude", ylab="Latitude"
+        , main="Raster - richness of genus", xaxs="i", yaxs="i")
+   rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea)
+   plot(shape, col=colland, border=colborder, add=TRUE)
+   points (data$paleolng, data$paleolat, pch=21, col=colpointborder, bg=colpoints)
+   if(bar.side=="right"){
+     barplot(lr$richness, horiz=TRUE, xlim=c(0,max(lr$richness)))
+   }
+  }
   
   #return latitudinal richness
   lr
@@ -521,7 +548,17 @@ pm_nloc <- function(data, res){
 #' 
 #' @param ngl_data a data frame with number of genus per locality 
 #' Can be created with pm_getdata(interval, base_name)
-#' @return data frame with shannon corrected richness of rank
+#' @param shape a shape file of the corresponding time map
+#' @param data a data frame with fossil occurrences 
+#' Can be created with pm_getdata(interval, base_name)
+#' @param do.plot TRUE if plot is wanted, false otherwise
+#' @param bar.side defines wether the barplot of the latitudinal richness is on the right or on the left side of the map
+#' @param colsea defines the color of the sea
+#' @param colland defines the color f the landmasses
+#' @param colborder defines the color of the borders of the land masses
+#' @param colpoints defines the colo of the points for the occurrences
+#' @param colpointborder defines color of the border of the occurrence points
+#' @return data frame with shannon corrected richness of rank and a plot of the corresponding time map with the occurrences and a barplot of the corrected latitudinal richness next to the map
 #' @export 
 #' @examples 
 #' \dontrun{
@@ -531,7 +568,9 @@ pm_nloc <- function(data, res){
 #' show(corlatrich)
 #'}
 
-pm_corlatrich <- function(ngl_data){
+pm_corlatrich <- function(ngl_data, shape, data, do.plot=TRUE, bar.side="right", colsea="#E5E5E520", colland="#66666680", 
+                          colborder="#2B2B2B30", colpoints="#9ACD3250",
+                          colpointborder="black"){
   diversity <- NULL
   #calculate the shannon diversity
   H_data <- diversity(ngl_data[,3:ncol(ngl_data)])
@@ -550,6 +589,25 @@ pm_corlatrich <- function(ngl_data){
   #create data frame withh latmin latmax and corrected richness
   cordf <- data.frame(latmin, latmax, cornum)
   colnames(cordf) <- c("maxlat", "minlat", "richness")
+  
+  #create plot
+  if(do.plot==TRUE){
+    #create plot & barplot
+    if(bar.side=="left"){
+      barplot(cordf$richness, horiz=TRUE, xlim=c(max(cordf$richness),0))
+    }
+    plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
+         , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
+         , xlab="Longitude", ylab="Latitude"
+         , main="Raster - richness of genus", xaxs="i", yaxs="i")
+    rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea)
+    plot(shape, col=colland, border=colborder, add=TRUE)
+    points (data$paleolng, data$paleolat, pch=21, col=colpointborder, bg=colpoints)
+    if(bar.side=="right"){
+      barplot(cordf$richness, horiz=TRUE, xlim=c(0,max(cordf$richness)))
+    }
+  }
+  
   #return corrected richness
   cordf
 }
