@@ -24,13 +24,13 @@ Install paleoMap developing version from github
 ```coffee
 install.packages("devtools")
 library(devtools)
-install_github("NonaR/paleoMap")
+install_github("macroecology/paleoMap")
 library(paleoMap)
 ```
 
 **General overview**
 
-`paleoMap` version xx has 3 functions for getting and visualising paleogeographical maps and fossil data, 
+`paleoMap` version 0.1 has 3 functions for getting and visualising paleogeographical maps and fossil data, 
 5 functions for doing paleogeographical analyses and 2 functions for biodversity analyses.
 
 
