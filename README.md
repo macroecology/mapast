@@ -5,7 +5,7 @@ paleoMap
 
 ### About
 
-`paleoMap` is a package for downloading, visualizing and processing data from [Paleobiology Database](http://paleobiodb.org/) combined with [GPlates](http://www.gplates.org/).
+`paleoMap` is a package for downloading, visualizing and processing data from [Paleobiology Database](http://paleobiodb.org/) combined with maps from [GPlates](http://www.gplates.org/).
 
 
 ### Quick start
@@ -24,249 +24,311 @@ Install paleoMap developing version from github
 ```coffee
 install.packages("devtools")
 library(devtools)
-install_github("macroecology/paleoMap")
+install_github("NonaR/paleoMap")
 library(paleoMap)
 ```
 
-
-
-####from here!!!! Sonja, change and describe what you did in the package! :-)
-
-
 **General overview**
 
-`paleoMap` version 0.1 has xx functions...
+`paleoMap` version xx has 3 functions for getting and visualising paleogeographical maps and fossil data, 
+5 functions for doing paleogeographical analyses and 2 functions for biodversity analyses.
 
 
 
 
-## Download fossil occurrences from the PaleobioDB
+## Get and visualise paleogeograhical maps and fossil data
 
-**pbdb_occurrences** 
-
-e.g., to download all the fossil data that belongs to the family Canidae, set base_name = "Canidae".  
+**pm_getmap** 
+returns the shapefile of a choosen paleogeographical time interval
 
 ```coffee
-> canidae<-  pbdb_occurrences (limit="all",
-                             base_name="canidae", vocab="pbdb",
-                             interval="Quaternary",             
-                             show=c("coords", "phylo", "ident"))
-head(canidae)
+> shape  <-  pm_getmap(interval="Jurassic", do.plot=TRUE)
+> shape
 ```
 
 ```coffee
-
+##class       : SpatialPolygonsDataFrame 
+##features    : 77 
+##extent      : -180, 180, -82.9491, 89.0674  (xmin, xmax, ymin, ymax)
+##coord. ref. : NA 
+##variables   : 13
+##names       : PLATEID1,               GPGIM_TYPE, TYPE, FROMAGE, TOAGE, NAME, DESCR,                                   FEATURE_ID, PLATEID2, L_PLATE, R_PLATE, RECON_METH, SPREAD_ASY 
+##min values  :        0, gpml:UnclassifiedFeature,   NA,       0,     0,   NA,    NA, GPlates-049b54d5-0c8d-4c48-ab2c-c01af79bb31f,        0,       0,       0,         NA,          0 
+##max values  :        0, gpml:UnclassifiedFeature,   NA,       0,     0,   NA,    NA, GPlates-f6cb6ad6-6c48-42f0-a1c2-52badd007c73,        0,       0,       0,         NA,          0 
 ```
+![plot of chunk map](figure/pm_getmap-jurassic.png)
 
 
-## Map the fossil records
-
-**pbdb_map**
-
-Returns a map with the species occurrences.
+**pm_getdata**
+returns the needed parameter of the fossil record
 
 ```coffee
-> pbdb_map(canidae)
-``` 
-![plot of chunk map](figure/pbdb_map.png) 
-
-
-**pbdb_map_occur**
-Returns a map and a raster object with the sampling effort (number of fossil records per cell).
-
-```coffee
-> pbdb_map_occur (canidae, res= 5)
-``` 
-```coffee
-## class       : RasterLayer 
-## dimensions  : 34, 74, 2516  (nrow, ncol, ncell)
-## resolution  : 5, 5  (x, y)
-## extent      : -179.9572, 190.0428, -86.42609, 83.57391  (xmin, ## xmax, ymin, ymax)
-## coord. ref. : NA 
-## data source : in memory
-## names       : layer 
-## values      : 1, 40  (min, max)
-``` 
-
-![plot of chunk map](figure/pbdb_map_occur.png) 
-
-
-**pbdb_map_richness**
-Returns a map and a raster object with the number of different species, genera, family, etc. per cell. The user can change the resolution of the cells. 
-
-```coffee
-> pbdb_map_richness (canidae, res= 5, rank="species")
-```
-```coffee
-## class       : RasterLayer 
-## dimensions  : 34, 74, 2516  (nrow, ncol, ncell)
-## resolution  : 5, 5  (x, y)
-## extent      : -179.9572, 190.0428, -86.42609, 83.57391  (xmin, xmax, ymin, ymax)
-## coord. ref. : NA 
-## data source : in memory
-## names       : layer 
-## values      : 1, 12  (min, max)
-```
-
-![plot of chunk map](figure/pbdb_map_occur.png) 
-
-
-## Explore your fossil data 
-
-
-**pbdb_temporal_range**
-
-Returns a dataframe and a plot with the time span of the species, genera, families, etc. in your query.
-
-```coffee
-> pbdb_temp_range (canidae, rank="species")
-``` 
-```coffee
-                           max    min
-## Canis brevirostris        5.3330 0.0000
-## Canis mesomelas           5.3330 0.
-## Alopex praeglacialis      5.3330 0.0117
-## Nyctereutes megamastoides 5.3330 0.0117
-## Vulpes atlantica          5.3330 0.0117
-## Canis latrans             4.9000 0.0000
-...
-
-``` 
-![plot temprange](figure/pbdb_temporal_range.png) 
-
-
-
-**pbdb_richness**
-
-Returns a dataframe and a plot with the number of species (or genera, families, etc.) across time. You should set the temporal extent and the temporal resolution for the steps.
-
-```coffee
-> pbdb_richness (canidae, rank="species", temporal_extent=c(0,10), res=1)
+> data  <-  pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
+> head(data)
 ```
 
 ```coffee
-## labels2 richness
-## <=1       23
-## 1-2       56
-## 2-3       53
-## 3-4       19
-## 4-5       18
-## 5-6        5
-## 6-7        0
-## 7-8        0
-## 8-9        0
-## 9-10       0
-## >10        0
-``` 
-![plot richness](figure/pbdb_richness.png) 
-
-
-**pbdb_orig_ext**
-
-Returns a dataframe and a plot with the number of new appearances and last appearances of species, genera, families, etc. in your query across the time. You should set the temporal extent and the resolution of the steps. 
-
-```coffee
-# evolutionary rates= orig_ext=1
-> pbdb_orig_ext (canidae, rank="species", orig_ext=1, temporal_extent=c(0,10), res=1)
-```
-```coffee
-##              new ext
-## 1-2 to 0-1    0  28
-## 2-3 to 1-2   34   6
-## 3-4 to 2-3    1   0
-## 4-5 to 3-4   13   0
-## 5-6 to 4-5    5   0
-## 6-7 to 5-6    0   0
-## 7-8 to 6-7    0   0
-## 8-9 to 7-8    0   0
-## 9-10 to 8-9   0   0
+             matched_name   matched_rank early_interval  late_interval paleolng paleolat geoplate
+##1   Chaoyangsaurus youngi        species Late Tithonian    Valanginian   127.48    50.66      604
+##2   Chaoyangsaurus youngi        species Late Tithonian    Valanginian   127.48    50.66      604
+##3               Theropoda unranked clade     Hettangian     Sinemurian    -9.08    21.08      101
+##4               Theropoda unranked clade     Hettangian     Sinemurian    -9.08    21.08      101
+##5 Amygdalodon patagonicus        species  Late Toarcian Early Aalenian   -16.23   -44.08      291
+##6 Amygdalodon patagonicus        species  Late Toarcian Early Aalenian   -16.23   -44.08      291
+##           genus           family     order        class   phylum
+##1 Chaoyangsaurus Chaoyangsauridae      <NA> Ornithischia Chordata
+##2 Chaoyangsaurus Chaoyangsauridae      <NA> Ornithischia Chordata
+##3           <NA>             <NA> Theropoda   Saurischia Chordata
+##4           <NA>             <NA> Theropoda   Saurischia Chordata
+##5    Amygdalodon             <NA>      <NA>   Saurischia Chordata
+##6    Amygdalodon             <NA>      <NA>   Saurischia Chordata
 ```
 
-![plot of chunk map](figure/pbdb_orig_ext_1.png)
-
+**pm_plot**
+Returns a map with the fossil occurrences.
 
 ```coffee
-# extinction rates= orig_ext=2
-pbdb_orig_ext(canidae, rank="species", orig_ext=2, temporal_extent=c(0,10), res=1)
-``` 
+> pm_plot (interval="Jurassic", base_name= "Reptilia", limit=50)
+```
+
+![plot of chunk map](figure/pm_plot-jurassic-reptilia.png)
+
+## Functions for paleogeographical analyses
+
+**pm_occraster**
+Returns a RasterLayer of the sampling effort and a map with the raster on it.
+
 ```coffee
-##             new ext
-## 1-2 to 0-1    0  28
-## 2-3 to 1-2   34   6
-## 3-4 to 2-3    1   0
-## 4-5 to 3-4   13   0
-## 5-6 to 4-5    5   0
-## 6-7 to 5-6    0   0
-## 7-8 to 6-7    0   0
-## 8-9 to 7-8    0   0
-## 9-10 to 8-9   0   0
+> shape <- pm_getmap(interval="Jurassic") 
+> data <- pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
+> pm_occraster (shape, data)
 ``` 
 
-![plot of chunk map](figure/pbdb_orig_ext_2.png)
-
-**pbdb_subtaxa**
-
-Returns a plot and a dataframe with the number of species, genera, families, etc. in your dataset.
-  
 ```coffee
-> pbdb_subtaxa (canidae, do.plot=TRUE)         
+##class       : RasterLayer 
+##dimensions  : 17, 36, 612  (nrow, ncol, ncell)
+##resolution  : 10, 10  (x, y)
+##extent      : -180, 180, -80.9326, 89.0674  (xmin, xmax, ymin, ymax)
+##coord. ref. : NA 
+##data source : in memory
+##names       : layer 
+##values      : 3, 1405  (min, max)
+```
+
+![plot of chunk map](figure/pm_occraster-jurassic-reptilia.png) 
+
+**pm_richraster**
+Returns a RasterLayer of richness and a map with the raster on it.
+
+```coffee
+> shape <- pm_getmap(interval="Jurassic") 
+> data <- pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
+> pm_richraster (shape, data, rank="genus")
+``` 
+
+```coffee
+##class       : RasterLayer 
+##dimensions  : 17, 36, 612  (nrow, ncol, ncell)
+##resolution  : 10, 10  (x, y)
+##extent      : -180, 180, -80.9326, 89.0674  (xmin, xmax, ymin, ymax)
+##coord. ref. : NA 
+##data source : in memory
+##names       : layer 
+##values      : 1, 69  (min, max)
+```
+
+![plot of chunk map](figure/pm_richraster-jurassic-reptilia.png) 
+
+
+**pm_corrichraster**
+Returns a corrected RasterLayer of richness and a map with the raster on it.
+
+```coffee
+> shape <- pm_getmap(interval="Jurassic") 
+> data <- pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
+> ngl_data <- pm_ngl(data)
+> pm_corrichraster (shape, ngl_data)
+``` 
+
+```coffee
+##class       : RasterLayer 
+##dimensions  : 17, 36, 612  (nrow, ncol, ncell)
+##resolution  : 10, 10  (x, y)
+##extent      : -180, 180, -80.9326, 89.0674  (xmin, xmax, ymin, ymax)
+##coord. ref. : NA 
+##data source : in memory
+##names       : layer 
+##values      : 1, 145291  (min, max)
+``` 
+
+![plot of chunk map](figure/pm_corrichraster-jurassic-reptilia.png) 
+
+
+**pm_ngl**
+Calculates the number of genera per locality.
+
+```coffee
+> data <- pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
+> ngl_data <- pm_ngl (data)
+> head(ngl_data)
 ```
 ```coffee
-## species genera families orders classes phyla
-## 75     24        1      1       1     1
+     paleolat paleolng Chaoyangsaurus Amygdalodon Camarasaurus Allosaurus Diplodocus Stegosaurus
+##[1,]    50.66   127.48              2           0            0          0          0           0
+##[2,]   -44.08   -16.23              0           2            0          0          0           0
+##[3,]    26.59   -43.61              0           0            2          0          0           0
+##[4,]    26.66   -42.07              0           0            2          0          0           0
+##[5,]    28.58   -40.48              0           0            0          2          0           0
+##[6,]    28.79   -40.71              0           0            2          6          2           2
+     Scutellosaurus Rhamphinion Massospondylus Apatosaurus Gigantosauropus Hispanosauropus
+##[1,]              0           0              0           0               0               0
+##[2,]              0           0              0           0               0               0
+##[3,]              0           0              0           0               0               0
+##[4,]              0           0              0           0               0               0
+##[5,]              0           0              0           0               0               0
+##[6,]              0           0              0           0               0               0
+     Brontosaurus Protosuchus Dilophosaurus Coelophysis Kotasaurus Camptosaurus Barosaurus Opisthias
+##[1,]            0           0             0           0          0            0          0         0
+##[2,]            0           0             0           0          0            0          0         0
+##[3,]            0           0             0           0          0            0          0         0
+##[4,]            0           0             0           0          0            0          0         0
+##[5,]            0           0             0           0          0            0          0         0
+##[6,]            0           0             0           0          0            0          0         0
+     Eilenodon
+##[1,]         0
+##[2,]         0
+##[3,]         0
+##[4,]         0
+##[5,]         0
 ```
-![plot subtaxa](figure/pbdb_subtaxa.png) 
 
-
-**pbdb_temporal_resolution**
-
-Returns a plot and a dataframe with a main summary of the temporal resolution of the fossil records
+**pm_nloc**
+Calculates the number of localities per grid cell for different genera.
 
 ```coffee
-> pbdb_temporal_resolution (canidae)
-```   
+> data <- pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
+> nloc <- pm_nloc (data, res=10)
+> head(nloc)
+```
 
 ```coffee
-## $summary
-## Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-## 0.0117  0.1143  1.5000  1.5360  2.5760 23.0200 
-## 
-## $temporal_resolution
-## [1]  0.7693  8.5000  8.5000  8.5000  4.6000
-## [6]  4.6000  4.6000  3.1000  3.1000  3.1000
-## [11]  3.1000  4.6000  3.1000  3.1000  3.1000
-## [16]  3.1000  3.1000  3.1000  3.1000  3.1000
-## [21]  3.1000  3.1000  3.1000  3.1000  3.1000
-## [26]  3.1000  3.1000  3.1000  3.1000  3.1000
-...
-  
+        -180;-170 -170;-160 -160;-150 -150;-140 -140;-130 -130;-120 -120;-110 -110;-100 -100;-90
+##-90;-80         0         0         0         0         0         0         0         0        0
+##-80;-70         0         0         0         0         0         0         0         0        0
+##-70;-60         0         0         0         0         0         0         0         0        0
+##-60;-50         0         0         0         0         0         0         0         0        0
+##-50;-40         0         0         0         0         0         0         0         0        0
+##-40;-30         0         0         0         0         0         0         0         0        0
+        -90;-80 -80;-70 -70;-60 -60;-50 -50;-40 -40;-30 -30;-20 -20;-10 -10;0 0;10 10;20 20;30 30;40
+##-90;-80       0       0       0       0       0       0       0       0     0    0     0     0     0
+##-80;-70       0       0       0       0       0       0       0       0     0    0     0     0     0
+##-70;-60       0       0       0       0       0       0       0       0     0    0     0     0     0
+##-60;-50       0       0       0       0       0       0       0       0     0    0     0     0     0
+##-50;-40       0       0       0       0       0       0       0       1     0    0     2     0     0
+##-40;-30       0       0       0       0       0       0       0       0     0    0     0     1     0
+        40;50 50;60 60;70 70;80 80;90 90;100 100;110 110;120 120;130 130;140 140;150 150;160 160;170
+##-90;-80     0     0     0     0     0      0       0       0       0       0       0       0       0
+##-80;-70     0     0     0     0     0      0       0       0       0       0       0       0       0
+##-70;-60     0     0     0     0     0      0       0       0       0       0       0       0       0
+##-60;-50     0     0     0     0     0      0       0       0       0       0       0       0       0
+##-50;-40     0     0     0     0     0      0       0       0       0       0       0       0       0
+##-40;-30     0     0     0     0     0      0       0       0       0       0       0       0       0
+        170;180
+##-90;-80       0
+##-80;-70       0
+##-70;-60       0
+##-60;-50       0
+##-50;-40       0
+##-40;-30       0
 ```
-![plot tempres](figure/pbdb_temporal_resolution.png) 
+
+## Functions for biodiversity analyses
+
+
+**pm_latrich**
+Calculates the latitudinal generic richness.
+
+```coffee
+> data <- pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
+> pm_latrich (data)
+``` 
+
+```coffee
+   min paleolat max paleolat richness
+##1           -90          -80        0
+##2           -80          -70        0
+##3           -70          -60        0
+##4           -60          -50        0
+##5           -50          -40        3
+##6           -40          -30        1
+##7           -30          -20        1
+##8           -20          -10        0
+##9           -10            0        0
+##10            0           10        0
+##11           10           20        3
+##12           20           30       10
+##13           30           40        7
+##14           40           50        0
+##15           50           60        1
+##16           60           70        0
+##17           70           80        0
+##18           80           90        0
+``` 
+
+
+**pm_corlatrich**
+Returns the corrected latitudinal generic richness.
+
+```coffee
+> data<- pm_getdata (base_name="Canis", interval="Quaternary")
+> ngl_data <- pm_ngl(data)
+> pm_corlatrich (ngl_data)
+```
+
+```coffee
+   maxlat minlat richness
+##1     -90    -80 0.000000
+##2     -80    -70 0.000000
+##3     -70    -60 0.000000
+##4     -60    -50 0.000000
+##5     -50    -40 0.000000
+##6     -40    -30 0.000000
+##7     -30    -20 0.000000
+##8     -20    -10 0.000000
+##9     -10      0 0.000000
+##10      0     10 0.000000
+##11     10     20 0.000000
+##12     20     30 4.238186
+##13     30     40 3.178054
+##14     40     50 0.000000
+##15     50     60 0.000000
+##16     60     70 0.000000
+##17     70     80 0.000000
+##18     80     90 0.000000
+``` 
 
 ## Meta
 
-Please report any [issues or bugs](https://github.com/ropensci/pbdb/issues).
+Please report any [issues or bugs](https://github.com/NonaR/paleoMap/issues).
 
 License: GPL-2
 
-To cite package `paleobioDB` in publications use:
+To cite package `paleoMap` in publications use:
 
 ```coffee
-To cite package `paleobioDB` in publications use:
+To cite package `paleoMap` in publications use:
 
-Sara Varela, Javier Gonzalez-Hernandez and Luciano Fabris Sgarbi (2014). paleobioDB: an R-package for downloading, visualizing and processing data from the Paleobiology Database. R package version 0.1. https://github.com/ropensci/paleobioDB
+Sonja Rothkugel, Sara Varela (2015). paleoMap:  An R-package for getting and using paleontoligcal maps. R package version xx. https://github.com/NonaR/paleoMap
 
 A BibTeX entry for LaTeX users is
 
   @Manual{,
-    title = {paleobioDB: an R-package for downloading, visualizing and processing data from the Paleobiology Database},
-    author = {{Sara Varela} and {Javier Gonzalez-Hernandez} and {Luciano Fabris Sgarbi}},
-    year = {2014},
-    note = {R package version 0.1},
-    base = {https://github.com/ropensci/paleobioDB},
+    title = {paleoMap: An R-package for getting and using paleontoligcal maps},
+    author = {{Sonja Rothkugel} and {Sara Varela}},
+    year = {2015},
+    note = {R package version xx},
+    base = {https://github.com/NonaR/paleoMap},
   }
 ```
 
 ---
-
-This package is part of the [Rmacroecology](https://github.com/macroecology) project.

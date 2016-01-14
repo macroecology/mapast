@@ -1,4 +1,5 @@
 Package: paleoMap
+<<<<<<< HEAD
 Description: download and use paleomaps (GPlates)
 Encoding: UTF-8
 Type: Package
@@ -8,17 +9,28 @@ Version: 0.1
 Date: 2016-01-01
 Authors@R: c(person("Sonja", "Rothkugel", role = c("aut", "cre"),
     email = "reptilesonja@zedat.fu-berlin.de"),
+=======
+Version: 0.0.0.9001
+Date: 2015-10-01
+Title: Spatial Paleobiodiversity Combined with Paleogeography
+Authors@R: c(person("Sonja", "Rothkugel", role = c("aut"),
+    email = "rothugelsonja@aol.de"),
+>>>>>>> 1e0ff6068b9ae576347c8a73808a5d8ae910fa50
     person("Sara", "Varela", role = c("aut", "cre"),
     email = "svarela@paleobiogeography.org"))
 Maintainer: Sara Varela <svarela@paleobiogeography.org>
-BugReports: https://github.com/macroecology/paleoMap/issues
-URL: https://github.com/macroecology/paleoMap
-LazyData: true
-Imports:
-    maptools
 Depends:
-    paleobioDB,
-    raster
+	roxygen2,
+	paleobioDB,
+    raster,
+	vegan,
+	maptools
+Imports:
 Suggests:
-    roxygen2,
-    testthat
+Description: For downloading and visulualizing paleomaps and fossil data. There are also tools for paleogeographic and biodiversity analysis.
+Encoding: UTF-8
+Type: Package
+License: GPL-2
+BugReports: https://github.com/NonaR/paleoMap/issues
+URL: https://github.com/NonaR/paleoMap
+LazyData: true

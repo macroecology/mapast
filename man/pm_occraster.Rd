@@ -4,22 +4,27 @@
 \alias{pm_occraster}
 \title{pm_occraster}
 \usage{
-pm_occraster (shape, data, colsea, colland, colborder)
+pm_occraster (shape, data, rank, res, colsea, colland, colborder)
 }
 \arguments{
+\item{shape}{shapefile from the time interval of interest.
+Can be created with pm_getmap}
+
 \item{data}{a data frame which needs to have a column called paleolat
 and a column called paleolng, can be created with getdata_paleomap}
+
+\item{rank}{taxonomic rank of interest (e.g. genus, family, etc.)}
+
+\item{res}{resolution of the cells in the raster (10 degrees by default)}
 
 \item{colsea}{color of the ocean}
 
 \item{colland}{color of the land masses}
 
 \item{colborder}{color of the landmass borders}
-
-\item{the}{shape file from the time interval of interest. Can be created with get_paleomap}
 }
 \value{
-a raster file and a plot of the time intervall, the fossil occurences and the raster file.
+a raster file and a plot of the time interval, the fossil occurrences and the raster file.
 }
 \description{
 creates a raster and a plot of the fossil occurences by taxonomic rank per cell
@@ -27,7 +32,9 @@ creates a raster and a plot of the fossil occurences by taxonomic rank per cell
 }
 \examples{
 \dontrun{
-myraster <-  pm_occraster (shape, data, colsea, colland, colborder)
+shape<- pm_getmap(interval="Quaternary")
+data<- pm_getdata (base_name="Canis", interval="Quaternary")
+pm_occraster (shape, data)
 }
 }
 

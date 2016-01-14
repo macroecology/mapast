@@ -12,6 +12,9 @@ colborder, colpoints, colpointborder)
 
 \item{base_name}{larger taxonomic rank for the query to the paleobioDB (e.g reptiles)}
 
+\item{limit}{enables the user to set the maximum number of
+records downloaded from the paleobioDB (e.g. 1000)}
+
 \item{colsea}{color of the ocean}
 
 \item{colland}{color of the land masses}
@@ -31,7 +34,7 @@ plots your query from paleobioDB directly onto the map of the selected time inte
 }
 \examples{
 \dontrun{
-pm_plot (base_name= "Canis", interval="Quaternary")
+pm_plot (interval="Quaternary", base_name= "Canis")
 }
 }
 

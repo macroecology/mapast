@@ -7,9 +7,13 @@
 pm_richraster (shape, data, res, rank, colsea, colland, colborder)
 }
 \arguments{
-\item{data}{a data frame which needs to have a column called paleolat and a column called paleolng, can be created with getdata_paleomap}
+\item{shape}{file from the time interval of interest.
+Can be created with get_paleomap}
 
-\item{res}{resollution of the raster/ size of the grid cell}
+\item{data}{a data frame which needs to have a column called
+paleolat and a column called paleolng, can be created with getdata_paleomap}
+
+\item{res}{resolution of the raster/ size of the grid cell}
 
 \item{rank}{gives the rank for the richness raster (e.g. species, genus,...)}
 
@@ -18,11 +22,10 @@ pm_richraster (shape, data, res, rank, colsea, colland, colborder)
 \item{colland}{color of the land masses}
 
 \item{colborder}{color of the landmass borders}
-
-\item{the}{shape file from the time interval of interest. Can be created with get_paleomap}
 }
 \value{
-plot with map of the time intervall, the fossil occurences and the raster file. And the raster file itself
+plot with map of the time intervall, the fossil occurences and the
+raster file. And the raster file itself
 }
 \description{
 creates a raster of species richness
@@ -30,6 +33,8 @@ and makes a plot of the map and raster
 }
 \examples{
 \dontrun{
+shape<- pm_getdata (base_name="Canis", interval="Quaternary")
+data<- pm_getdata (base_name="Canis", interval="Quaternary")
 myraster <- pm_richraster (shape, data)
 plot(myraster)
 }

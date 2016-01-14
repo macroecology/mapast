@@ -10,3 +10,4 @@ Sonja.Rproj
 paleoMap.Rproj
 mytest
 .travis.yml
+*.history
