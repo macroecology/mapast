@@ -24,8 +24,7 @@ pm_getmap <- function (interval, colsea="#E5E5E520",
   ## we might hack this with "with" or "null" for avoiding NOTE on check: 'no visible binding for global variable'
   ## see: http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
   
-  load (paste (interval, ".rda", sep=""), 
-        envir=environment())
+  load (paste (interval, ".rda", sep=""), envir=environment())
   # if user does not set plot=FALSE plot the shape file
   if(do.plot== TRUE){
     plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)

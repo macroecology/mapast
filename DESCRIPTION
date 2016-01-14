@@ -5,9 +5,9 @@ Type: Package
 License: GPL-2
 Title: Spatial Paleobiodiversity Combined With Paleogeography
 Version: 0.1
-Date: 2015-08-01
+Date: 2016-01-01
 Authors@R: c(person("Sonja", "Rothkugel", role = c("aut", "cre"),
-    email = "javigzz@yahoo.es"),
+    email = "reptilesonja@zedat.fu-berlin.de"),
     person("Sara", "Varela", role = c("aut", "cre"),
     email = "svarela@paleobiogeography.org"))
 Maintainer: Sara Varela <svarela@paleobiogeography.org>
