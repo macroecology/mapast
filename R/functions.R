@@ -19,7 +19,8 @@
 #'}
 
 pm_getmap <- function (interval, colsea="#E5E5E520", 
-                       colland="#66666680", colborder="#2B2B2B30", 
+                       colland="#66666680", 
+                       colborder="#2B2B2B30", 
                        do.plot=TRUE){
   ## we might hack this with "with" or "null" for avoiding NOTE on check: 'no visible binding for global variable'
   ## see: http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
