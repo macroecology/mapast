@@ -138,14 +138,14 @@ Returns a RasterLayer of richness and a map with the raster on it.
 ![plot of chunk map](figure/pm_richraster-jurassic-reptilia.png) 
 
 
-**pm_shannonraster**
+**pm_divraster**
 Returns a corrected RasterLayer of richness and a map with the raster on it.
 
 ```coffee
 > shape <- pm_getmap(interval="Jurassic") 
 > data <- pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
 > ngl_data <- pm_ngl(data)
-> pm_shannonraster (shape, ngl_data)
+> pm_divraster (shape, ngl_data)
 ``` 
 
 ```coffee
@@ -274,13 +274,13 @@ Calculates the latitudinal generic richness.
 ``` 
 
 
-**pm_corlatrich**
-Returns the corrected latitudinal generic richness.
+**pm_latdiv**
+Returns the Shannon diverstity (at a genus level) along the latitudinal gradient.
 
 ```coffee
 > data<- pm_getdata (base_name="Canis", interval="Quaternary")
 > ngl_data <- pm_ngl(data)
-> pm_corlatrich (ngl_data)
+> pm_latdiv (ngl_data)
 ```
 
 ```coffee

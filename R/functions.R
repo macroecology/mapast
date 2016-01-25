@@ -262,14 +262,14 @@ pm_richraster <- function(shape, data, res=10, rank,
   r
 }
 
-#####################pm_corrichraster####################
+#####################pm_divraster####################
 
-#' pm_shannonraster
+#' pm_divraster
 #' 
-#' creates a raster of species richness
-#' and makes a plot of the map and raster
+#' creates a raster of the Shannon diversity per cell
+#' and makes a plot of the map
 #' 
-#' @usage pm_shannonraster (shape, ngl_data, res, colsea, colland, colborder)
+#' @usage pm_divraster  (shape, ngl_data, res, colsea, colland, colborder)
 #' 
 #' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
@@ -286,11 +286,11 @@ pm_richraster <- function(shape, data, res=10, rank,
 #' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' ngl_data <- pm_ngl(data)
-#' myraster <- pm_shannonraster (shape, ngl_data)
+#' myraster <- pm_divraster (shape, ngl_data)
 #' plot(myraster)
 #'}
 
-pm_shannonraster <- function(shape, ngl_data, res=10,
+pm_divraster <- function(shape, ngl_data, res=10,
                              colsea="#E5E5E520", colland="#66666680", 
                              colborder="#2B2B2B30"){
   raster <- diversity <- rasterize <- NULL
@@ -549,9 +549,9 @@ pm_nloc <- function(data, res){
 }
 
 ################pm_corlatrich###################
-#' pm_corlatrich
+#' pm_latdiv
 #' 
-#' calculates the shannon corrected latitudinal richness of the genus
+#' calculates the Shannon diversity (at a genus level) in the latitudinal gradient
 #' 
 #' @usage pm_corlatrich (ngl_data)
 #' 
@@ -573,11 +573,11 @@ pm_nloc <- function(data, res){
 #' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' ngl_data <- pm_ngl(data)
-#' corlatrich <- pm_corlatrich (ngl_data)
-#' show(corlatrich)
+#' latdiv <- pm_latdiv (ngl_data)
+#' show(latdiv)
 #'}
 
-pm_corlatrich <- function(ngl_data, shape, data, do.plot=TRUE, bar.side="right", colsea="#E5E5E520", colland="#66666680", 
+pm_latdiv <- function(ngl_data, shape, data, do.plot=TRUE, bar.side="right", colsea="#E5E5E520", colland="#66666680", 
                           colborder="#2B2B2B30", colpoints="#9ACD3250",
                           colpointborder="black"){
   diversity <- NULL
