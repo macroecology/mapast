@@ -1,4 +1,5 @@
-#here are the not official help functions
+# private functions
+# the following functions are used by our package but users can not change their parameters.
 
 ##############################color palette ########################################
 

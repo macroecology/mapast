@@ -45,6 +45,8 @@ pm_getmap <- function (interval, colsea="#E5E5E520",
   shape
 }
 
+
+
 ################pm_getdata##############################
 
 #' pm_getdata
@@ -262,12 +264,12 @@ pm_richraster <- function(shape, data, res=10, rank,
 
 #####################pm_corrichraster####################
 
-#' pm_corrichraster
+#' pm_shannonraster
 #' 
 #' creates a raster of species richness
 #' and makes a plot of the map and raster
 #' 
-#' @usage pm_corrichraster (shape, ngl_data, res, colsea, colland, colborder)
+#' @usage pm_shannonraster (shape, ngl_data, res, colsea, colland, colborder)
 #' 
 #' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
@@ -284,11 +286,11 @@ pm_richraster <- function(shape, data, res=10, rank,
 #' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' ngl_data <- pm_ngl(data)
-#' myraster <- pm_corrichraster (shape, ngl_data)
+#' myraster <- pm_shannonraster (shape, ngl_data)
 #' plot(myraster)
 #'}
 
-pm_corrichraster <- function(shape, ngl_data, res=10,
+pm_shannonraster <- function(shape, ngl_data, res=10,
                              colsea="#E5E5E520", colland="#66666680", 
                              colborder="#2B2B2B30"){
   raster <- diversity <- rasterize <- NULL
@@ -427,7 +429,8 @@ pm_ngl <- function(data) {
 #' show(latrich)
 #'}
 
-pm_latrich <- function(shape, data, res, do.plot=TRUE, bar.side="right", colsea="#E5E5E520", colland="#66666680", 
+pm_latrich <- function(shape, data, res, do.plot=TRUE, bar.side="right", 
+                       colsea="#E5E5E520", colland="#66666680", 
                        colborder="#2B2B2B30", colpoints="#9ACD3250",
                        colpointborder="black"){
   #setting min and max value for lat

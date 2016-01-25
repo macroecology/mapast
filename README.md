@@ -34,8 +34,6 @@ library(paleoMap)
 5 functions for doing paleogeographical analyses and 2 functions for biodversity analyses.
 
 
-
-
 ## Get and visualise paleogeograhical maps and fossil data
 
 **pm_getmap** 
@@ -140,14 +138,14 @@ Returns a RasterLayer of richness and a map with the raster on it.
 ![plot of chunk map](figure/pm_richraster-jurassic-reptilia.png) 
 
 
-**pm_corrichraster**
+**pm_shannonraster**
 Returns a corrected RasterLayer of richness and a map with the raster on it.
 
 ```coffee
 > shape <- pm_getmap(interval="Jurassic") 
 > data <- pm_getdata (base_name="Reptilia", interval="Jurassic", limit=50)
 > ngl_data <- pm_ngl(data)
-> pm_corrichraster (shape, ngl_data)
+> pm_shannonraster (shape, ngl_data)
 ``` 
 
 ```coffee
@@ -309,7 +307,7 @@ Returns the corrected latitudinal generic richness.
 
 ## Meta
 
-Please report any [issues or bugs](https://github.com/NonaR/paleoMap/issues).
+Please report any [issues or bugs](https://github.com/macroecology/paleoMap/issues).
 
 License: GPL-2
 
@@ -318,16 +316,16 @@ To cite package `paleoMap` in publications use:
 ```coffee
 To cite package `paleoMap` in publications use:
 
-Sonja Rothkugel, Sara Varela (2015). paleoMap:  An R-package for getting and using paleontoligcal maps. R package version xx. https://github.com/NonaR/paleoMap
+Sonja Rothkugel, Sara Varela (2015). paleoMap:  An R-package for getting and using paleontoligcal maps. R package version 0.1. https://github.com/macroecology/paleoMap
 
 A BibTeX entry for LaTeX users is
 
   @Manual{,
     title = {paleoMap: An R-package for getting and using paleontoligcal maps},
     author = {{Sonja Rothkugel} and {Sara Varela}},
-    year = {2015},
-    note = {R package version xx},
-    base = {https://github.com/NonaR/paleoMap},
+    year = {2016},
+    note = {R package version 0.1},
+    base = {https://github.com/macroecology/paleoMap},
   }
 ```
 
