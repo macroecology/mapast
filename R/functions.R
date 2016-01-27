@@ -2,15 +2,14 @@
 
 #' pm_getmap
 #' 
-#' gets the shapefile for the map of a choosen time interval (e.g. "triassic")
+#' generates a shapefile with the map of the choosen time interval (e.g. "Triassic")
 #' 
-#' @usage pm_getmap (interval, do.plot, colsea, colland, colborder)
+#' @usage pm_getmap (interval, do.plot, colsea, colland)
 #' 
-#' @param interval time interval of interest
-#' @param do.plot TRUE/FALSE, if TRUE the output includes a plot
+#' @param interval time interval of interest (e.g. "Triassic")
+#' @param do.plot TRUE/FALSE. TRUE by default.
 #' @param colsea to set the color of the ocean in the plot
-#' @param colland to set the color of the land masses
-#' @param colborder to set the color of the borders of the land masses
+#' @param colland to set the color of the land masses in the plot
 #' @return a shape file for the choosen time interval and a plot (if do.plot=TRUE)
 #' @export 
 #' @examples 
@@ -18,9 +17,8 @@
 #' pm_getmap(interval="Quaternary") 
 #'}
 
-pm_getmap <- function (interval, colsea="#E5E5E520", 
-                       colland="#66666680", 
-                       colborder="#2B2B2B30", 
+pm_getmap <- function (interval, colsea="#00509010", 
+                       colland="#66666660", 
                        do.plot=TRUE){
   ## we might hack this with "with" or "null" for avoiding NOTE on check: 'no visible binding for global variable'
   ## see: http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
@@ -129,32 +127,30 @@ pm_getdata <- function(interval, base_name, limit="all"){
 
 pm_plot <- function(interval, base_name,
                     limit="all",
-                    colsea="#E5E5E520", colland="#66666680", 
-                    colborder="#2B2B2B30", colpoints="#9ACD3250",
-                    colpointborder="black"){
+                    colsea="#00509010", 
+                    colland="#66666660",
+                    colpoints="#99000020", 
+                    cex=3){
   #create variables for labeling the plot
-  title <-paste("Time interval: ", interval, sep="")
-  subtitle <- paste("Base name: ", base_name, sep="")
+  title <- paste (interval, base_name, sep="  -  ")
   #getting the shape file for the map and the data for plotting it on the map
   shape <- pm_getmap(interval=interval, do.plot=FALSE)
-  data <- pm_getdata(interval=interval, base_name=base_name, limit=limit)
+  data <- pm_getdata(interval=interval, 
+                     base_name=base_name, limit=limit)
   #plotting the map and the data
   if (class (data) == "data.frame"){
     #defines size and axes of the plot
-    plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
-         , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
-         , xlab="Longitude", ylab="Latitude"
-         , main=interval, xaxs="i", yaxs="i")
-    #fills background with color
-    rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, border=FALSE)
-    #adds subtitle
-    mtext(subtitle)
-    #get shape file with help function
-    getshape(interval, colland, colborder, do.plot=TRUE)
-    #adds points for occurrences to the plot
-    points (data$paleolng, data$paleolat, pch=21, col=colpointborder, bg=colpoints)
-    #draw box around plot
-    box(which="plot")
+    par (mar=c(0,0,0,0))
+    plot (shape, col="white", border=FALSE)
+    rect(xleft=-180, xright=180, ybottom=-90, 
+         ytop=90, col=sea, 
+         border=FALSE)
+    plot (shape, col=colland, border=FALSE, add=T)
+    points(data$paleolng, 
+           data$paleolat, 
+           pch=16, col= colpoints, 
+           cex=cex)
+    text (x=0, y=100, title)
   }
 }
 
@@ -202,9 +198,9 @@ pm_occraster <- function(shape, data,
   par (mar=c(0,0,0,8))
   plot (shape, col="white", border=FALSE)
   rect(xleft=-180, xright=180, 
-       ybottom=-90, ytop=90, col=sea, 
+       ybottom=-90, ytop=90, col=colsea, 
        border=FALSE)
-  plot (shape, col=land, border=FALSE, add=T)
+  plot (shape, col=colland, border=FALSE, add=T)
   plot(r,col=c(mycols(res*res)), add=T)
   #returning the raster
   r
