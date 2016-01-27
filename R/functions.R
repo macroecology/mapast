@@ -46,12 +46,12 @@ load (paste ("Data/", interval, ".rda", sep=""), envir=environment())
 
 #' pm_getdata
 #' 
-#' uses paleobioDB R package to get data from paleobiology Database
+#' uses paleobioDB R package to get data from the Paleobiology Database
 #'  
 #' @usage pm_getdata (interval, base_name, limit)
 #' 
 #' @param interval time interval of interest (e.g. jurassic)
-#' @param base_name name of the base (e.g reptilia, mammalia, canis) you want to get data from
+#' @param base_name name of the taxon you want to get data from (e.g mammalia, canidae, canis) 
 #' @param limit how many entrances from pbdb you want to have, e.g. 500. 
 #' There is no limit by default 
 #' @return a data frame with the occurrences and the values needed for the other functions in paleoMap
@@ -64,8 +64,6 @@ load (paste ("Data/", interval, ".rda", sep=""), envir=environment())
 
 pm_getdata <- function(interval, base_name, limit="all"){
   pbdb_occurences <- function(){}
-  # create an empty data variable for storing occurences
-  data <- c()
   # get data from paleobioDB
   # save data from paleobiodb as data frame
   occ <- data.frame(pbdb_occurrences (base_name=base_name, interval=interval, 
@@ -109,7 +107,6 @@ pm_getdata <- function(interval, base_name, limit="all"){
 #' records downloaded from the paleobioDB (e.g. 1000)
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
-#' @param colborder color of the landmass borders
 #' @param colpoints color of the points of the occurences
 #' @param colpointborder color of the border of the points
 #' @return a plot with the configuration of the continents at the selected time interval 
