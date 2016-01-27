@@ -51,10 +51,12 @@ load (paste ("Data/", interval, ".rda", sep=""), envir=environment())
 #' @usage pm_getdata (interval, base_name, limit)
 #' 
 #' @param interval time interval of interest (e.g. jurassic)
-#' @param base_name name of the taxon you want to get data from (e.g mammalia, canidae, canis) 
+#' @param base_name name of the taxon you want to get data from 
+#' (e.g mammalia, canidae, canis) 
 #' @param limit how many entrances from pbdb you want to have, e.g. 500. 
 #' There is no limit by default 
-#' @return a data frame with the occurrences and the values needed for the other functions in paleoMap
+#' @return a data frame with the occurrences and the values needed 
+#' for the other functions in paleoMap
 #' @export 
 #' @examples 
 #' \dontrun{
@@ -84,7 +86,8 @@ pm_getdata <- function(interval, base_name, limit="all"){
     return (data) 
   #catching error when there are no occurences for the request
   }else{
-    print ("There is no data that matches your query on the paleobioDB. Check if the spelling, temporal intervals, etc. are correct")
+    print ("There is no data that matches your query on the paleobioDB. 
+           Check if the spelling, temporal intervals, etc. are correct")
     return (0)
   }
 }
@@ -99,7 +102,7 @@ pm_getdata <- function(interval, base_name, limit="all"){
 #' 
 #' 
 #' @usage pm_plot (interval, base_name, limit, colsea, colland, 
-#' colborder, colpoints, colpointborder)
+#' colpoints)
 #' 
 #' @param interval time interval of interest (e.g. jurassic)
 #' @param base_name larger taxonomic rank for the query to the paleobioDB (e.g reptiles) 
@@ -108,7 +111,6 @@ pm_getdata <- function(interval, base_name, limit="all"){
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
 #' @param colpoints color of the points of the occurences
-#' @param colpointborder color of the border of the points
 #' @return a plot with the configuration of the continents at the selected time interval 
 #' and the fossil occurrences
 #' @export 
