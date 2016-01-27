@@ -23,22 +23,18 @@ pm_getmap <- function (interval, colsea="#00509010",
   ## we might hack this with "with" or "null" for avoiding NOTE on check: 'no visible binding for global variable'
   ## see: http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
   
-  load (paste (interval, ".rda", sep=""), envir=environment())
+load (paste ("Data/", interval, ".rda", sep=""), envir=environment())
   # if user does not set plot=FALSE plot the shape file
-
+  # get the shape file with help function getShape to open lazyload data
+  shape <- getshape(interval)
+  
   if(do.plot== TRUE){
-    plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
-         , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
-         , xlab="Longitude", ylab="Latitude"
-         , main=interval, xaxs="i", yaxs="i")
-    rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
+    par (mar=c(0,0,0,0))
+    plot (shape, col="white", border=FALSE)
+    rect(xleft=-180, xright=180, ybottom=-90, 
+         ytop=90, col=sea, 
          border=FALSE)
-  }
-  #get the shape file with help function getShape to open lazyload data
-  shape <- getshape(interval, colland, colborder, do.plot)
-  #create box around the plot
-  if(do.plot== TRUE){
-    box(which="plot")
+    plot (shape, col=colland, border=FALSE, add=T)
   }
   # return the shape file
   shape
