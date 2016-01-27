@@ -285,7 +285,7 @@ pm_richraster <- function(shape, data, res=10, rank,
 pm_divraster <- function(shape, ngl_data, res=10,
                              colsea="#E5E5E520", colland="#66666680", 
                              colborder="#2B2B2B30"){
-  raster <- diversity <- rasterize <- NULL
+  
   #creating a raster in size of the shape file
   ras <- raster(shape, res=res)
   #getting only species data and no duplictaed in a raster field
@@ -339,50 +339,38 @@ pm_divraster <- function(shape, ngl_data, res=10,
 #' show(my_ngl)
 #'}
 
+
+## aquí me he quedao revisando...
+
 pm_ngl <- function(data) {
   #only getting occurences with a known genus
   genus_data <-rfilter(data, "genus")
   #getting locations
-  loc <-data.frame(genus_data$paleolat, genus_data$paleolng)
-  names(loc) <- c("paleolat", "paleolng")
+  loc <-data.frame(paleolat= genus_data$paleolat, 
+                   paleolng= genus_data$paleolng)
   #getting unique locations
   uloc <- unique(loc)
+
   #getting list of unique genus
-  genus <- NULL
-  genus <- data.frame(genus_data$genus)
-  ugenus <- unique(genus)
-  
-  #creating data frame with number of different genus per unique locality
-  helpnames <- data.frame(c("paleolat", "paleolng"))
-  colnames(helpnames) <- "genus_data.genus"
-  dfnames <- rbind(helpnames, ugenus)
-  n <- c()
-  for (i in 1:length(dfnames$genus_data.genus)) {
-    n <- c(n, as.vector(dfnames[i,1]))
-  }
-  
-  nsites <- NULL
-  nsites <- cbind(nsites, uloc$paleolat)
-  nsites <- cbind(nsites, uloc$paleolng)
+  ugenus <- as.vector (unique(genus_data$genus))
+  nsites<- uloc
   #fill with default values -1
-  for (i in 1:length(ugenus[,1])) {
+  for (i in 1:length(ugenus)) {
     nsites <- cbind(nsites, rep(-1, length(uloc$paleolat)))
   }
-  
-  colnames(nsites) <- as.vector(dfnames[,1])
+  colnames(nsites) <- c (unlist (names (loc)), ugenus)
   
   #getting the number of occurrences of a genus for each locality
-  for (i in 1:length(nsites[,1])) {
+  for (i in 1:nrow(nsites)) {
     #get current lat & lng
-    lat_i <- as.numeric(as.character(nsites[i,1]))
-    lng_i <- as.numeric(as.character(nsites[i,2]))
-    for (j in 1:length(ugenus[,1])) {
+    lat_i <- nsites[i,1]
+    lng_i <- nsites[i,2]
+    for (j in 1:length(ugenus)) {
       count <- 0
       #get current genus
-      genus_j <- as.character(ugenus[j,1])
+      genus_j <- ugenus[j]
       #get all genus at locality
-      flat <-
-        subset(genus_data, genus_data$paleolat == lat_i)
+      flat <- subset(genus_data, genus_data$paleolat == lat_i)
       flatlng <- subset(flat, flat$paleolng == lng_i)
       #select only current genus
       fgen <- subset(flatlng, flatlng$genus == genus_j)
@@ -393,6 +381,8 @@ pm_ngl <- function(data) {
   #return the number of genus per locality data frame
   nsites
 }
+
+
 
 ###################################pm_latrich###################
 #' pm_latrich
