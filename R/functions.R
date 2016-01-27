@@ -167,15 +167,15 @@ pm_plot <- function(interval, base_name,
 #' 
 #' @usage pm_occraster (shape, data, rank, res, colsea, colland, colborder)
 #' @param shape shapefile from the time interval of interest. 
-#' Can be created with pm_getmap
+#' It can be created with pm_getmap
 #' @param data a data frame which needs to have a column called paleolat 
-#' and a column called paleolng, can be created with getdata_paleomap
-#' @param rank taxonomic rank of interest (e.g. genus, family, etc.)
-#' @param res resolution of the cells in the raster (10 degrees by default)
-#' @param colsea color of the ocean
-#' @param colland color of the land masses
-#' @param colborder color of the landmass borders
-#' @return a raster file and a plot of the time interval, the fossil occurrences and the raster file.
+#' and a column called paleolng. It can be created with getdata_paleomap
+#' @param rank taxonomic rank of interest (e.g. genus, family, etc.). By default rank="genus"
+#' @param res resolution of the cells in the raster in degrees (by default res=10)
+#' @param colsea users can define the color of the ocean 
+#' @param colland users can define the color of the land masses
+#' @return a raster file and a plot with number of the fossil occurrences in the selected 
+#' interval at the selected resolution
 #' @export 
 #' @examples 
 #' \dontrun{
@@ -184,27 +184,28 @@ pm_plot <- function(interval, base_name,
 #' pm_occraster (shape, data)
 #'}
 
-pm_occraster <- function(shape, data, rank= "genus", res=10,
-                         colsea="#E5E5E520", colland="#66666680", 
-                         colborder="#2B2B2B30"){
-  raster <- rasterize <- NULL
+pm_occraster <- function(shape, data, 
+                         rank= "genus", 
+                         res=10,
+                         colsea="#00509010", 
+                         colland="#66666660"){
+  
+  raster <- NULL
   #filter data for rank
   fdata <- rfilter(data, rank)
   #creating a raster in the size of the shape
   ras <- raster(shape, res=res)
   #raster of the occurences (sampling effort)
   r<-rasterize(fdata[,5:6],ras
-               ,fun=sum)
+               ,fun="count")
   #plotting the map and the raster on the map
-  par (mar=c(5,5,5,5))
-  plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
-       , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
-       , xlab="Longitude", ylab="Latitude"
-       , main=paste("Raster - sampling effort of ", rank), xaxs="i", yaxs="i")
-  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea)
-  plot(shape, col=colland, border=colborder, add=TRUE)
+  par (mar=c(0,0,0,8))
+  plot (shape, col="white", border=FALSE)
+  rect(xleft=-180, xright=180, 
+       ybottom=-90, ytop=90, col=sea, 
+       border=FALSE)
+  plot (shape, col=land, border=FALSE, add=T)
   plot(r,col=c(mycols(res*res)), add=T)
-  box(which="plot")
   #returning the raster
   r
 }
