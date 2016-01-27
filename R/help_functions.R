@@ -11,15 +11,15 @@ mycols <- colorRampPalette(c("goldenrod1","orangered",
 #################filter#######################
 #' rank_filter
 #' 
-#' filters the data frame so tehre are only species left 
-#' and for each raster every species only once
+#' creates the raster files with the number of unique taxa by pixel
 #' 
 #' @usage rank_filter (data, res, rank)
 #' @param data a data frame which needs to have a column called paleolat and a column called paleolng,
 #'  can be created with getdata_paleomap
+#' @param ras blank raster
 #' @param res resolution of the raster file
 #' @param rank rank of interest
-#' @return filtered data frame with only species
+#' @return a raster with the taxa richness
 #' @examples 
 #' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
@@ -27,43 +27,60 @@ mycols <- colorRampPalette(c("goldenrod1","orangered",
 #' show(filtered_data)
 #'}
 
-rank_filter <- function(data, res, rank){
+rank_filter <- function(r=ras, data, res, rank){
   #gets colnames for new data frame
-  filter <- data[0,]
-  data <- rfilter(data, rank)
-  #getting each species only once in 10*10 raster cell
-  for(i in seq(-180,180,res)){
-    frame <- data[0,]
-    for (j in seq(-90,90,res)){
-      for (k in 1:length(data$paleolng)){
-        if(data$paleolng>=i && data$paleolng <=(i+res) && data$paleolat>=j &&
-           data$paleolat <=(j+res)){
-          frame <- rbind(frame,data[k,])
-        }
-      }
-      
-    }
-    #add for each raster the filtered data
-    if(rank=="species"){ 
-      filter <- rbind(filter, subset(frame, !duplicated(frame$matched_name)))
-    }
-    if(rank=="genus"){
-      filter <- rbind(filter, subset(frame, !duplicated(frame$genus)))
-    }
-    if(rank=="family"){
-      filter <- rbind(filter, subset(frame, !duplicated(frame$family)))
-    }
-    if(rank=="order"){
-      filter <- rbind(filter, subset(frame, !duplicated(frame$order)))
-    }
+ 
+  if (rank=="species"){
+  if (length (data$matched_rank)!=0){
+    identified<-data [!is.na(data$matched_rank), ]
+    species<- identified [identified$matched_rank==rank, ]
+    S<- split(species, species$matched_no)
   }
-  #return filtered data frame
-  filter
+  
+  R<-lapply(S,function(y){
+    s<-split(y,paste(y$paleolng,y$paleolat))
+    X<-as.matrix(do.call(rbind,lapply(s,function(x)c(x$paleolng[1],
+                                                     x$paleolat[1],1))))
+    X<-rbind(X[1,],X)
+    r2<-rasterize(X[,1:2],r,X[,3])
+  })
+  names(R)==NULL
+  all<-calc(stack(R), function(x) sum(x,na.rm=T))
+  values(all)[values(all)==0]<-NA
+  all
+  }
+  
+  if (rank!="species"){
+  ranks<-data.frame(rank=c("genus","family","order","class","phylum"),
+                      matched_rank=c("genus_no","family_no","order_no",
+                                     "class_no","phylum_no"))
+                      
+    if (length (data$matched_rank)!=0){
+      identified<-data [!is.na(data$matched_rank), ]
+      col<-paste(ranks$matched_rank[ranks$rank==rank])
+      ident<-identified[!is.na(identified[,col]),]
+      f<-paste(ident[,col])
+      S<-split(ident,f)
+    }
+    
+    R<-lapply(S,function(y){
+      s<-split(y,paste(y$paleolng,y$paleolat))
+      X<-as.matrix(do.call(rbind,lapply(s,function(x)c(x$paleolng[1],
+                                                       x$paleolat[1],1))))
+      X<-rbind(X[1,],X)
+      r2<-rasterize(X[,1:2],r,X[,3])
+    })
+    names(R)=NULL
+    all<-calc(stack(R), function(x) sum(x,na.rm=T))
+    values(all)[values(all)==0]<-NA
+    all
+  }
+all 
 }
 
 #' rfilter
 #' 
-#' filters the data frame so tehre are only species left 
+#' filters the data frame so there are only species left 
 #' and for each raster every species only once
 #' 
 #' @usage rfilter (data, rank)

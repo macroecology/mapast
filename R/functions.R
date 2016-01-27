@@ -74,14 +74,19 @@ pm_getdata <- function(interval, base_name, limit="all"){
  #save only the needed parameter
   if (nrow (occ)!= 0){
     data <- data.frame(occ$matched_name, occ$matched_rank,
+                       occ$matched_no,
                        occ$early_interval, occ$late_interval,
                        occ$paleolng, occ$paleolat, occ$geoplate,
-                       occ$genus, occ$family, occ$order, occ$class, occ$phylum)
+                       occ$genus, occ$family, occ$order, occ$class, occ$phylum, 
+                       occ$genus_no, occ$family_no, occ$order_no,
+                                      occ$class_no, occ$phylum_no)
     #set correct column names
-    colnames(data) <- c("matched_name", "matched_rank",
+    colnames(data) <- c("matched_name", "matched_rank", "matched_no",
                         "early_interval", "late_interval",
                         "paleolng", "paleolat", "geoplate",
-                        "genus", "family", "order", "class", "phylum")
+                        "genus", "family", "order", "class", "phylum", 
+                        "genus_no","family_no","order_no",
+                        "class_no","phylum_no")
     #return data frame
     return (data) 
   #catching error when there are no occurences for the request
@@ -156,7 +161,7 @@ pm_plot <- function(interval, base_name,
 #' creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
 #' (a proxy for the sampling effort)
 #' 
-#' @usage pm_occraster (shape, data, rank, res, colsea, colland, colborder)
+#' @usage pm_occraster (shape, data, rank, res, colsea, colland)
 #' @param shape shapefile from the time interval of interest. 
 #' It can be created with pm_getmap
 #' @param data a data frame which needs to have a column called paleolat 
@@ -208,7 +213,7 @@ pm_occraster <- function(shape, data,
 #' creates a raster of species richness
 #' and makes a plot of the map and raster
 #' 
-#' @usage pm_richraster (shape, data, res, rank, colsea, colland, colborder)
+#' @usage pm_richraster (shape, data, res, rank, colsea, colland)
 #' 
 #' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
@@ -218,7 +223,6 @@ pm_occraster <- function(shape, data,
 #' @param rank gives the rank for the richness raster (e.g. species, genus,...)
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
-#' @param colborder color of the landmass borders
 #' @return plot with map of the time intervall, the fossil occurences and the 
 #' raster file. And the raster file itself
 #' @export 
@@ -226,31 +230,26 @@ pm_occraster <- function(shape, data,
 #' \dontrun{
 #' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' myraster <- pm_richraster (shape, data, rank="genus")
-#' plot(myraster)
+#' richness<- pm_richraster (shape, data, rank="genus")
 #'}
 #'
 
 pm_richraster <- function(shape, data, res=10, rank,
-                          colsea="#E5E5E520", colland="#66666680", 
-                          colborder="#2B2B2B30"){
-  raster <- rasterize <- NULL
+                          colsea="#00509010", 
+                          colland="#66666660"){
+  
   #creating a raster in size of the shape file
   ras <- raster(shape, res=res)
-  #getting only taxon rank data and no duplictaed in a raster field
-  fdata <- rank_filter(data, res=res, rank)
   #getting the raster of the species richness
-  r<-rasterize(fdata[,5:6],ras,fun=sum)
+  r <- rank_filter(ras, data, res=res, rank)
+  
   #plotting the map and the raster
-  par (mar=c(5,5,5,5))
-  plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
-       , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
-       , xlab="Longitude", ylab="Latitude"
-       , main=paste("Raster - richness of ", rank), xaxs="i", yaxs="i")
-  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea)
-  plot(shape, col=colland, border=colborder, add=TRUE)
-  plot(r, col= mycols(res*res), add=T)
-  box(which="plot")
+  par (mar=c(0,0,0,5))
+  plot (shape, col="white", border=FALSE)
+  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=sea, 
+       border=FALSE)
+  plot (shape, col=land, border=FALSE, add=T)
+  plot (r, add=T, axes=F, box=F, col=mycols(100))
   #return the raster
   r
 }
