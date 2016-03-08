@@ -258,10 +258,11 @@ pm_richraster <- function(shape, data, res=10, rank,
 
 #' pm_divraster
 #' 
-#' creates a raster of the Shannon diversity per cell
-#' and makes a plot of the map
+#' calculates the Shannon diversity per unique locality (based on its coordinates),
+#' makes a raster file and a plot showing mean, max, min diversity per cell, 
+#' or number of unique localities per cell
 #' 
-#' @usage pm_divraster  (shape, ngl_data, res, colsea, colland, colborder)
+#' @usage pm_divraster  (shape, occ_df, res, fun, colsea, colland)
 #' 
 #' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
@@ -381,9 +382,8 @@ pm_occ <- function(data, rank="genus") {
 #' 
 #' calculates latitudinal diversity of taxa (species, genera, families, orders)
 #' 
-#' @usage pm_latrich (data, res=1, rank="genus", do.plot=TRUE, 
-#' bar.side="right",colsea="#00509010", colland="#66666680",
-#' colborder="#2B2B2B30", colpoints="#9ACD3250", colpointborder="black")
+#' @usage pm_latrich (shape, data, res, rank, do.plot, 
+#' colsea, colland, colpoints, colpointborder, magn)
 #' 
 #' @param shape a shape file of the corresponding time map
 #' @param data a data frame with fossil occurrences 
@@ -449,80 +449,7 @@ pm_latrich <- function(shape, data, res=1, do.plot=TRUE, rank="genus",
 }
 
 
-#########################pm_nloc#############################
-#' pm_nloc
-#' 
-#' calculates the number of localities per grid cell for genus
-#' 
-#' @usage pm_nloc (data, res)
-#' 
-#' @param data a data frame with fossil occurrences 
-#' Can be created with pm_getdata(interval, base_name)
-#' @param res resolution of the grid cells
-#' @return data frame with number of localities
-#' @export 
-#' @examples 
-#' \dontrun{
-#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' numloc <- pm_nloc (data, res=10)
-#' show(numloc)
-#'}
 
-pm_nloc <- function(data, res){
-  #get all genus
-  fdata <- subset(data, data$genus!="NA")
-  #get all lat and lng for localities
-  loc <- data.frame(fdata$paleolat, fdata$paleolng)
-  colnames(loc)<-c("paleolat", "paleolng")
-  
-  #create number of localities data frame
-  nloc <- data.frame()
-  #save -1 as default values
-  for(i in 1:((180/res))){
-    nloc <- rbind(nloc, rep(-1,((360/res))))
-  }
-  #create colnames and rownames
-  coln <-c()
-  rown<-c()
-  for(lng in seq(-180,180-res,res)){
-    
-    coln <- c(coln, paste(as.character(lng), as.character(lng+res), sep=";"))
-  }
-  for(lat in seq(-90,90-res,res)){
-    rown <- c(rown, paste(as.character(lat), as.character(lat+res), sep=";"))
-  }
-  colnames(nloc) <- coln
-  rownames(nloc) <- rown
-  #set i=1 as starting value for the row index
-  i <- 1
-  #go through lng
-  for(lng in seq(-180,180-res,res)){
-    #set j=1 for the col index
-    j<-1
-    #go through lat
-    for(lat in seq(-90,90-res,res)){
-      #lloc default value -1
-      lloc <--1
-      #get all the localities in the current grid cell
-      tloc <- subset(loc, loc$paleolat>=lat)
-      tloc <- subset(tloc, tloc$paleolat <lat+res)
-      tloc <- subset(tloc, tloc$paleolng>=lng)
-      tloc <- subset(tloc, tloc$paleolng <lng+res)
-      #get unique loc
-      utloc <- unique(tloc)
-      #save number of unique localities
-      lloc <- length(utloc$paleolat)
-      
-      nloc[j, i] <- lloc
-      #go to the next cell
-      j <- j+1
-    }
-    #go to the next row
-    i <- i+1
-  }
-  #return the number of localities per cell
-  nloc
-}
 
 ################pm_corlatrich###################
 #' pm_latdiv
