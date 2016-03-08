@@ -192,7 +192,7 @@ pm_occraster <- function(shape, data,
   #creating a raster in the size of the shape
   ras <- raster(shape, res=res)
   #raster of the occurences (sampling effort)
-  r<-rasterize(fdata[,5:6],ras
+  r<-rasterize(fdata[,1:2],ras
                ,fun="count")
   #plotting the map and the raster on the map
   par (mar=c(0,0,0,8))
@@ -228,7 +228,7 @@ pm_occraster <- function(shape, data,
 #' @export 
 #' @examples 
 #' \dontrun{
-#' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' shape<- pm_getmap(interval="Quaternary") 
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' richness<- pm_richraster (shape, data, rank="genus")
 #'}
@@ -265,121 +265,113 @@ pm_richraster <- function(shape, data, res=10, rank,
 #' 
 #' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
-#' @param ngl_data a data frame with number of genus per locality
+#' @param occ_df a data frame with number of occurrences of a taxa per locality
 #' @param res resolution of the raster/ size of the grid cell
+#' @param fun values: mean, max, min, "count". functions to be applied when making the raster
+#' use mean to get the mean value of diversity in the cell (mean of the different fossil sites), 
+#' max to get the maximum diversity, min to get the min value of diversity, 
+#' "count" to get the number of fossil sites in per cell
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
-#' @param colborder color of the landmass borders
 #' @return plot with map of the time intervall, the fossil occurences and the 
 #' raster file. And the raster file itself
 #' @export 
 #' @examples 
 #' \dontrun{
-#' shape<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' shape<- pm_getmap(interval="Quaternary") 
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' ngl_data <- pm_ngl(data)
-#' myraster <- pm_divraster (shape, ngl_data)
-#' plot(myraster)
+#' occ_df <- pm_occ (data, rank="species")
+#' pm_divraster (shape, occ_df, fun=mean)
+#' pm_divraster (shape, occ_df, fun=max)
+#' pm_divraster (shape, occ_df, fun=min)
+#' pm_divraster (shape, occ_df, fun="count")
 #'}
 
-pm_divraster <- function(shape, ngl_data, res=10,
-                             colsea="#E5E5E520", colland="#66666680", 
-                             colborder="#2B2B2B30"){
+pm_divraster <- function(shape, occ_df, res=10, fun=mean,
+                             colsea="#00509010", colland="#66666680"){
   
   #creating a raster in size of the shape file
   ras <- raster(shape, res=res)
   #getting only species data and no duplictaed in a raster field
-  cordata1 <- diversity(ngl_data[,3:ncol(ngl_data)])
-  cordata <- data.frame(cbind(cbind(data.frame(ngl_data)$paleolng, data.frame(ngl_data)$paleolat), cordata1))
-  # colnames(cordiv) <- c("lat","lng","richness")
-  cordata[,3] <- cordata[,3]*100
-  newdif <- data.frame()
-  for(i in 1:length(cordata[,3])){
-    if(cordata[i,3]==0){
-      newdif <- rbind(newdif, cordata[i,])
-    }
-    else{
-      for(j in 1:cordata[i,3]){
-        newdif <- rbind(newdif, cordata[i,])
-      }
-      
-    }
-  }
+  cordata1 <- diversity(occ_df[,3:ncol(ngl_data)])
+  cordata <- data.frame(occ_df$paleolng, 
+                        occ_df$paleolat, div= cordata1)
+  
   #getting the raster of the species richness
-  r<-rasterize(newdif[,1:2],ras, fun=sum)
+  r<-rasterize(cordata [,1:2], ras, 
+               field= cordata$div, fun=fun)
+  
   #plotting the map and the raster
-  par (mar=c(5,5,5,5))
-  plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
-       , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
-       , xlab="Longitude", ylab="Latitude"
-       , main="Raster - richness of genus", xaxs="i", yaxs="i")
-  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea)
-  plot(shape, col=colland, border=colborder, add=TRUE)
-  plot(r, col= mycols(res*res), add=T)
-  box(which="plot")
+  par (mar=c(0,0,0,5))
+  plot (shape, col="white", border=FALSE)
+  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=sea, 
+       border=FALSE)
+  plot (shape, col=land, border=FALSE, add=T)
+  plot (r, add=T, axes=F, box=F, col=mycols(100))
+  
   #return the raster
   r
 }
 
-########pm_ngl###################
-#' pm_ngl
+########pm_occ###################
+#' pm_occ
 #' 
-#' calculates the number of genus per locality
+#' calculates the number occurrences of species, genera, families or orders per locality
 #' 
-#' @usage pm_ngl (data)
+#' @usage pm_occ (data, rank)
 #' 
 #' @param data a data frame with fossil occurrences 
 #' Can be created with pm_getdata(interval, base_name)
-#' @return data frame with number of genus per locality
+#' @param rank character: "species", "genus", "family", "order". 
+#' By default rank="genus"
+#' @return data frame with number of species, genera, families or orders per locality
 #' @export 
 #' @examples 
 #' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' my_ngl <- pm_ngl (data)
-#' show(my_ngl)
+#' pm_occ (data, rank=species)
 #'}
 
 
-## aquí me he quedao revisando...
-
-pm_ngl <- function(data) {
+pm_occ <- function(data, rank="genus") {
   #only getting occurences with a known genus
-  genus_data <-rfilter(data, "genus")
+  genus_data <-rfilter(data, rank)
+
   #getting locations
   loc <-data.frame(paleolat= genus_data$paleolat, 
                    paleolng= genus_data$paleolng)
   #getting unique locations
   uloc <- unique(loc)
 
-  #getting list of unique genus
-  ugenus <- as.vector (unique(genus_data$genus))
-  nsites<- uloc
-  #fill with default values -1
-  for (i in 1:length(ugenus)) {
-    nsites <- cbind(nsites, rep(-1, length(uloc$paleolat)))
-  }
-  colnames(nsites) <- c (unlist (names (loc)), ugenus)
+  #getting list of unique taxa
   
+  ugenus <- as.vector (unique(genus_data [,3]))
+  nsites<- uloc
+  
+  #fill with default values -1
+  blank<- matrix (-1, nrow=nrow (nsites), ncol=length (ugenus))
+  nsites<- cbind (nsites, blank)
+  colnames(nsites) <- c (unlist (names (loc)), ugenus)
+ 
   #getting the number of occurrences of a genus for each locality
   for (i in 1:nrow(nsites)) {
-    #get current lat & lng
+    #get lat & lng
     lat_i <- nsites[i,1]
     lng_i <- nsites[i,2]
     for (j in 1:length(ugenus)) {
-      count <- 0
       #get current genus
       genus_j <- ugenus[j]
       #get all genus at locality
       flat <- subset(genus_data, genus_data$paleolat == lat_i)
       flatlng <- subset(flat, flat$paleolng == lng_i)
       #select only current genus
-      fgen <- subset(flatlng, flatlng$genus == genus_j)
-      count <- length(fgen$genus)
+      fgen <- subset(flatlng, flatlng [,3] == genus_j)
+      count<- nrow (fgen)
       nsites[i, j + 2] <- count
-    }
+      }
   }
-  #return the number of genus per locality data frame
-  nsites
+
+ nsites
 }
 
 
@@ -387,71 +379,73 @@ pm_ngl <- function(data) {
 ###################################pm_latrich###################
 #' pm_latrich
 #' 
-#' calculates the latitudinal richness of the genus
+#' calculates latitudinal diversity of taxa (species, genera, families, orders)
 #' 
-#' @usage pm_latrich (data, res)
+#' @usage pm_latrich (data, res=1, rank="genus", do.plot=TRUE, 
+#' bar.side="right",colsea="#00509010", colland="#66666680",
+#' colborder="#2B2B2B30", colpoints="#9ACD3250", colpointborder="black")
 #' 
 #' @param shape a shape file of the corresponding time map
 #' @param data a data frame with fossil occurrences 
 #' Can be created with pm_getdata(interval, base_name)
-#' @param res resolution in of the segmentation of the latitude
+#' @param res resolution in of the segmentation of the latitude. By default res=1.
+#' @param rank character, taxonomic rank: "species", "genus", "family", "order". 
+#' By default rank="genus"
 #' @param do.plot TRUE if plot is wanted, false otherwise
-#' @param bar.side defines wether the barplot of the latitudinal richness is on the right or on the left side of the map
 #' @param colsea defines the color of the sea
 #' @param colland defines the color f the landmasses
-#' @param colborder defines the color of the borders of the land masses
 #' @param colpoints defines the colo of the points for the occurrences
 #' @param colpointborder defines color of the border of the occurrence points
-#' @return data frame with richness of rank and a plot of the continental masses with the occurrences and a barplot of the latitudinal richness
+#' @param magn numeric. index to magnify the plot of the latitudinal richness 
+#' (use when richness values are very low to see the latitudinal pattern more easily)
+#' @return data frame with richness of rank and a plot of the continental masses 
+#' with the occurrences and the latitudinal richness
 #' @export 
 #' @examples 
 #' \dontrun{
+#' shape<- pm_getmap(interval="Quaternary") 
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' latrich <- pm_latrich (data, res=10)
-#' show(latrich)
+#' pm_latrich (shape, data, rank="species", res=10)
 #'}
 
-pm_latrich <- function(shape, data, res, do.plot=TRUE, bar.side="right", 
-                       colsea="#E5E5E520", colland="#66666680", 
-                       colborder="#2B2B2B30", colpoints="#9ACD3250",
-                       colpointborder="black"){
+
+pm_latrich <- function(shape, data, res=1, do.plot=TRUE, rank="genus",
+                       colsea="#00509010", colland="#66666680", 
+                       colpoints="#FFC12530",
+                       colpointborder="black", magn=10){
+  data2 <-rfilter(data, rank)
   #setting min and max value for lat
-  lr <- data.frame(seq(-90,90-res,res), seq(-90+res, 90, res))
+  lr <- data.frame(lat_min= seq(-90,90-res,res), 
+                   lat_max=seq(-90+res, 90, res))
   #creating empty richness data frame
-  richn <- c()
+  richn <- NULL
   #going through lats
   for(lat in seq(-90,90-res,res)){
-    sub1 <- subset(data, data$paleolat>=lat)
+    sub1 <- subset(data2, data2$paleolat>=lat)
     sub2 <- subset(sub1, sub1$paleolat<(lat+res))
-    sub2 <- na.omit(sub2$genus)
-    sub3 <- unique(sub2)
+    sub3 <- unique(sub2 [,3])
     #count and save the number of different genus at each latitude
     richn <- c(richn, length(sub3))
   }
   #combine min,max lat and richness
-  lr <- cbind(lr,richn)
-  colnames(lr) <- c("min paleolat", "max paleolat", "richness")
+  lr <- cbind(lr, richn)
+  centros<- (seq(-90,90-res,res)+(seq(-90,90-res,res) + res))/2
+  rich<- 185 + (lr$richn*magn)
+  yy<- c(185, rich, 185)
+  xx<- c(-90, centros, 90)
   
-  if(do.plot==TRUE){
-   #create plot & barplot
-    if(bar.side=="left"){
-      barplot(lr$richness, horiz=TRUE, xlim=c(max(lr$richness),0))
-    }
-   plot(1, type="n", xlim=c(-180,180), ylim=c(-90,90)
-        , xaxp=c(180,-180,4), yaxp=c(90,-90,4)
-        , xlab="Longitude", ylab="Latitude"
-        , main="Raster - richness of genus", xaxs="i", yaxs="i")
-   rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea)
-   plot(shape, col=colland, border=colborder, add=TRUE)
-   points (data$paleolng, data$paleolat, pch=21, col=colpointborder, bg=colpoints)
-   if(bar.side=="right"){
-     barplot(lr$richness, horiz=TRUE, xlim=c(0,max(lr$richness)))
-   }
-  }
-  
+  par (xpd = NA, mar=c(0, 0, 0, 8))
+  plot (shape, col="white", border=FALSE)
+  rect(xleft=-180, xright=180, 
+        ybottom=-90, ytop=90, col=colsea, 
+        border=FALSE)
+   plot (shape, col=colland, border=FALSE, add=T)
+   points (data2$paleolng, data2$paleolat, 
+           pch=21, col=colpointborder, bg=colpoints)
+   polygon (yy, xx, col="goldenrod1", border=F)
+    
   #return latitudinal richness
-  lr
-  
+  return (lr)
 }
 
 
