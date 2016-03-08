@@ -100,15 +100,19 @@ rfilter <- function(data, rank){
     matched_rank <- NULL
     genus <- NULL
     data <- subset(data, matched_rank=="species")
+    data<- data [, c(5:6, 1)]
   }
   if(rank=="genus"){
     data <- subset(data, genus!="NA")
+    data<- data [, c(5:6, 8)]
   }
   if(rank=="family"){
     data <- subset(data, family!="NA")
+    data<- data [, c(5:6, 9)]
   }
   if(rank=="order"){
     data <- subset(data, order!="NA")
+    data<- data [, c(5:6, 10)]
   }
   data
 }

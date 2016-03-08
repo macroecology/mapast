@@ -256,13 +256,13 @@ pm_richraster <- function(shape, data, res=10, rank,
 
 #####################pm_divraster####################
 
-#' pm_divraster
+#' pm_divraster_loc
 #' 
 #' calculates the Shannon diversity per unique locality (based on its coordinates),
 #' makes a raster file and a plot showing mean, max, min diversity per cell, 
 #' or number of unique localities per cell
 #' 
-#' @usage pm_divraster  (shape, occ_df, res, fun, colsea, colland)
+#' @usage pm_divraster_loc  (shape, occ_df, res, fun, colsea, colland)
 #' 
 #' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
@@ -282,13 +282,13 @@ pm_richraster <- function(shape, data, res=10, rank,
 #' shape<- pm_getmap(interval="Quaternary") 
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' occ_df <- pm_occ (data, rank="species")
-#' pm_divraster (shape, occ_df, fun=mean)
-#' pm_divraster (shape, occ_df, fun=max)
-#' pm_divraster (shape, occ_df, fun=min)
-#' pm_divraster (shape, occ_df, fun="count")
+#' pm_divraster_loc (shape, occ_df, fun=mean)
+#' pm_divraster_loc (shape, occ_df, fun=max)
+#' pm_divraster_loc (shape, occ_df, fun=min)
+#' pm_divraster_loc (shape, occ_df, fun="count")
 #'}
 
-pm_divraster <- function(shape, occ_df, res=10, fun=mean,
+pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
                              colsea="#00509010", colland="#66666680"){
   
   #creating a raster in size of the shape file
@@ -313,6 +313,72 @@ pm_divraster <- function(shape, occ_df, res=10, fun=mean,
   #return the raster
   r
 }
+
+### aquiiiiiiii
+
+#####################pm_divraster####################
+
+#' pm_divraster_cell
+#' 
+#' calculates the Shannon diversity per unique locality (based on its coordinates),
+#' makes a raster file and a plot showing mean, max, min diversity per cell, 
+#' or number of unique localities per cell
+#' 
+#' @usage pm_divraster_cell  (shape, occ_df, res, fun, colsea, colland)
+#' 
+#' @param shape file from the time interval of interest. 
+#' Can be created with get_paleomap
+#' @param occ_df a data frame with number of occurrences of a taxa per locality
+#' @param res resolution of the raster/ size of the grid cell
+#' @param fun values: mean, max, min, "count". functions to be applied when making the raster
+#' use mean to get the mean value of diversity in the cell (mean of the different fossil sites), 
+#' max to get the maximum diversity, min to get the min value of diversity, 
+#' "count" to get the number of fossil sites in per cell
+#' @param colsea color of the ocean
+#' @param colland color of the land masses
+#' @return plot with map of the time intervall, the fossil occurences and the 
+#' raster file. And the raster file itself
+#' @export 
+#' @examples 
+#' \dontrun{
+#' shape<- pm_getmap(interval="Quaternary") 
+#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' occ_df <- pm_occ (data, rank="species")
+#' pm_divraster_cell (shape, occ_df, fun=mean)
+#' pm_divraster_cell (shape, occ_df, fun=max)
+#' pm_divraster_cell (shape, occ_df, fun=min)
+#' pm_divraster_cell (shape, occ_df, fun="count")
+#'}
+
+pm_divraster_cell <- function(shape, occ_df, res=10, fun=mean,
+                             colsea="#00509010", colland="#66666680"){
+  
+  #creating a raster in size of the shape file
+  ras <- raster(shape, res=res)
+  #getting only species data and no duplictaed in a raster field
+  cordata1 <- diversity(occ_df[,3:ncol(ngl_data)])
+  cordata <- data.frame(occ_df$paleolng, 
+                        occ_df$paleolat, div= cordata1)
+  
+  #getting the raster of the species richness
+  r<-rasterize(cordata [,1:2], ras, 
+               field= cordata$div, fun=fun)
+  
+  #plotting the map and the raster
+  par (mar=c(0,0,0,5))
+  plot (shape, col="white", border=FALSE)
+  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=sea, 
+       border=FALSE)
+  plot (shape, col=land, border=FALSE, add=T)
+  plot (r, add=T, axes=F, box=F, col=mycols(100))
+  
+  #return the raster
+  r
+}
+
+
+
+
 
 ########pm_occ###################
 #' pm_occ
@@ -388,9 +454,9 @@ pm_occ <- function(data, rank="genus") {
 #' @param shape a shape file of the corresponding time map
 #' @param data a data frame with fossil occurrences 
 #' Can be created with pm_getdata(interval, base_name)
-#' @param res resolution in of the segmentation of the latitude. By default res=1.
 #' @param rank character, taxonomic rank: "species", "genus", "family", "order". 
-#' By default rank="genus"
+#' By default rank="species"
+#' @param res resolution in of the segmentation of the latitude. By default res=1.
 #' @param do.plot TRUE if plot is wanted, false otherwise
 #' @param colsea defines the color of the sea
 #' @param colland defines the color f the landmasses
@@ -409,7 +475,8 @@ pm_occ <- function(data, rank="genus") {
 #'}
 
 
-pm_latrich <- function(shape, data, res=1, do.plot=TRUE, rank="genus",
+pm_latrich <- function(shape, data, res=10, 
+                       do.plot=TRUE, rank="species",
                        colsea="#00509010", colland="#66666680", 
                        colpoints="#FFC12530",
                        colpointborder="black", magn=10){
@@ -454,17 +521,17 @@ pm_latrich <- function(shape, data, res=1, do.plot=TRUE, rank="genus",
 ################pm_corlatrich###################
 #' pm_latdiv
 #' 
-#' calculates the Shannon diversity (at a genus level) in the latitudinal gradient
+#' calculates the Shannon diversity in the latitudinal gradient
 #' 
-#' @usage pm_corlatrich (ngl_data)
+#' @usage pm_corlatrich (occ_df)
 #' 
-#' @param ngl_data a data frame with number of genus per locality 
-#' Can be created with pm_getdata(interval, base_name)
+#' @param occ_df a data frame with abundance of taxa per locality (see example)
 #' @param shape a shape file of the corresponding time map
 #' @param data a data frame with fossil occurrences 
 #' Can be created with pm_getdata(interval, base_name)
 #' @param do.plot TRUE if plot is wanted, false otherwise
-#' @param bar.side defines wether the barplot of the latitudinal richness is on the right or on the left side of the map
+#' @param bar.side defines wether the barplot of the latitudinal richness 
+#' is on the right or on the left side of the map
 #' @param colsea defines the color of the sea
 #' @param colland defines the color f the landmasses
 #' @param colborder defines the color of the borders of the land masses
@@ -475,29 +542,30 @@ pm_latrich <- function(shape, data, res=1, do.plot=TRUE, rank="genus",
 #' @examples 
 #' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' ngl_data <- pm_ngl(data)
-#' latdiv <- pm_latdiv (ngl_data)
-#' show(latdiv)
+#' occ_df <- pm_occ (data)
+#' pm_latdiv (ngl_data)
 #'}
 
-pm_latdiv <- function(ngl_data, shape, data, do.plot=TRUE, bar.side="right", colsea="#E5E5E520", colland="#66666680", 
+pm_latdiv <- function(occ_df, shape, data, do.plot=TRUE, bar.side="right", colsea="#E5E5E520", colland="#66666680", 
                           colborder="#2B2B2B30", colpoints="#9ACD3250",
-                          colpointborder="black"){
+                          colpointborder="black", res=10){
+
   diversity <- NULL
   #calculate the shannon diversity
-  H_data <- diversity(ngl_data[,3:ncol(ngl_data)])
+  H_data <- diversity(occ_df[,3:ncol(ngl_data)])
   
   #get the localities
   locs <- cbind(ngl_data[,1],ngl_data[,2], as.vector(H_data))
-  cornum <- c()
-  #sum the corrected values up if they are in the same latmx,latmin interval
-  for(lat in seq(-90,80,10)){
+  cornum <- NULL
+
+  for(lat in seq(-90,80,res)){
     slocs <- subset(locs, locs[,1]>=lat)
-    slocs <- subset(slocs, slocs[,1]<lat+10)
-    cornum <- c(cornum ,sum(slocs[,3]))
+    slocs <- subset(slocs, slocs[,1]<lat+res)
+    cornum <- c(cornum, apply (slocs[,3]))
   }
-  latmin <- seq(-90,80,10)
-  latmax <- seq(-80,90,10)
+  
+  latmin <- seq(-90,80,res)
+  latmax <- seq(-80,90,res)
   #create data frame withh latmin latmax and corrected richness
   cordf <- data.frame(latmin, latmax, cornum)
   colnames(cordf) <- c("maxlat", "minlat", "richness")
