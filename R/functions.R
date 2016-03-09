@@ -53,8 +53,9 @@ load (paste ("Data/", interval, ".rda", sep=""), envir=environment())
 #' @param interval time interval of interest (e.g. jurassic)
 #' @param base_name name of the taxon you want to get data from 
 #' (e.g mammalia, canidae, canis) 
-#' @param limit how many entrances from pbdb you want to have, e.g. 500. 
-#' There is no limit by default 
+#' @param limit numeric. To set the limit of occurrences 
+#' to be downloaded from the Paleobiology Database e.g. 500. 
+#' There is no limit by default. 
 #' @return a data frame with the occurrences and the values needed 
 #' for the other functions in paleoMap
 #' @export 
@@ -103,19 +104,20 @@ pm_getdata <- function(interval, base_name, limit="all"){
 
 #' pm_plot
 #' 
-#' plots your query from paleobioDB directly onto the map of the selected time interval
+#' plots your query from the paleobioDB onto the map of the selected time interval
 #' 
 #' 
 #' @usage pm_plot (interval, base_name, limit, colsea, colland, 
-#' colpoints)
+#' colpoints, cex)
 #' 
-#' @param interval time interval of interest (e.g. jurassic)
-#' @param base_name larger taxonomic rank for the query to the paleobioDB (e.g reptiles) 
+#' @param interval time interval of interest (e.g. Quaternary)
+#' @param base_name taxa to be downloaded for the paleobioDB (e.g Canis, Canidae, Carnivora, etc.) 
 #' @param limit enables the user to set the maximum number of 
 #' records downloaded from the paleobioDB (e.g. 1000)
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
-#' @param colpoints color of the points of the occurences
+#' @param colpoints color of the occurrence points
+#' @param cex numeric. size of the points. By default cex=3.
 #' @return a plot with the configuration of the continents at the selected time interval 
 #' and the fossil occurrences
 #' @export 
@@ -254,6 +256,139 @@ pm_richraster <- function(shape, data, res=10, rank,
   r
 }
 
+
+
+
+########pm_occ###################
+#' pm_occ
+#' 
+#' generates a diversity matrix, with the number occurrences of each species, genus, family or order per locality
+#' 
+#' @usage pm_occ (data, rank)
+#' 
+#' @param data a data frame with fossil occurrences 
+#' Can be created with pm_getdata(interval, base_name)
+#' @param rank character: "species", "genus", "family", "order". 
+#' By default rank="genus"
+#' @return data frame with number of species, genera, families or orders per locality
+#' @export 
+#' @examples 
+#' \dontrun{
+#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' pm_occ (data, rank=species)
+#'}
+
+
+pm_occ <- function(data, rank="genus") {
+  #only getting occurences with a known genus
+  genus_data <-rfilter(data, rank)
+  
+  #getting locations
+  loc <-data.frame(paleolat= genus_data$paleolat, 
+                   paleolng= genus_data$paleolng)
+  #getting unique locations
+  uloc <- unique(loc)
+  
+  #getting list of unique taxa
+  
+  ugenus <- as.vector (unique(genus_data [,3]))
+  nsites<- uloc
+  
+  #fill with default values -1
+  blank<- matrix (-1, nrow=nrow (nsites), ncol=length (ugenus))
+  nsites<- cbind (nsites, blank)
+  colnames(nsites) <- c (unlist (names (loc)), ugenus)
+  
+  #getting the number of occurrences of a genus for each locality
+  for (i in 1:nrow(nsites)) {
+    #get lat & lng
+    lat_i <- nsites[i,1]
+    lng_i <- nsites[i,2]
+    for (j in 1:length(ugenus)) {
+      #get current genus
+      genus_j <- ugenus[j]
+      #get all genus at locality
+      flat <- subset(genus_data, genus_data$paleolat == lat_i)
+      flatlng <- subset(flat, flat$paleolng == lng_i)
+      #select only current genus
+      fgen <- subset(flatlng, flatlng [,3] == genus_j)
+      count<- nrow (fgen)
+      nsites[i, j + 2] <- count
+    }
+  }
+  
+  nsites
+}
+
+
+
+
+
+########pm_occ###################
+#' pm_occ_cell
+#' 
+#' generates a diversity matrix, with the number occurrences of each species, genus, family or order per cell
+#' 
+#' @usage pm_occ (data, rank, res)
+#' 
+#' @param data a data frame with fossil occurrences 
+#' Can be created with pm_getdata(interval, base_name)
+#' @param rank character: "species", "genus", "family", "order". 
+#' By default rank="genus"
+#' @param res numeric. resolution of the cells. By default res=10
+#' @return data frame with number of species, genera, families or orders per locality
+#' @export 
+#' @examples 
+#' \dontrun{
+#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' pm_occ_cell (data, rank="species", res=10)
+#'}
+
+
+pm_occ_cell <- function(data, rank="genus", res=10) {
+  #only getting occurences with a known genus
+  genus_data <-rfilter(data, rank)
+  #getting list of unique taxa
+  ugenus <- as.vector (unique(genus_data [,3]))
+ 
+  
+  lat<- seq(-90 + (res/2), 90 -(res/2), res)
+  long<- seq(-180 + (res/2), 180 -(res/2), res)
+  
+  nsites<- expand.grid (long, lat)
+  
+  #fill with default values -1
+  blank<- matrix (-1, nrow= nrow (nsites), ncol=length (ugenus))
+  nsites<- cbind (nsites, blank)
+  colnames(nsites) <- c ("long", "lat", ugenus)
+  
+  #getting the number of occurrences of a genus for each locality
+  for (i in 1:nrow(nsites)) {
+    #get lat & lng
+   
+    lng_i <- nsites[i,1]
+    lat_i <- nsites[i,2]
+    for (j in 1:length(ugenus)) {
+      #get current genus
+      genus_j <- ugenus[j]
+      #get all genus at locality
+      flat <- subset(genus_data, genus_data$paleolat >= lat_i - (res/2))
+      flat <- subset(flat , flat$paleolat < lat_i + (res/2))
+      flatlng <- subset(flat, flat$paleolng >= lng_i - (res/2))
+      flatlng <- subset(flatlng , flatlng$paleolng < lng_i + (res/2))
+      
+      #select only current genus
+      fgen <- subset(flatlng, flatlng [,3] == genus_j)
+      count<- nrow (fgen)
+      nsites[i, j + 2] <- count
+    }
+  }
+  
+  as.data.frame (nsites)
+}
+
+
+
 #####################pm_divraster####################
 
 #' pm_divraster_loc
@@ -294,7 +429,7 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
   #creating a raster in size of the shape file
   ras <- raster(shape, res=res)
   #getting only species data and no duplictaed in a raster field
-  cordata1 <- diversity(occ_df[,3:ncol(ngl_data)])
+  cordata1 <- diversity(occ_df[,3:ncol(occ_df)])
   cordata <- data.frame(occ_df$paleolng, 
                         occ_df$paleolat, div= cordata1)
   
@@ -314,26 +449,21 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
   r
 }
 
-### aquiiiiiiii
 
 #####################pm_divraster####################
 
 #' pm_divraster_cell
 #' 
-#' calculates the Shannon diversity per unique locality (based on its coordinates),
-#' makes a raster file and a plot showing mean, max, min diversity per cell, 
-#' or number of unique localities per cell
+#' calculates the Shannon diversity per cell 
+#' (taking into account relative abundances of all the fossil records whithin the cell)
 #' 
-#' @usage pm_divraster_cell  (shape, occ_df, res, fun, colsea, colland)
+#' @usage pm_divraster_cell  (shape, occ_df, res, colsea, colland)
 #' 
 #' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
 #' @param occ_df a data frame with number of occurrences of a taxa per locality
 #' @param res resolution of the raster/ size of the grid cell
-#' @param fun values: mean, max, min, "count". functions to be applied when making the raster
-#' use mean to get the mean value of diversity in the cell (mean of the different fossil sites), 
-#' max to get the maximum diversity, min to get the min value of diversity, 
-#' "count" to get the number of fossil sites in per cell
+#' @param rank taxonomic rangk of interest. values: "species", "genus", "family", "order". By default rank="species"
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
 #' @return plot with map of the time intervall, the fossil occurences and the 
@@ -343,27 +473,27 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
 #' \dontrun{
 #' shape<- pm_getmap(interval="Quaternary") 
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' occ_df <- pm_occ (data, rank="species")
-#' pm_divraster_cell (shape, occ_df, fun=mean)
-#' pm_divraster_cell (shape, occ_df, fun=max)
-#' pm_divraster_cell (shape, occ_df, fun=min)
-#' pm_divraster_cell (shape, occ_df, fun="count")
+#' occ_df_cell <- pm_occ_cell (data, rank="species")
+#' pm_divraster_cell (shape, occ_df_cell, res=10)
+#' ## cells with diversity values = 0 (e.g., 1 species) are discarded.
 #'}
 
-pm_divraster_cell <- function(shape, occ_df, res=10, fun=mean,
+pm_divraster_cell <- function(shape, occ_df_cell, res=10, rank="species",
                              colsea="#00509010", colland="#66666680"){
   
   #creating a raster in size of the shape file
   ras <- raster(shape, res=res)
+  
   #getting only species data and no duplictaed in a raster field
-  cordata1 <- diversity(occ_df[,3:ncol(ngl_data)])
-  cordata <- data.frame(occ_df$paleolng, 
-                        occ_df$paleolat, div= cordata1)
+  cordata1 <- diversity (occ_df_cell [,3:ncol(occ_df_cell)])
+  cordata <- data.frame(occ_df_cell$long, 
+                        occ_df_cell$lat, div= cordata1)
+  
+  r<-rasterize(cordata [,1:2], ras, 
+               field= cordata$div, fun=max)
   
   #getting the raster of the species richness
-  r<-rasterize(cordata [,1:2], ras, 
-               field= cordata$div, fun=fun)
-  
+  r[r==0]<- NA
   #plotting the map and the raster
   par (mar=c(0,0,0,5))
   plot (shape, col="white", border=FALSE)
@@ -374,71 +504,6 @@ pm_divraster_cell <- function(shape, occ_df, res=10, fun=mean,
   
   #return the raster
   r
-}
-
-
-
-
-
-########pm_occ###################
-#' pm_occ
-#' 
-#' calculates the number occurrences of species, genera, families or orders per locality
-#' 
-#' @usage pm_occ (data, rank)
-#' 
-#' @param data a data frame with fossil occurrences 
-#' Can be created with pm_getdata(interval, base_name)
-#' @param rank character: "species", "genus", "family", "order". 
-#' By default rank="genus"
-#' @return data frame with number of species, genera, families or orders per locality
-#' @export 
-#' @examples 
-#' \dontrun{
-#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' pm_occ (data, rank=species)
-#'}
-
-
-pm_occ <- function(data, rank="genus") {
-  #only getting occurences with a known genus
-  genus_data <-rfilter(data, rank)
-
-  #getting locations
-  loc <-data.frame(paleolat= genus_data$paleolat, 
-                   paleolng= genus_data$paleolng)
-  #getting unique locations
-  uloc <- unique(loc)
-
-  #getting list of unique taxa
-  
-  ugenus <- as.vector (unique(genus_data [,3]))
-  nsites<- uloc
-  
-  #fill with default values -1
-  blank<- matrix (-1, nrow=nrow (nsites), ncol=length (ugenus))
-  nsites<- cbind (nsites, blank)
-  colnames(nsites) <- c (unlist (names (loc)), ugenus)
- 
-  #getting the number of occurrences of a genus for each locality
-  for (i in 1:nrow(nsites)) {
-    #get lat & lng
-    lat_i <- nsites[i,1]
-    lng_i <- nsites[i,2]
-    for (j in 1:length(ugenus)) {
-      #get current genus
-      genus_j <- ugenus[j]
-      #get all genus at locality
-      flat <- subset(genus_data, genus_data$paleolat == lat_i)
-      flatlng <- subset(flat, flat$paleolng == lng_i)
-      #select only current genus
-      fgen <- subset(flatlng, flatlng [,3] == genus_j)
-      count<- nrow (fgen)
-      nsites[i, j + 2] <- count
-      }
-  }
-
- nsites
 }
 
 
@@ -516,14 +581,11 @@ pm_latrich <- function(shape, data, res=10,
 }
 
 
-
-
-################pm_corlatrich###################
 #' pm_latdiv
 #' 
 #' calculates the Shannon diversity in the latitudinal gradient
 #' 
-#' @usage pm_corlatrich (occ_df)
+#' @usage pm_latdiv (occ_df)
 #' 
 #' @param occ_df a data frame with abundance of taxa per locality (see example)
 #' @param shape a shape file of the corresponding time map
@@ -543,25 +605,28 @@ pm_latrich <- function(shape, data, res=10,
 #' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' occ_df <- pm_occ (data)
-#' pm_latdiv (ngl_data)
+#' pm_latdiv (occ_df)
 #'}
 
-pm_latdiv <- function(occ_df, shape, data, do.plot=TRUE, bar.side="right", colsea="#E5E5E520", colland="#66666680", 
-                          colborder="#2B2B2B30", colpoints="#9ACD3250",
-                          colpointborder="black", res=10){
-
+pm_latdiv <- function(occ_df, shape, res=10, 
+                       do.plot=TRUE, rank="species",
+                       colsea="#00509010", colland="#66666680", 
+                       colpoints="#FFC12530",
+                       colpointborder="black")
+  
+  
   diversity <- NULL
   #calculate the shannon diversity
-  H_data <- diversity(occ_df[,3:ncol(ngl_data)])
+  H_data <- diversity(occ_df[,3:ncol(occ_df)])
   
   #get the localities
-  locs <- cbind(ngl_data[,1],ngl_data[,2], as.vector(H_data))
+  locs <- cbind(occ_df[,1],occ_df[,2], as.vector(H_data))
   cornum <- NULL
 
   for(lat in seq(-90,80,res)){
     slocs <- subset(locs, locs[,1]>=lat)
     slocs <- subset(slocs, slocs[,1]<lat+res)
-    cornum <- c(cornum, apply (slocs[,3]))
+    cornum <- c(cornum, apply (slocs[,3]), )
   }
   
   latmin <- seq(-90,80,res)

@@ -23,8 +23,7 @@ mycols <- colorRampPalette(c("goldenrod1","orangered",
 #' @examples 
 #' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' filtered_data <- rank_filter (data, res=10, rank="genus")
-#' show(filtered_data)
+#' rank_filter (data, res=10, rank="genus")
 #'}
 
 rank_filter <- function(r=ras, data, res, rank){
