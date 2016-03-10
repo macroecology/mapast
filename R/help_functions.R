@@ -43,7 +43,7 @@ rank_filter <- function(r=ras, data, res, rank){
     X<-rbind(X[1,],X)
     r2<-rasterize(X[,1:2],r,X[,3])
   })
-  names(R)==NULL
+  
   all<-calc(stack(R), function(x) sum(x,na.rm=T))
   values(all)[values(all)==0]<-NA
   all
