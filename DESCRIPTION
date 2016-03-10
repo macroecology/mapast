@@ -1,23 +1,26 @@
 Package: paleoMap
-Description: download and use paleomaps (GPlates)
+Description: download and use paleomaps (GPlates) combined with paleobioDB fossil occurrences
 Encoding: UTF-8
 Type: Package
 License: GPL-2
-Title: Spatial Paleobiodiversity Combined With Paleogeography
+Title: Paleogeography combined with spatial paleobiodiversity
 Version: 0.1
-Authors@R: c(person("Sonja", "Rothkugel", role = c("aut"),
-    email = "rothugelsonja@aol.de"),
-    person("Sara", "Varela", role = c("aut", "cre"),
-    email = "svarela@paleobiogeography.org"))
+Authors@R: c(person("Sara", "Varela", role = c("aut", "cre"),
+    email = "svarela@paleobiogeography.org"),
+    person("Sonja", "Rothkugel", role = c("aut"),
+    email = "rothugelsonja@aol.de"))
 Maintainer: Sara Varela <svarela@paleobiogeography.org>
 Depends:
-	roxygen2,
-	paleobioDB,
-  raster,
-	vegan,
-	maptools
+    roxygen2,
+    paleobioDB,
+    raster,
+    vegan,
+    maptools
 Imports:
+    
 Suggests:
+    
 BugReports: https://github.com/macroecology/paleoMap/issues
 URL: https://github.com/macroecology/paleoMap
 LazyData: true
+RoxygenNote: 5.0.1
