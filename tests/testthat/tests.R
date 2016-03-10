@@ -1,6 +1,6 @@
 context("pm_getdata")
 test_that("tests on getdata_paleomap which should return a data.frame with
-          at least paleolat, paleolng, taxon_name and taxon_rank"){
+          at least paleolat, paleolng, taxon_name and taxon_rank")
   #get the data
   data<-  pm_getdata(interval="Quaternary", base_name="reptilia", limit=1000)
   #test if data is data frame
@@ -19,18 +19,17 @@ test_that("tests on getdata_paleomap which should return a data.frame with
   expect_true(minlng>=-180)
   maxlng <- max(data$pleolng)
   expect_true(maxlng<=180)
-}
+  
 
 context("pm_getmap")
-test_that("tests on get_paleomap, if output is a shapefile"){
+test_that("tests on get_paleomap, if output is a shapefile") 
   #get shapefile
   shape <- pm_getmap(interval="Jurassic", plot=TRUE, colsea="#00005020", colland="#2B2B2B80", colborder="#2B2B2B30")
   #test if it is a shape file
   expect_true(shape@class[1], equals("SpatialPolygonsDataFrame"))
-}
 
 context("pm_occraster")
-test_that("test on raster_paleomap, if output is raster"){
+test_that("test on raster_paleomap, if output is raster")
   #get data and shapefile
   shape <- pm_getmap(interval="Jurassic",plot=TRUE, colsea="#00005020", colland="#2B2B2B80", colborder="#2B2B2B30")
   data <- pm_getdata(interval="Jurassic", base_name="reptilia", limit=1000)
@@ -38,10 +37,9 @@ test_that("test on raster_paleomap, if output is raster"){
   ras <- pm_occraster(shape, data)
   #test if raster is a RasterLayer
   expect_that(ras@class[1], equals("RasterLayer"))
-}
 
 context("pm_richraster")
-test_that("test on spraster_paleomap, if output is raster"){
+test_that("test on spraster_paleomap, if output is raster")
   #get data and shape file
   shape <- pm_getmap(interval="Jurassic", plot=TRUE, colsea="#00005020", colland="#2B2B2B80", colborder="#2B2B2B30")
   data <- pm_getdata(interval="Jurassic", base_name="reptilia", limit=1000)
@@ -49,10 +47,9 @@ test_that("test on spraster_paleomap, if output is raster"){
   spras <- pm_richraster(shape, data)
   #test if class of raster is RasterLayer
   expect_that(spras@class[1], equals("RasterLayer"))
-}
 
 context("rank_filter")
-test_that("test if output is a dataframe and if there are only species in the data frame"){
+test_that("test if output is a dataframe and if there are only species in the data frame")
   #get data
   data <- pm_getdata(interval="Jurassic", base_name="reptilia", limit=1000)
   #filter data
@@ -80,4 +77,4 @@ test_that("test if output is a dataframe and if there are only species in the da
     bool <- (bool && (taxon_rank[i]=="species"))
   }
   expect_true(bool)
-}
+  
