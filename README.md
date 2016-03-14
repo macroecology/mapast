@@ -285,8 +285,8 @@ Returns a dataframe of taxa occurrences vs. cells (aggregation of taxa based on 
 
 
 **pm_divraster_loc**
-1. calculates the Shannon diversity per unique locality (based on its coordinates),
-2. makes a raster file and a plot showing mean, max, min diversity per cell, 
+1- calculates the Shannon diversity per unique locality (based on its coordinates),
+2- makes a raster file and a plot showing mean, max, min diversity per cell, 
 or number of unique localities per cell
 
 ```coffee
@@ -312,7 +312,7 @@ values      : 1, 15  (min, max)
 
 ![plot of chunk map](figure/diversity.png) 
 
-**pm_divraster_cell **
+**pm_divraster_cell**
 calculates the Shannon diversity per cell 
 (taking into account relative abundances of all the fossil records whithin the cell)
 
@@ -402,7 +402,7 @@ calculates the Shannon diversity along the latitudinal gradient based on the ind
 
 ## Meta
 
-Please report any [issues or bugs](https://github.com/macroecology/paleoMap/issues).
+Please report any [issues or  bugs](https://github.com/macroecology/paleoMap/issues).
 
 License: GPL-2
 
@@ -411,13 +411,13 @@ To cite package `paleoMap` in publications use:
 ```coffee
 To cite package `paleoMap` in publications use:
 
-Sonja Rothkugel, Sara Varela (2015). paleoMap:  An R-package for getting and using paleontoligcal maps. R package version 0.1. https://github.com/macroecology/paleoMap
+Sara Varela, K. Sonja Rothkugel (2015). paleoMap:  combine paleogeography and paleobiodiversity. R package version 0.1. https://github.com/macroecology/paleoMap
 
 A BibTeX entry for LaTeX users is
 
   @Manual{,
-    title = {paleoMap: An R-package for getting and using paleontoligcal maps},
-    author = {{Sonja Rothkugel} and {Sara Varela}},
+    title = {paleoMap:  combine paleogeography and paleobiodiversity},
+    author = {{Sara Varela} and {Sonja Rothkugel}},
     year = {2016},
     note = {R package version 0.1},
     base = {https://github.com/macroecology/paleoMap},
