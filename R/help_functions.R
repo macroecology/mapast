@@ -7,7 +7,6 @@
 mycols <- colorRampPalette(c("goldenrod1","orangered", 
                                           "darkred"))
 
-
 #################filter#######################
 #' rank_filter
 #' 
@@ -99,19 +98,19 @@ rfilter <- function(data, rank){
     matched_rank <- NULL
     genus <- NULL
     data <- subset(data, matched_rank=="species")
-    data<- data [, c(5:6, 1)]
+    data<- data [, c(6:7, 2)]
   }
   if(rank=="genus"){
     data <- subset(data, genus!="NA")
-    data<- data [, c(5:6, 8)]
+    data<- data [, c(6:7, 9)]
   }
   if(rank=="family"){
     data <- subset(data, family!="NA")
-    data<- data [, c(5:6, 9)]
+    data<- data [, c(6:7, 10)]
   }
   if(rank=="order"){
     data <- subset(data, order!="NA")
-    data<- data [, c(5:6, 10)]
+    data<- data [, c(6:7, 11)]
   }
   data
 }

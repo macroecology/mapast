@@ -11,7 +11,7 @@ pm_latdiv (occ_df, shape, fun, colsea, solland, colpoints, colpointborder)
 
 \item{shape}{a shape file of the corresponding time map}
 
-\item{fun}{values: mean, max, min. functions to be applied to get one single value of diversity,
+\item{fun}{values: mean, max. functions to be applied to get one single value of diversity,
 use mean to get the mean value of diversity 
 (mean of the different fossil sites at the same latitudinal bin), 
 max to get the maximum observed diversity, min to get the min observed diversity.}
@@ -34,7 +34,7 @@ latitudinal diversity
 \description{
 calculates the Shannon diversity along the latitudinal gradient based on 
 the individual values of diverstiy the fossil localities of those latitudes.
-The function returns the mean, max or min values of diversity of the sampled localities
+The function returns the mean or max values of diversity of the sampled localities
 along the latitudinal gradient.
 }
 \examples{
@@ -43,7 +43,6 @@ data<- pm_getdata (base_name="Canis", interval="Quaternary")
 occ_df <- pm_occ (data)
 pm_latdiv (occ_df, shape, fun=mean)
 pm_latdiv (occ_df, shape, fun=max)
-pm_latdiv (occ_df, shape, fun=min)
 }
 }
 

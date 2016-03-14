@@ -1,5 +1,6 @@
 Package: paleoMap
-Description: download and use paleomaps (GPlates) combined with paleobioDB fossil occurrences
+Description: download and use paleomaps (GPlates) combined with paleobioDB
+    fossil occurrences
 Encoding: UTF-8
 Type: Package
 License: GPL-2
@@ -19,8 +20,8 @@ Depends:
 Imports:
     
 Suggests:
-    
-BugReports: https://github.com/macroecology/paleoMap/issues
-URL: https://github.com/macroecology/paleoMap
-LazyData: true
+    NA
+BugReports: NA
+URL: NA
+LazyData: NA
 RoxygenNote: 5.0.1

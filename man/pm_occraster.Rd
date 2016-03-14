@@ -13,7 +13,7 @@ It can be created with pm_getmap}
 \item{data}{a data frame which needs to have a column called paleolat 
 and a column called paleolng. It can be created with getdata_paleomap}
 
-\item{rank}{taxonomic rank of interest (e.g. genus, family, etc.). By default rank="genus"}
+\item{rank}{taxonomic rank of interest (e.g. genus, family, etc.). By default rank="species"}
 
 \item{res}{resolution of the cells in the raster in degrees (by default res=10)}
 

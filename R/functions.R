@@ -2,19 +2,20 @@
 
 #' pm_getmap
 #' 
-#' generates a shapefile with the map of the choosen time interval (e.g. "Triassic")
+#' generates a shapefile with the paleomap of the choosen 
+#' time interval (e.g. "Cretaceous") and a plot
 #' 
 #' @usage pm_getmap (interval, do.plot, colsea, colland)
 #' 
-#' @param interval time interval of interest (e.g. "Triassic")
+#' @param interval time interval of interest (e.g. "Cretaceous")
 #' @param do.plot TRUE/FALSE. TRUE by default.
 #' @param colsea to set the color of the ocean in the plot
 #' @param colland to set the color of the land masses in the plot
-#' @return a shape file for the choosen time interval and a plot (if do.plot=TRUE)
+#' @return a shape file and a plot (if do.plot=TRUE)
 #' @export 
 #' @examples 
 #' \dontrun{
-#' pm_getmap(interval="Quaternary") 
+#' pm_getmap(interval="Cretaceous") 
 #'}
 
 pm_getmap <- function (interval, colsea="#00509010", 
@@ -23,18 +24,18 @@ pm_getmap <- function (interval, colsea="#00509010",
   ## we might hack this with "with" or "null" for avoiding NOTE on check: 'no visible binding for global variable'
   ## see: http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
   
-load (paste ("Data/", interval, ".rda", sep=""), envir=environment())
+  load (paste ("Data/", interval, ".rda", sep=""))
   # if user does not set plot=FALSE plot the shape file
   # get the shape file with help function getShape to open lazyload data
-  shape <- getshape(interval)
+  assign("shape", get(interval))
   
   if(do.plot== TRUE){
     par (mar=c(0,0,0,0))
     plot (shape, col="white", border=FALSE)
     rect(xleft=-180, xright=180, ybottom=-90, 
-         ytop=90, col=sea, 
+         ytop=90, col=colsea, 
          border=FALSE)
-    plot (shape, col=colland, border=FALSE, add=T)
+    plot (shape, col=colland, border=F, add=T)
   }
   # return the shape file
   shape
@@ -74,7 +75,7 @@ pm_getdata <- function(interval, base_name, limit="all"){
                                       vocab="pbdb", limit=limit))
  #save only the needed parameter
   if (nrow (occ)!= 0){
-    data <- data.frame(occ$matched_name, occ$matched_rank,
+    data <- data.frame(occ$occurrence_no, occ$matched_name, occ$matched_rank,
                        occ$matched_no,
                        occ$early_interval, occ$late_interval,
                        occ$paleolng, occ$paleolat, occ$geoplate,
@@ -82,7 +83,7 @@ pm_getdata <- function(interval, base_name, limit="all"){
                        occ$genus_no, occ$family_no, occ$order_no,
                                       occ$class_no, occ$phylum_no)
     #set correct column names
-    colnames(data) <- c("matched_name", "matched_rank", "matched_no",
+    colnames(data) <- c("occurrence_no", "matched_name", "matched_rank", "matched_no",
                         "early_interval", "late_interval",
                         "paleolng", "paleolat", "geoplate",
                         "genus", "family", "order", "class", "phylum", 
@@ -111,48 +112,43 @@ pm_getdata <- function(interval, base_name, limit="all"){
 #' colpoints, cex)
 #' 
 #' @param interval time interval of interest (e.g. Quaternary)
-#' @param base_name taxa to be downloaded for the paleobioDB (e.g Canis, Canidae, Carnivora, etc.) 
-#' @param limit enables the user to set the maximum number of 
-#' records downloaded from the paleobioDB (e.g. 1000)
+#' @param data data.frame with the paleogeoreferenced fossil records 
+#' (can be obtained using pm_getdata)
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
 #' @param colpoints color of the occurrence points
-#' @param cex numeric. size of the points. By default cex=3.
+#' @param cex numeric. size of the points. By default cex=1.
 #' @return a plot with the configuration of the continents at the selected time interval 
 #' and the fossil occurrences
 #' @export 
 #' @examples 
 #' \dontrun{
-#' pm_plot (interval="Quaternary", base_name= "Canis")
+#' data  <-  pm_getdata (base_name="Mammalia", interval="Cretaceous")
+#' pm_plot (interval="Cretaceous", data)
 #'}
 #'
 
-pm_plot <- function(interval, base_name,
-                    limit="all",
+pm_plot <- function(interval, data,
                     colsea="#00509010", 
                     colland="#66666660",
                     colpoints="#99000020", 
-                    cex=3){
-  #create variables for labeling the plot
-  title <- paste (interval, base_name, sep="  -  ")
+                    cex=1){
+
   #getting the shape file for the map and the data for plotting it on the map
   shape <- pm_getmap(interval=interval, do.plot=FALSE)
-  data <- pm_getdata(interval=interval, 
-                     base_name=base_name, limit=limit)
   #plotting the map and the data
   if (class (data) == "data.frame"){
     #defines size and axes of the plot
     par (mar=c(0,0,0,0))
     plot (shape, col="white", border=FALSE)
     rect(xleft=-180, xright=180, ybottom=-90, 
-         ytop=90, col=sea, 
+         ytop=90, col=colsea, 
          border=FALSE)
     plot (shape, col=colland, border=FALSE, add=T)
     points(data$paleolng, 
            data$paleolat, 
            pch=16, col= colpoints, 
            cex=cex)
-    text (x=0, y=100, title)
   }
 }
 
@@ -168,7 +164,7 @@ pm_plot <- function(interval, base_name,
 #' It can be created with pm_getmap
 #' @param data a data frame which needs to have a column called paleolat 
 #' and a column called paleolng. It can be created with getdata_paleomap
-#' @param rank taxonomic rank of interest (e.g. genus, family, etc.). By default rank="genus"
+#' @param rank taxonomic rank of interest (e.g. genus, family, etc.). By default rank="species"
 #' @param res resolution of the cells in the raster in degrees (by default res=10)
 #' @param colsea users can define the color of the ocean 
 #' @param colland users can define the color of the land masses
@@ -183,7 +179,7 @@ pm_plot <- function(interval, base_name,
 #'}
 
 pm_occraster <- function(shape, data, 
-                         rank= "genus", 
+                         rank= "species", 
                          res=10,
                          colsea="#00509010", 
                          colland="#66666660"){
@@ -195,7 +191,7 @@ pm_occraster <- function(shape, data,
   ras <- raster(shape, res=res)
   #raster of the occurences (sampling effort)
   r<-rasterize(fdata[,1:2],ras
-               ,fun="count")
+               , fun="count")
   #plotting the map and the raster on the map
   par (mar=c(0,0,0,8))
   plot (shape, col="white", border=FALSE)
@@ -248,9 +244,9 @@ pm_richraster <- function(shape, data, res=10, rank,
   #plotting the map and the raster
   par (mar=c(0,0,0,5))
   plot (shape, col="white", border=FALSE)
-  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=sea, 
+  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
        border=FALSE)
-  plot (shape, col=land, border=FALSE, add=T)
+  plot (shape, col=colland, border=FALSE, add=T)
   plot (r, add=T, axes=F, box=F, col=mycols(100))
   #return the raster
   r
@@ -275,7 +271,7 @@ pm_richraster <- function(shape, data, res=10, rank,
 #' @examples 
 #' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' pm_occ (data, rank=species)
+#' pm_occ (data, rank="species")
 #'}
 
 
@@ -440,9 +436,9 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
   #plotting the map and the raster
   par (mar=c(0,0,0,5))
   plot (shape, col="white", border=FALSE)
-  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=sea, 
+  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
        border=FALSE)
-  plot (shape, col=land, border=FALSE, add=T)
+  plot (shape, col=colland, border=FALSE, add=T)
   plot (r, add=T, axes=F, box=F, col=mycols(100))
   
   #return the raster
@@ -497,9 +493,9 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10, rank="species",
   #plotting the map and the raster
   par (mar=c(0,0,0,5))
   plot (shape, col="white", border=FALSE)
-  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=sea, 
+  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
        border=FALSE)
-  plot (shape, col=land, border=FALSE, add=T)
+  plot (shape, col=colland, border=FALSE, add=T)
   plot (r, add=T, axes=F, box=F, col=mycols(100))
   
   #return the raster
@@ -584,7 +580,7 @@ pm_latrich <- function(shape, data, res=10,
 #' 
 #' calculates the Shannon diversity along the latitudinal gradient based on 
 #' the individual values of diverstiy the fossil localities of those latitudes.
-#' The function returns the mean, max or min values of diversity of the sampled localities
+#' The function returns the mean or max values of diversity of the sampled localities
 #' along the latitudinal gradient.
 #' 
 #' @usage pm_latdiv (occ_df, shape, fun, colsea, solland, colpoints, colpointborder)
@@ -592,7 +588,7 @@ pm_latrich <- function(shape, data, res=10,
 #' @param occ_df a data frame with abundance of taxa per locality (see example)
 #' @param shape a shape file of the corresponding time map
 #' @param res. numeric. spatial resolucion of the latitudinal bins. res=10 by default.
-#' @param fun values: mean, max, min. functions to be applied to get one single value of diversity,
+#' @param fun values: mean, max. functions to be applied to get one single value of diversity,
 #' use mean to get the mean value of diversity 
 #' (mean of the different fossil sites at the same latitudinal bin), 
 #' max to get the maximum observed diversity, min to get the min observed diversity. 
@@ -611,7 +607,6 @@ pm_latrich <- function(shape, data, res=10,
 #' occ_df <- pm_occ (data)
 #' pm_latdiv (occ_df, shape, fun=mean)
 #' pm_latdiv (occ_df, shape, fun=max)
-#' pm_latdiv (occ_df, shape, fun=min)
 #'}
 
 pm_latdiv <- function(occ_df, shape, res=10, 
@@ -653,10 +648,13 @@ pm_latdiv <- function(occ_df, shape, res=10,
     rect(xleft=-180, xright=180, 
          ybottom=-90, ytop=90, col=colsea, 
          border=FALSE)
-    plot (shape, col=colland, border=FALSE, add=T)
+    plot (shape, col=colland, border=FALSE, 
+          add=T)
     points (occ_df [, 2], occ_df [, 1], 
-            pch=21, col=colpointborder, bg=colpoints)
-    polygon (yy, xx, col="goldenrod1", border=F)
+            pch=21, col=colpointborder, 
+            bg=colpoints)
+    polygon (yy, xx, col="goldenrod1", 
+             border=F)
     
     #return latitudinal richness
     return (lr)

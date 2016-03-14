@@ -22,7 +22,7 @@ generates a diversity matrix, with the number occurrences of each species, genus
 \examples{
 \dontrun{
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
-pm_occ (data, rank=species)
+pm_occ (data, rank="species")
 }
 }
 

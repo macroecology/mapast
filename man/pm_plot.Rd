@@ -10,10 +10,8 @@ colpoints, cex)
 \arguments{
 \item{interval}{time interval of interest (e.g. Quaternary)}
 
-\item{base_name}{taxa to be downloaded for the paleobioDB (e.g Canis, Canidae, Carnivora, etc.)}
-
-\item{limit}{enables the user to set the maximum number of 
-records downloaded from the paleobioDB (e.g. 1000)}
+\item{data}{data.frame with the paleogeoreferenced fossil records 
+(can be obtained using pm_getdata)}
 
 \item{colsea}{color of the ocean}
 
@@ -21,7 +19,7 @@ records downloaded from the paleobioDB (e.g. 1000)}
 
 \item{colpoints}{color of the occurrence points}
 
-\item{cex}{numeric. size of the points. By default cex=3.}
+\item{cex}{numeric. size of the points. By default cex=1.}
 }
 \value{
 a plot with the configuration of the continents at the selected time interval 
@@ -32,7 +30,8 @@ plots your query from the paleobioDB onto the map of the selected time interval
 }
 \examples{
 \dontrun{
-pm_plot (interval="Quaternary", base_name= "Canis")
+data  <-  pm_getdata (base_name="Mammalia", interval="Cretaceous")
+pm_plot (interval="Cretaceous", data)
 }
 
 }

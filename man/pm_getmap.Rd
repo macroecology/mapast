@@ -7,7 +7,7 @@
 pm_getmap (interval, do.plot, colsea, colland)
 }
 \arguments{
-\item{interval}{time interval of interest (e.g. "Triassic")}
+\item{interval}{time interval of interest (e.g. "Cretaceous")}
 
 \item{colsea}{to set the color of the ocean in the plot}
 
@@ -16,14 +16,15 @@ pm_getmap (interval, do.plot, colsea, colland)
 \item{do.plot}{TRUE/FALSE. TRUE by default.}
 }
 \value{
-a shape file for the choosen time interval and a plot (if do.plot=TRUE)
+a shape file and a plot (if do.plot=TRUE)
 }
 \description{
-generates a shapefile with the map of the choosen time interval (e.g. "Triassic")
+generates a shapefile with the paleomap of the choosen 
+time interval (e.g. "Cretaceous") and a plot
 }
 \examples{
 \dontrun{
-pm_getmap(interval="Quaternary") 
+pm_getmap(interval="Cretaceous") 
 }
 }
 
