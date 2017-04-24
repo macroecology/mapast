@@ -18,27 +18,27 @@
 #' pm_getmap(interval="Cretaceous") 
 #'}
 
-pm_getmap <- function (interval, colsea="#00509010", 
-                       colland="#66666660", 
-                       do.plot=TRUE){
+pm_getmap <- function (interval, colsea = "#00509010", 
+                       colland = "#66666660", 
+                       do.plot = TRUE) {
   ## we might hack this with "with" or "null" for avoiding NOTE on check: 'no visible binding for global variable'
   ## see: http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
   
-  load (paste ("Data/", interval, ".rda", sep=""))
+  load (paste ("Data/", interval, ".rda", sep = ""))
   # if user does not set plot=FALSE plot the shape file
   # get the shape file with help function getShape to open lazyload data
   assign("shape", get(interval))
   
-  if(do.plot== TRUE){
-    par (mar=c(0,0,0,0))
-    plot (shape, col="white", border=FALSE)
-    rect(xleft=-180, xright=180, ybottom=-90, 
-         ytop=90, col=colsea, 
-         border=FALSE)
-    plot (shape, col=colland, border=F, add=T)
+  if (do.plot) {
+    par(mar = c(0, 0, 0, 0))
+    plot(shape, col = "white", border = FALSE)
+    rect(xleft = -180, xright = 180, ybottom = -90, 
+         ytop = 90, col = colsea, 
+         border = FALSE)
+    plot(shape, col = colland, border = FALSE, add = TRUE)
   }
   # return the shape file
-  shape
+  return(shape)
 }
 
 
@@ -70,32 +70,30 @@ pm_getdata <- function(interval, base_name, limit="all"){
   pbdb_occurences <- function(){}
   # get data from paleobioDB
   # save data from paleobiodb as data frame
-  occ <- data.frame(pbdb_occurrences (base_name=base_name, interval=interval, 
-                                      show=c("paleoloc", "phylo"), 
-                                      vocab="pbdb", limit=limit))
- #save only the needed parameter
-  if (nrow (occ)!= 0){
+  occ <- data.frame(pbdb_occurrences(base_name=base_name, interval=interval, 
+                                     show=c("paleoloc", "phylo"), 
+                                     vocab="pbdb", limit=limit))
+  #save only the needed parameter
+  if (nrow(occ) != 0){
     data <- data.frame(occ$occurrence_no, occ$matched_name, occ$matched_rank,
                        occ$matched_no,
                        occ$early_interval, occ$late_interval,
                        occ$paleolng, occ$paleolat, occ$geoplate,
                        occ$genus, occ$family, occ$order, occ$class, occ$phylum, 
                        occ$genus_no, occ$family_no, occ$order_no,
-                                      occ$class_no, occ$phylum_no)
+                       occ$class_no, occ$phylum_no)
     #set correct column names
-    colnames(data) <- c("occurrence_no", "matched_name", "matched_rank", "matched_no",
-                        "early_interval", "late_interval",
+    colnames(data) <- c("occurrence_no", "matched_name", "matched_rank",
+                        "matched_no", "early_interval", "late_interval",
                         "paleolng", "paleolat", "geoplate",
                         "genus", "family", "order", "class", "phylum", 
                         "genus_no","family_no","order_no",
                         "class_no","phylum_no")
     #return data frame
-    return (data) 
-  #catching error when there are no occurences for the request
-  }else{
-    print ("There is no data that matches your query on the paleobioDB. 
-           Check if the spelling, temporal intervals, etc. are correct")
-    return (0)
+    return(data)} else { #catching error when there are no occurences for the request
+
+    stop("There is no data that matches your query on the paleobioDB. 
+          Check if the spelling, temporal intervals, etc. are correct")
   }
 }
 
@@ -129,26 +127,26 @@ pm_getdata <- function(interval, base_name, limit="all"){
 #'
 
 pm_plot <- function(interval, data,
-                    colsea="#00509010", 
-                    colland="#66666660",
-                    colpoints="#99000020", 
-                    cex=1){
-
+                    colsea = "#00509010", 
+                    colland = "#66666660",
+                    colpoints = "#99000020", 
+                    cex = 1) {
+  
   #getting the shape file for the map and the data for plotting it on the map
-  shape <- pm_getmap(interval=interval, do.plot=FALSE)
+  shape <- pm_getmap(interval = interval, do.plot = FALSE)
   #plotting the map and the data
-  if (class (data) == "data.frame"){
+  if (class(data) == "data.frame") {
     #defines size and axes of the plot
-    par (mar=c(0,0,0,0))
-    plot (shape, col="white", border=FALSE)
-    rect(xleft=-180, xright=180, ybottom=-90, 
-         ytop=90, col=colsea, 
-         border=FALSE)
-    plot (shape, col=colland, border=FALSE, add=T)
+    par(mar=c(0,0,0,0))
+    plot(shape, col = "white", border = FALSE)
+    rect(xleft = -180, xright = 180, ybottom = -90, 
+         ytop = 90, col = colsea, 
+         border = FALSE)
+    plot(shape, col = colland, border = FALSE, add = T)
     points(data$paleolng, 
            data$paleolat, 
-           pch=16, col= colpoints, 
-           cex=cex)
+           pch = 16, col = colpoints, 
+           cex = cex)
   }
 }
 
@@ -173,16 +171,16 @@ pm_plot <- function(interval, data,
 #' @export 
 #' @examples 
 #' \dontrun{
-#' shape<- pm_getmap(interval="Quaternary") 
-#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' pm_occraster (shape, data)
+#' shape <- pm_getmap(interval="Quaternary", do.plot = FALSE) 
+#' data <- pm_getdata(base_name="Canis", interval="Quaternary")
+#' pm_occraster(shape, data)
 #'}
 
 pm_occraster <- function(shape, data, 
-                         rank= "species", 
-                         res=10,
-                         colsea="#00509010", 
-                         colland="#66666660"){
+                         rank = "species", 
+                         res = 10,
+                         colsea = "#00509010", 
+                         colland = "#66666660"){
   
   raster <- NULL
   #filter data for rank
@@ -346,7 +344,7 @@ pm_occ_cell <- function(data, rank="species", res=10) {
   genus_data <-rfilter(data, rank)
   #getting list of unique taxa
   ugenus <- as.vector (unique(genus_data [,3]))
- 
+  
   
   lat<- seq(-90 + (res/2), 90 -(res/2), res)
   long<- seq(-180 + (res/2), 180 -(res/2), res)
@@ -361,7 +359,7 @@ pm_occ_cell <- function(data, rank="species", res=10) {
   #getting the number of occurrences of a genus for each locality
   for (i in 1:nrow(nsites)) {
     #get lat & lng
-   
+    
     lng_i <- nsites[i,1]
     lat_i <- nsites[i,2]
     for (j in 1:length(ugenus)) {
@@ -475,7 +473,7 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
 #'}
 
 pm_divraster_cell <- function(shape, occ_df_cell, res=10, rank="species",
-                             colsea="#00509010", colland="#66666680"){
+                              colsea="#00509010", colland="#66666680"){
   
   #creating a raster in size of the shape file
   ras <- raster(shape, res=res)
@@ -564,13 +562,13 @@ pm_latrich <- function(shape, data, res=10,
   par (xpd = NA, mar=c(0, 0, 0, 8))
   plot (shape, col="white", border=FALSE)
   rect(xleft=-180, xright=180, 
-        ybottom=-90, ytop=90, col=colsea, 
-        border=FALSE)
-   plot (shape, col=colland, border=FALSE, add=T)
-   points (data2$paleolng, data2$paleolat, 
-           pch=21, col=colpointborder, bg=colpoints)
-   polygon (yy, xx, col="goldenrod1", border=F)
-    
+       ybottom=-90, ytop=90, col=colsea, 
+       border=FALSE)
+  plot (shape, col=colland, border=FALSE, add=T)
+  points (data2$paleolng, data2$paleolat, 
+          pch=21, col=colpointborder, bg=colpoints)
+  polygon (yy, xx, col="goldenrod1", border=F)
+  
   #return latitudinal richness
   return (lr)
 }
@@ -611,9 +609,9 @@ pm_latrich <- function(shape, data, res=10,
 
 pm_latdiv <- function(occ_df, shape, res=10, 
                       fun= max,
-                       colsea="#00509010", colland="#66666680", 
-                       colpoints="#FFC12530",
-                       colpointborder="black"){
+                      colsea="#00509010", colland="#66666680", 
+                      colpoints="#FFC12530",
+                      colpointborder="black"){
   
   
   #calculate the shannon diversity
@@ -626,9 +624,9 @@ pm_latdiv <- function(occ_df, shape, res=10,
     slocs <- subset(locs, locs[,1]>=lat)
     slocs <- subset(slocs, slocs[,1]<lat+res)
     if (nrow (slocs) == 0) {
-    cornum <- c(cornum, 0)  
+      cornum <- c(cornum, 0)  
     } else {
-    cornum <- c(cornum, fun (slocs[,3])) 
+      cornum <- c(cornum, fun (slocs[,3])) 
     }
   }
   
@@ -638,24 +636,24 @@ pm_latdiv <- function(occ_df, shape, res=10,
   lr <- data.frame(latmin, latmax, cornum)
   colnames(lr) <- c("maxlat", "minlat", "div")
   
-    centros<- (seq(-90,90-res,res)+(seq(-90,90-res,res) + res))/2
-    rich<- 185 + (lr$div*20)
-    yy<- c(185, rich, 185)
-    xx<- c(-90, centros, 90)
-    
-    par (xpd = NA, mar=c(0, 0, 0, 8))
-    plot (shape, col="white", border=FALSE)
-    rect(xleft=-180, xright=180, 
-         ybottom=-90, ytop=90, col=colsea, 
-         border=FALSE)
-    plot (shape, col=colland, border=FALSE, 
-          add=T)
-    points (occ_df [, 2], occ_df [, 1], 
-            pch=21, col=colpointborder, 
-            bg=colpoints)
-    polygon (yy, xx, col="goldenrod1", 
-             border=F)
-    
-    #return latitudinal richness
-    return (lr)
+  centros<- (seq(-90,90-res,res)+(seq(-90,90-res,res) + res))/2
+  rich<- 185 + (lr$div*20)
+  yy<- c(185, rich, 185)
+  xx<- c(-90, centros, 90)
+  
+  par (xpd = NA, mar=c(0, 0, 0, 8))
+  plot (shape, col="white", border=FALSE)
+  rect(xleft=-180, xright=180, 
+       ybottom=-90, ytop=90, col=colsea, 
+       border=FALSE)
+  plot (shape, col=colland, border=FALSE, 
+        add=T)
+  points (occ_df [, 2], occ_df [, 1], 
+          pch=21, col=colpointborder, 
+          bg=colpoints)
+  polygon (yy, xx, col="goldenrod1", 
+           border=F)
+  
+  #return latitudinal richness
+  return (lr)
 }

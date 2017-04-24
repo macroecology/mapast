@@ -17,11 +17,9 @@ Depends:
     raster,
     vegan,
     maptools
-Imports:
-    
 Suggests:
     NA
 BugReports: NA
 URL: NA
-LazyData: NA
+LazyData: TRUE
 RoxygenNote: 5.0.1

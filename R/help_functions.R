@@ -5,14 +5,14 @@
 
 #creating a color palette for the raster
 mycols <- colorRampPalette(c("goldenrod1","orangered", 
-                                          "darkred"))
+                             "darkred"))
 
 #################filter#######################
 #' rank_filter
 #' 
 #' creates the raster files with the number of unique taxa by pixel
 #' 
-#' @usage rank_filter (data, res, rank)
+#' @usage rank_filter (res, data, rank)
 #' @param data a data frame which needs to have a column called paleolat and a column called paleolng,
 #'  can be created with getdata_paleomap
 #' @param ras blank raster
@@ -25,40 +25,40 @@ mycols <- colorRampPalette(c("goldenrod1","orangered",
 #' rank_filter (data, res=10, rank="genus")
 #'}
 
-rank_filter <- function(r=ras, data, res, rank){
+rank_filter <- function(r = ras, data, res, rank) {
   #gets colnames for new data frame
- 
-  if (rank=="species"){
-  if (length (data$matched_rank)!=0){
-    identified<-data [!is.na(data$matched_rank), ]
-    species<- identified [identified$matched_rank==rank, ]
-    S<- split(species, species$matched_no)
-  }
   
-  R<-lapply(S,function(y){
-    s<-split(y,paste(y$paleolng,y$paleolat))
-    X<-as.matrix(do.call(rbind,lapply(s,function(x)c(x$paleolng[1],
-                                                     x$paleolat[1],1))))
-    X<-rbind(X[1,],X)
-    r2<-rasterize(X[,1:2],r,X[,3])
-  })
-  
-  all<-calc(stack(R), function(x) sum(x,na.rm=T))
-  values(all)[values(all)==0]<-NA
-  all
+  if (rank == "species") {
+    if (length(data$matched_rank) != 0) {
+      identified <- data[!is.na(data$matched_rank), ]
+      species <- identified[identified$matched_rank == rank, ]
+      S <- split(species, species$matched_no)
+    }
+    
+    R <- lapply(S, function(y){
+      s<-split(y,paste(y$paleolng,y$paleolat))
+      X<-as.matrix(do.call(rbind,lapply(s,function(x)c(x$paleolng[1],
+                                                       x$paleolat[1],1))))
+      X<-rbind(X[1,],X)
+      r2<-rasterize(X[,1:2],r,X[,3])
+    })
+    
+    all<-calc(stack(R), function(x) sum(x,na.rm=T))
+    values(all)[values(all)==0]<-NA
+    all
   }
   
   if (rank!="species"){
-  ranks<-data.frame(rank=c("genus","family","order","class","phylum"),
+    ranks<-data.frame(rank=c("genus","family","order","class","phylum"),
                       matched_rank=c("genus_no","family_no","order_no",
                                      "class_no","phylum_no"))
-                      
-    if (length (data$matched_rank)!=0){
-      identified<-data [!is.na(data$matched_rank), ]
-      col<-paste(ranks$matched_rank[ranks$rank==rank])
-      ident<-identified[!is.na(identified[,col]),]
-      f<-paste(ident[,col])
-      S<-split(ident,f)
+    
+    if (length(data$matched_rank) != 0) {
+      identified <- data[!is.na(data$matched_rank), ]
+      col <- paste(ranks$matched_rank[ranks$rank==rank])
+      ident <- identified[!is.na(identified[,col]),]
+      f <- paste(ident[, col])
+      S <- split(ident, f)
     }
     
     R<-lapply(S,function(y){
@@ -73,7 +73,7 @@ rank_filter <- function(r=ras, data, res, rank){
     values(all)[values(all)==0]<-NA
     all
   }
-all 
+  all 
 }
 
 #' rfilter
@@ -98,19 +98,19 @@ rfilter <- function(data, rank){
     matched_rank <- NULL
     genus <- NULL
     data <- subset(data, matched_rank=="species")
-    data<- data [, c(6:7, 2)]
+    data<- data [, c(7:8, 2)]
   }
   if(rank=="genus"){
     data <- subset(data, genus!="NA")
-    data<- data [, c(6:7, 9)]
+    data<- data [, c(7:8, 9)]
   }
   if(rank=="family"){
     data <- subset(data, family!="NA")
-    data<- data [, c(6:7, 10)]
+    data<- data [, c(7:8, 10)]
   }
   if(rank=="order"){
     data <- subset(data, order!="NA")
-    data<- data [, c(6:7, 11)]
+    data<- data [, c(7:8, 11)]
   }
   data
 }
@@ -197,7 +197,7 @@ getshape <- function (interval)
     return(Early_Ordovician)
   }
   if(interval=="Tremadocian" || interval=="tremadocian"){
-   
+    
     return(Tremadocian)
   }
   if(interval=="Floian" || interval=="floian"){
@@ -261,7 +261,7 @@ getshape <- function (interval)
     return(Telychian)
   }
   if(interval=="Wenlock" || interval=="wenlock"){
-   
+    
     return(Wenlock)
   }
   if(interval=="Sheinwoodian" || interval=="sheinwoodian"){
@@ -289,7 +289,7 @@ getshape <- function (interval)
     return(Ludfordian)
   }
   if(interval=="Pridoli" || interval=="pridoli"){
-   
+    
     return(Pridoli)
   }
   if(interval=="Devonian" || interval=="devonian"){
@@ -337,11 +337,11 @@ getshape <- function (interval)
     return(Frasnian)
   }
   if(interval=="Famennian" || interval=="famennian"){
-   
+    
     return(Famennian)
   }
   if(interval=="Carboniferous" || interval=="carboniferous"){
-   
+    
     return(Carboniferous)
   }
   if(interval=="Mississippian" || interval=="mississippian"){
@@ -457,7 +457,7 @@ getshape <- function (interval)
     return(Middle_Triassic)
   }
   if(interval=="Anisian" || interval=="anisian"){
-   
+    
     return(Anisian)
   }
   if(interval=="Ladinian" || interval=="ladinian"){
@@ -665,7 +665,7 @@ getshape <- function (interval)
     return(Miocene)
   }
   if(interval=="Aquitanian" || interval=="aquitanian"){
- 
+    
     return(Aquitanian)
   }
   if(interval=="Burdigalian" || interval=="burdigalian"){
@@ -677,7 +677,7 @@ getshape <- function (interval)
     return(Calabrian)
   }
   if(interval=="Langhian" || interval=="langhian"){
-   
+    
     return(Langhian)
   }
   if(interval=="Serravallian" || interval=="serravallian"){
@@ -697,19 +697,19 @@ getshape <- function (interval)
     return(Messinian)
   }
   if(interval=="Pliocene" || interval=="pliocene"){
-   
+    
     return(Pliocene)
   }
   if(interval=="Zanclean" || interval=="zanclean"){
-   
+    
     return(Zanclean)
   }
   if(interval=="Quaternary" || interval=="quaternary"){
-  
+    
     return(Quaternary)
   }
   if(interval=="Pleistocene" || interval=="pleistocene"){
-   
+    
     return(Pleistocene)
   }
   if(interval=="Gelasian" || interval=="gelasian"){
