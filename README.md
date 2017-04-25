@@ -417,7 +417,7 @@ A BibTeX entry for LaTeX users is
 
   @Manual{,
     title = {paleoMap:  combine paleogeography and paleobiodiversity},
-    author = {{Sara Varela} and {Sonja Rothkugel}},
+    author = {Sara Varela} and {Sonja Rothkugel},
     year = {2016},
     note = {R package version 0.1},
     base = {https://github.com/macroecology/paleoMap},
