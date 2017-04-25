@@ -30,7 +30,7 @@
 #'\url{http://paleobiodb.org}
 #' }
 #' 
-#' @depends raster maptools paleobioDB 
+#' @import raster maptools paleobioDB roxygen2 vegan
 #' 
 #'@examples 
 #'\dontrun{
@@ -68,3 +68,4 @@
 #'
 #' }
 #'
+NULL

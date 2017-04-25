@@ -4,7 +4,7 @@
 \alias{rank_filter}
 \title{rank_filter}
 \usage{
-rank_filter (data, res, rank)
+rank_filter (res, data, rank)
 }
 \arguments{
 \item{data}{a data frame which needs to have a column called paleolat and a column called paleolng,

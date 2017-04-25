@@ -1,6 +1,6 @@
 Package: paleoMap
-Description: download and use paleomaps (GPlates) combined with paleobioDB
-    fossil occurrences
+Description: Download and use paleomaps (GPlates) combined with paleobioDB
+    fossil occurrences.
 Encoding: UTF-8
 Type: Package
 License: GPL-2
@@ -11,7 +11,8 @@ Authors@R: c(person("Sara", "Varela", role = c("aut", "cre"),
     person("Sonja", "Rothkugel", role = c("aut"),
     email = "rothugelsonja@aol.de"))
 Maintainer: Sara Varela <svarela@paleobiogeography.org>
-Depends:
+Depends: R (>= 2.10)
+Imports:
     roxygen2,
     paleobioDB,
     raster,
