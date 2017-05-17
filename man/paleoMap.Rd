@@ -4,6 +4,7 @@
 \name{paleoMap}
 \alias{paleoMap}
 \alias{paleoMap-package}
+\alias{paleoMap-package}
 \title{paleoMap: An R-package for getting and using paleontoligcal maps.}
 \description{
 We have developed paleoMap, an R-package designed to make palaeontolgical maps 
@@ -59,17 +60,16 @@ show(myraster)
 }
 
 }
-\author{
-Sonja Rothkugel \email{rothkugelsonja@aol.de}
-
-Sara Varela \email{svarela@paleobiogeography.org}
-# @references
-}
 \seealso{
 {
 \url{http://www.gplates.org/}
 \url{http://paleobiodb.org}
 }
 }
-\keyword{package}
+\author{
+Sonja Rothkugel \email{rothkugelsonja@aol.de}
 
+Sara Varela \email{svarela@paleobiogeography.org}
+# @references
+}
+\keyword{package}

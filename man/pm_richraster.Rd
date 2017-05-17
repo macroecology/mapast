@@ -4,7 +4,8 @@
 \alias{pm_richraster}
 \title{pm_richraster}
 \usage{
-pm_richraster (shape, data, res, rank, colsea, colland)
+pm_richraster(shape, data, res = 10, rank, colsea = "#00509010",
+  colland = "#66666660")
 }
 \arguments{
 \item{shape}{file from the time interval of interest. 
@@ -26,15 +27,14 @@ plot with map of the time intervall, the fossil occurences and the
 raster file. And the raster file itself
 }
 \description{
-creates a raster of species richness
+Creates a raster of species richness
 and makes a plot of the map and raster
 }
 \examples{
 \dontrun{
-shape<- pm_getmap(interval="Quaternary") 
-data<- pm_getdata (base_name="Canis", interval="Quaternary")
-richness<- pm_richraster (shape, data, rank="genus")
+shape<- pm_getmap(interval="Paleocene")
+data<- pm_getdata(base_name="Testudines", interval="Paleocene")
+richness<- pm_richraster(shape, data, rank="genus")
 }
 
 }
-

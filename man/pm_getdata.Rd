@@ -4,7 +4,7 @@
 \alias{pm_getdata}
 \title{pm_getdata}
 \usage{
-pm_getdata (interval, base_name, limit)
+pm_getdata(interval, base_name, limit = "all")
 }
 \arguments{
 \item{interval}{time interval of interest (e.g. jurassic)}
@@ -25,7 +25,6 @@ uses paleobioDB R package to get data from the Paleobiology Database
 }
 \examples{
 \dontrun{
-pm_getdata (base_name="Canis", interval="Quaternary")
+pm_getdata(base_name="Canis", interval="Quaternary")
 }
 }
-

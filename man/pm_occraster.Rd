@@ -4,7 +4,8 @@
 \alias{pm_occraster}
 \title{pm_occraster}
 \usage{
-pm_occraster (shape, data, rank, res, colsea, colland)
+pm_occraster(shape, data, rank = "species", res = 10,
+  colsea = "#00509010", colland = "#66666660")
 }
 \arguments{
 \item{shape}{shapefile from the time interval of interest. 
@@ -36,4 +37,3 @@ data <- pm_getdata(base_name="Canis", interval="Quaternary")
 pm_occraster(shape, data)
 }
 }
-

@@ -4,7 +4,7 @@
 \alias{pm_occ}
 \title{pm_occ}
 \usage{
-pm_occ (data, rank)
+pm_occ(data, rank = "species")
 }
 \arguments{
 \item{data}{a data frame with fossil occurrences 
@@ -21,8 +21,7 @@ generates a diversity matrix, with the number occurrences of each species, genus
 }
 \examples{
 \dontrun{
-data<- pm_getdata (base_name="Canis", interval="Quaternary")
-pm_occ (data, rank="species")
+data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
+result <- pm_occ(data, rank = "species")
 }
 }
-

@@ -43,4 +43,3 @@ pm_divraster_loc (shape, occ_df, fun=min)
 pm_divraster_loc (shape, occ_df, fun="count")
 }
 }
-

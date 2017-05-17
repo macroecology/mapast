@@ -4,9 +4,12 @@
 \alias{pm_occ_cell}
 \title{pm_occ_cell}
 \usage{
-pm_occ (data, rank, res)
+pm_occ_cell(shape, data, rank = "species", res = 10)
 }
 \arguments{
+\item{shape}{file from the time interval of interest. 
+Can be created with get_paleomap}
+
 \item{data}{a data frame with fossil occurrences 
 Can be created with pm_getdata(interval, base_name)}
 
@@ -23,8 +26,8 @@ generates a diversity matrix, with the number occurrences of each species, genus
 }
 \examples{
 \dontrun{
-data<- pm_getdata (base_name="Canis", interval="Quaternary")
-pm_occ_cell (data, rank="species", res=10)
+shape <- pm_getmap(interval = "Quaternary")
+data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
+result <- pm_occ_cell(shape, data, rank = "species", res = 10)
 }
 }
-

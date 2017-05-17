@@ -4,7 +4,7 @@
 \alias{rank_filter}
 \title{rank_filter}
 \usage{
-rank_filter (res, data, rank)
+rank_filter(r = ras, data, res, rank)
 }
 \arguments{
 \item{data}{a data frame which needs to have a column called paleolat and a column called paleolng,
@@ -24,8 +24,7 @@ creates the raster files with the number of unique taxa by pixel
 }
 \examples{
 \dontrun{
-data<- pm_getdata (base_name="Canis", interval="Quaternary")
-rank_filter (data, res=10, rank="genus")
+data<- pm_getdata(base_name = "Canis", interval = "Quaternary")
+rank_filter(data, res = 10, rank = "genus")
 }
 }
-

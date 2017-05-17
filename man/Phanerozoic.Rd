@@ -12,4 +12,3 @@ http://www.gplates.org/
 A shapefile with the location of the continents at that temporal interval.
 }
 \keyword{datasets}
-

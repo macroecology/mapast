@@ -45,4 +45,3 @@ pm_latdiv (occ_df, shape, fun=mean)
 pm_latdiv (occ_df, shape, fun=max)
 }
 }
-

@@ -27,4 +27,3 @@ time interval (e.g. "Cretaceous") and a plot
 pm_getmap(interval="Cretaceous") 
 }
 }
-

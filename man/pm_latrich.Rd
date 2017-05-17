@@ -43,4 +43,3 @@ data<- pm_getdata (base_name="Canis", interval="Quaternary")
 pm_latrich (shape, data, rank="species", res=10)
 }
 }
-

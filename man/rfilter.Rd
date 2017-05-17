@@ -26,4 +26,3 @@ filtered_data <- rfilter (data, rank="genus")
 show(filtered_data)
 }
 }
-

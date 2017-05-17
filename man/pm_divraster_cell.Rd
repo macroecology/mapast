@@ -37,4 +37,3 @@ pm_divraster_cell (shape, occ_df_cell, res=10)
 ## cells with diversity values = 0 (e.g., 1 species) are discarded.
 }
 }
-

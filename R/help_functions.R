@@ -12,7 +12,6 @@ mycols <- colorRampPalette(c("goldenrod1","orangered",
 #' 
 #' creates the raster files with the number of unique taxa by pixel
 #' 
-#' @usage rank_filter (res, data, rank)
 #' @param data a data frame which needs to have a column called paleolat and a column called paleolng,
 #'  can be created with getdata_paleomap
 #' @param ras blank raster
@@ -21,8 +20,8 @@ mycols <- colorRampPalette(c("goldenrod1","orangered",
 #' @return a raster with the taxa richness
 #' @examples 
 #' \dontrun{
-#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' rank_filter (data, res=10, rank="genus")
+#' data<- pm_getdata(base_name = "Canis", interval = "Quaternary")
+#' rank_filter(data, res = 10, rank = "genus")
 #'}
 
 rank_filter <- function(r = ras, data, res, rank) {
@@ -35,20 +34,20 @@ rank_filter <- function(r = ras, data, res, rank) {
       S <- split(species, species$matched_no)
     }
     
-    R <- lapply(S, function(y){
-      s<-split(y,paste(y$paleolng,y$paleolat))
-      X<-as.matrix(do.call(rbind,lapply(s,function(x)c(x$paleolng[1],
+    R <- lapply(S, function(y) {
+      s <- split(y, paste(y$paleolng, y$paleolat))
+      X <- as.matrix(do.call(rbind,lapply(s,function(x)c(x$paleolng[1],
                                                        x$paleolat[1],1))))
-      X<-rbind(X[1,],X)
-      r2<-rasterize(X[,1:2],r,X[,3])
+      X <- rbind(X[1,], X)
+      r2 <- rasterize(X[,1:2], r, X[,3])
     })
     
-    all<-calc(stack(R), function(x) sum(x,na.rm=T))
+    all<-calc(stack(R), function(x) sum(x,na.rm=TRUE))
     values(all)[values(all)==0]<-NA
     all
   }
   
-  if (rank!="species"){
+  if (rank != "species"){
     ranks<-data.frame(rank=c("genus","family","order","class","phylum"),
                       matched_rank=c("genus_no","family_no","order_no",
                                      "class_no","phylum_no"))
@@ -69,7 +68,7 @@ rank_filter <- function(r = ras, data, res, rank) {
       r2<-rasterize(X[,1:2],r,X[,3])
     })
     names(R)=NULL
-    all<-calc(stack(R), function(x) sum(x,na.rm=T))
+    all<-calc(stack(R), function(x) sum(x,na.rm=TRUE))
     values(all)[values(all)==0]<-NA
     all
   }
@@ -112,7 +111,7 @@ rfilter <- function(data, rank){
     data <- subset(data, order!="NA")
     data<- data [, c(7:8, 11)]
   }
-  data
+  return(data)
 }
 
 

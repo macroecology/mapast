@@ -49,7 +49,6 @@ pm_getmap <- function (interval, colsea = "#00509010",
 #' 
 #' uses paleobioDB R package to get data from the Paleobiology Database
 #'  
-#' @usage pm_getdata (interval, base_name, limit)
 #' 
 #' @param interval time interval of interest (e.g. jurassic)
 #' @param base_name name of the taxon you want to get data from 
@@ -62,7 +61,7 @@ pm_getmap <- function (interval, colsea = "#00509010",
 #' @export 
 #' @examples 
 #' \dontrun{
-#' pm_getdata (base_name="Canis", interval="Quaternary")
+#' pm_getdata(base_name="Canis", interval="Quaternary")
 #'}
 
 
@@ -91,10 +90,10 @@ pm_getdata <- function(interval, base_name, limit="all"){
                         "class_no","phylum_no")
     #return data frame
     return(data)} else { #catching error when there are no occurences for the request
-
-    stop("There is no data that matches your query on the paleobioDB. 
+      
+      stop("There is no data that matches your query on the paleobioDB. 
           Check if the spelling, temporal intervals, etc. are correct")
-  }
+    }
 }
 
 
@@ -142,7 +141,7 @@ pm_plot <- function(interval, data,
     rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
          border = FALSE)
-    plot(shape, col = colland, border = FALSE, add = T)
+    plot(shape, col = colland, border = FALSE, add = TRUE)
     points(data$paleolng, 
            data$paleolat, 
            pch = 16, col = colpoints, 
@@ -157,7 +156,6 @@ pm_plot <- function(interval, data,
 #' creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
 #' (a proxy for the sampling effort)
 #' 
-#' @usage pm_occraster (shape, data, rank, res, colsea, colland)
 #' @param shape shapefile from the time interval of interest. 
 #' It can be created with pm_getmap
 #' @param data a data frame which needs to have a column called paleolat 
@@ -186,30 +184,27 @@ pm_occraster <- function(shape, data,
   #filter data for rank
   fdata <- rfilter(data, rank)
   #creating a raster in the size of the shape
-  ras <- raster(shape, res=res)
+  ras <- raster(shape, res = res)
   #raster of the occurences (sampling effort)
-  r<-rasterize(fdata[,1:2],ras
-               , fun="count")
+  r <- rasterize(fdata[, 1:2], ras , fun = "count")
   #plotting the map and the raster on the map
   par (mar=c(0,0,0,8))
-  plot (shape, col="white", border=FALSE)
-  rect(xleft=-180, xright=180, 
-       ybottom=-90, ytop=90, col=colsea, 
-       border=FALSE)
-  plot (shape, col=colland, border=FALSE, add=T)
-  plot(r,col=c(mycols(res*res)), add=T)
+  plot (shape, col = "white", border = FALSE)
+  rect(xleft = -180, xright = 180, 
+       ybottom = -90, ytop = 90, col = colsea, 
+       border = FALSE)
+  plot (shape, col = colland, border = FALSE, add = TRUE)
+  plot(r, col = c(mycols(res * res)), add = TRUE)
   #returning the raster
-  r
+  return(r)
 }
 
 #####################pm_richraster####################
 
 #' pm_richraster
 #' 
-#' creates a raster of species richness
+#' Creates a raster of species richness
 #' and makes a plot of the map and raster
-#' 
-#' @usage pm_richraster (shape, data, res, rank, colsea, colland)
 #' 
 #' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
@@ -224,30 +219,30 @@ pm_occraster <- function(shape, data,
 #' @export 
 #' @examples 
 #' \dontrun{
-#' shape<- pm_getmap(interval="Quaternary") 
-#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' richness<- pm_richraster (shape, data, rank="genus")
+#' shape<- pm_getmap(interval="Paleocene")
+#' data<- pm_getdata(base_name="Testudines", interval="Paleocene")
+#' richness<- pm_richraster(shape, data, rank="genus")
 #'}
 #'
 
-pm_richraster <- function(shape, data, res=10, rank,
-                          colsea="#00509010", 
-                          colland="#66666660"){
+pm_richraster <- function (shape, data, res = 10, rank,
+                           colsea = "#00509010", 
+                           colland = "#66666660") {
   
   #creating a raster in size of the shape file
-  ras <- raster(shape, res=res)
+  ras <- raster(shape, res = res)
   #getting the raster of the species richness
-  r <- rank_filter(ras, data, res=res, rank)
+  r <- rank_filter(ras, data, res = res, rank)
   
   #plotting the map and the raster
-  par (mar=c(0,0,0,5))
-  plot (shape, col="white", border=FALSE)
-  rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
-       border=FALSE)
-  plot (shape, col=colland, border=FALSE, add=T)
-  plot (r, add=T, axes=F, box=F, col=mycols(100))
+  par (mar = c(0, 0, 0, 5))
+  plot (shape, col = "white", border = FALSE)
+  rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
+       border = FALSE)
+  plot (shape, col=colland, border = FALSE, add = TRUE)
+  plot (r, add = TRUE, axes = FALSE, box = FALSE, col=mycols(100))
   #return the raster
-  r
+  return(r)
 }
 
 
@@ -258,8 +253,6 @@ pm_richraster <- function(shape, data, res=10, rank,
 #' 
 #' generates a diversity matrix, with the number occurrences of each species, genus, family or order per locality
 #' 
-#' @usage pm_occ (data, rank)
-#' 
 #' @param data a data frame with fossil occurrences 
 #' Can be created with pm_getdata(interval, base_name)
 #' @param rank character: "species", "genus", "family", "order". 
@@ -268,36 +261,36 @@ pm_richraster <- function(shape, data, res=10, rank,
 #' @export 
 #' @examples 
 #' \dontrun{
-#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' pm_occ (data, rank="species")
+#' data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
+#' result <- pm_occ(data, rank = "species")
 #'}
 
 
-pm_occ <- function(data, rank="species") {
+pm_occ <- function(data, rank = "species") {
   #only getting occurences with a known genus
-  genus_data <-rfilter(data, rank)
+  genus_data <- rfilter(data, rank)
   
   #getting locations
-  loc <-data.frame(paleolat= genus_data$paleolat, 
-                   paleolng= genus_data$paleolng)
+  loc <- data.frame(paleolat = genus_data$paleolat, 
+                    paleolng = genus_data$paleolng)
   #getting unique locations
   uloc <- unique(loc)
   
   #getting list of unique taxa
   
-  ugenus <- as.vector (unique(genus_data [,3]))
-  nsites<- uloc
+  ugenus <- as.vector(unique(genus_data[, 3]))
+  nsites <- uloc
   
   #fill with default values -1
-  blank<- matrix (-1, nrow=nrow (nsites), ncol=length (ugenus))
-  nsites<- cbind (nsites, blank)
-  colnames(nsites) <- c (unlist (names (loc)), ugenus)
+  blank <- matrix(-1, nrow = nrow(nsites), ncol = length(ugenus))
+  nsites <- cbind(nsites, blank)
+  colnames(nsites) <- c(unlist(names(loc)), ugenus)
   
   #getting the number of occurrences of a genus for each locality
   for (i in 1:nrow(nsites)) {
     #get lat & lng
-    lat_i <- nsites[i,1]
-    lng_i <- nsites[i,2]
+    lat_i <- nsites[i, 1]
+    lng_i <- nsites[i, 2]
     for (j in 1:length(ugenus)) {
       #get current genus
       genus_j <- ugenus[j]
@@ -306,12 +299,11 @@ pm_occ <- function(data, rank="species") {
       flatlng <- subset(flat, flat$paleolng == lng_i)
       #select only current genus
       fgen <- subset(flatlng, flatlng [,3] == genus_j)
-      count<- nrow (fgen)
+      count<- nrow(fgen)
       nsites[i, j + 2] <- count
     }
   }
-  
-  nsites
+  return(nsites)
 }
 
 
@@ -323,8 +315,8 @@ pm_occ <- function(data, rank="species") {
 #' 
 #' generates a diversity matrix, with the number occurrences of each species, genus, family or order per cell
 #' 
-#' @usage pm_occ (data, rank, res)
-#' 
+#' @param shape file from the time interval of interest. 
+#' Can be created with get_paleomap
 #' @param data a data frame with fossil occurrences 
 #' Can be created with pm_getdata(interval, base_name)
 #' @param rank character: "species", "genus", "family", "order". 
@@ -334,51 +326,30 @@ pm_occ <- function(data, rank="species") {
 #' @export 
 #' @examples 
 #' \dontrun{
-#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' pm_occ_cell (data, rank="species", res=10)
+#' shape <- pm_getmap(interval = "Quaternary")
+#' data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
+#' result <- pm_occ_cell(shape, data, rank = "species", res = 10)
 #'}
 
 
-pm_occ_cell <- function(data, rank="species", res=10) {
+pm_occ_cell <- function (shape, data, rank = "species", res = 10) {
   #only getting occurences with a known genus
   genus_data <-rfilter(data, rank)
+  r <- raster(shape, resolution = res, vals = 1)
+  cells <- extract(r, genus_data[, 1:2], cellnumbers = TRUE)[, 1]
   #getting list of unique taxa
-  ugenus <- as.vector (unique(genus_data [,3]))
+  ugenus <- as.vector(unique(genus_data[, 3]))
   
-  
-  lat<- seq(-90 + (res/2), 90 -(res/2), res)
-  long<- seq(-180 + (res/2), 180 -(res/2), res)
-  
-  nsites<- expand.grid (long, lat)
-  
-  #fill with default values -1
-  blank<- matrix (-1, nrow= nrow (nsites), ncol=length (ugenus))
-  nsites<- cbind (nsites, blank)
-  colnames(nsites) <- c ("long", "lat", ugenus)
-  
-  #getting the number of occurrences of a genus for each locality
-  for (i in 1:nrow(nsites)) {
-    #get lat & lng
-    
-    lng_i <- nsites[i,1]
-    lat_i <- nsites[i,2]
-    for (j in 1:length(ugenus)) {
-      #get current genus
-      genus_j <- ugenus[j]
-      #get all genus at locality
-      flat <- subset(genus_data, genus_data$paleolat >= lat_i - (res/2))
-      flat <- subset(flat , flat$paleolat < lat_i + (res/2))
-      flatlng <- subset(flat, flat$paleolng >= lng_i - (res/2))
-      flatlng <- subset(flatlng , flatlng$paleolng < lng_i + (res/2))
-      
-      #select only current genus
-      fgen <- subset(flatlng, flatlng [,3] == genus_j)
-      count<- nrow (fgen)
-      nsites[i, j + 2] <- count
-    }
+  blank <- matrix(0, nrow = ncell(r), ncol = length(ugenus))
+  nsites <- cbind(xyFromCell(r, 1:ncell(r)), blank)
+  colnames(nsites) <- c("long", "lat", ugenus)
+  for (i in 1:length(ugenus)) {
+    row_n <- genus_data[, 3] == ugenus[i]
+    if (any(row_n)) {
+      nsites[cells[row_n], i + 2] <- 1  
+    } 
   }
-  
-  as.data.frame (nsites)
+  return(as.data.frame(nsites))
 }
 
 
