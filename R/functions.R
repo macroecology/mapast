@@ -332,26 +332,42 @@ pm_occ <- function(data, rank = "species") {
 #'}
 
 
-pm_occ_cell <- function (shape, data, rank = "species", res = 10) {
+
+pm_occ_cell <- function(data, rank = "species", res = 10) {
   #only getting occurences with a known genus
   genus_data <-rfilter(data, rank)
-  r <- raster(shape, resolution = res, vals = 1)
-  cells <- extract(r, genus_data[, 1:2], cellnumbers = TRUE)[, 1]
   #getting list of unique taxa
-  ugenus <- as.vector(unique(genus_data[, 3]))
+  ugenus <- as.vector (unique(genus_data [, 3]))
+  lat <- seq(-90 + (res / 2), 90 -(res / 2), res)
+  long <- seq(-180 + (res / 2), 180 -(res / 2), res)
+  nsites <- expand.grid (long, lat)
+  #fill with default values -1
+  blank <- matrix (-1, nrow = nrow (nsites), ncol = length(ugenus))
+  nsites <- cbind (nsites, blank)
+  colnames(nsites) <- c ("long", "lat", ugenus)
   
-  blank <- matrix(0, nrow = ncell(r), ncol = length(ugenus))
-  nsites <- cbind(xyFromCell(r, 1:ncell(r)), blank)
-  colnames(nsites) <- c("long", "lat", ugenus)
-  for (i in 1:length(ugenus)) {
-    row_n <- genus_data[, 3] == ugenus[i]
-    if (any(row_n)) {
-      nsites[cells[row_n], i + 2] <- 1  
-    } 
+  #getting the number of occurrences of a genus for each locality
+  for (i in 1:nrow(nsites)) {
+    #get lat & lng
+    lng_i <- nsites[i, 1]
+    lat_i <- nsites[i, 2]
+    for (j in 1:length(ugenus)) {
+      #get current genus
+      genus_j <- ugenus[j]
+      #get all genus at locality
+      flat <- subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
+      flat <- subset(flat , flat$paleolat < lat_i + (res / 2))
+      flatlng <- subset(flat, flat$paleolng >= lng_i - (res / 2))
+      flatlng <- subset(flatlng , flatlng$paleolng < lng_i + (res / 2))
+      
+      #select only current genus
+      fgen <- subset(flatlng, flatlng [,3] == genus_j)
+      count<- nrow (fgen)
+      nsites[i, j + 2] <- count
+    }
   }
   return(as.data.frame(nsites))
 }
-
 
 
 #####################pm_divraster####################

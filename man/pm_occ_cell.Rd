@@ -4,12 +4,9 @@
 \alias{pm_occ_cell}
 \title{pm_occ_cell}
 \usage{
-pm_occ_cell(shape, data, rank = "species", res = 10)
+pm_occ_cell(data, rank = "species", res = 10)
 }
 \arguments{
-\item{shape}{file from the time interval of interest. 
-Can be created with get_paleomap}
-
 \item{data}{a data frame with fossil occurrences 
 Can be created with pm_getdata(interval, base_name)}
 
@@ -17,17 +14,19 @@ Can be created with pm_getdata(interval, base_name)}
 By default rank="species"}
 
 \item{res}{numeric. resolution of the cells. By default res=10}
+
+\item{shape}{file from the time interval of interest. 
+Can be created with get_paleomap}
 }
 \value{
-data frame with number of species, genera, families or orders per locality
+data frame with number of occurrences by species, genera, families or orders per locality
 }
 \description{
 generates a diversity matrix, with the number occurrences of each species, genus, family or order per cell
 }
 \examples{
 \dontrun{
-shape <- pm_getmap(interval = "Quaternary")
 data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
-result <- pm_occ_cell(shape, data, rank = "species", res = 10)
+result <- pm_occ_cell(data, rank = "species", res = 10)
 }
 }
