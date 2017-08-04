@@ -31,11 +31,11 @@ pm_getmap <- function (interval, colsea = "#00509010",
   
   if (do.plot) {
     par(mar = c(0, 0, 0, 0))
-    plot(shape, col = "white", border = FALSE)
+    sp::plot(shape, col = "white", border = FALSE)
     rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
          border = FALSE)
-    plot(shape, col = colland, border = FALSE, add = TRUE)
+    sp::plot(shape, col = colland, border = FALSE, add = TRUE)
   }
   # return the shape file
   return(shape)
