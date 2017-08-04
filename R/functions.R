@@ -30,11 +30,15 @@ pm_getmap <- function (interval, colsea = "#00509010",
   assign("shape", get(interval))
   
   if (do.plot) {
-    par(mar = c(0, 0, 0, 0))
-    sp::plot(shape, col = "white", border = FALSE)
+    par(mar = c(5.1, 4.1, 4.1, 2.1))
+    sp::plot(shape, col = "white", border = FALSE, main=interval, xlim=c(-180,180), ylim=c(-90,90)
+             , xlab="Longitude", ylab="Latitude"
+             , xaxs="i", yaxs="i")
     rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
          border = FALSE)
+    axis(1, xaxp=c(180,-180,4))
+    axis(2, yaxp=c(90,-90,4))
     sp::plot(shape, col = colland, border = FALSE, add = TRUE)
   }
   # return the shape file
