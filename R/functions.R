@@ -143,7 +143,7 @@ pm_plot <- function(interval, data,
     par(mar = c(5.1, 4.1, 4.1, 2.1))
     plot(shape, col = "white", border = FALSE, main=interval, xlim=c(-180,180), ylim=c(-90,90)
              , xlab="Longitude", ylab="Latitude"
-             , xaxs="i", yaxs="i"))
+             , xaxs="i", yaxs="i")
     rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
          border = FALSE)
