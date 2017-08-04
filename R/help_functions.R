@@ -101,15 +101,15 @@ rfilter <- function(data, rank){
   }
   if(rank=="genus"){
     data <- subset(data, genus!="NA")
-    data<- data [, c(7:8, 9)]
+    data<- data [, c(7:8, 10)]
   }
   if(rank=="family"){
     data <- subset(data, family!="NA")
-    data<- data [, c(7:8, 10)]
+    data<- data [, c(7:8, 11)]
   }
   if(rank=="order"){
     data <- subset(data, order!="NA")
-    data<- data [, c(7:8, 11)]
+    data<- data [, c(7:8, 12)]
   }
   return(data)
 }
