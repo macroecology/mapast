@@ -24,7 +24,7 @@ pm_getmap <- function (interval, colsea = "#00509010",
   ## we might hack this with "with" or "null" for avoiding NOTE on check: 'no visible binding for global variable'
   ## see: http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
   
-  load (paste ("data/", interval, ".rda", sep = ""))
+  
   # if user does not set plot=FALSE plot the shape file
   # get the shape file with help function getShape to open lazyload data
   assign("shape", get(interval))
