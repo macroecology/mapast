@@ -140,12 +140,16 @@ pm_plot <- function(interval, data,
   #plotting the map and the data
   if (class(data) == "data.frame") {
     #defines size and axes of the plot
-    par(mar=c(0,0,0,0))
-    plot(shape, col = "white", border = FALSE)
+    par(mar = c(5.1, 4.1, 4.1, 2.1))
+    plot(shape, col = "white", border = FALSE, main=interval, xlim=c(-180,180), ylim=c(-90,90)
+             , xlab="Longitude", ylab="Latitude"
+             , xaxs="i", yaxs="i"))
     rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
          border = FALSE)
     plot(shape, col = colland, border = FALSE, add = TRUE)
+    axis(1, xaxp=c(180,-180,4))
+    axis(2, yaxp=c(90,-90,4))
     points(data$paleolng, 
            data$paleolat, 
            pch = 16, col = colpoints, 
