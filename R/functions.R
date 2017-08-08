@@ -188,25 +188,30 @@ pm_occraster <- function(shape, data,
                          colsea = "#00509010", 
                          colland = "#66666660"){
   
-  raster <- NULL
+   raster <- NULL
   #filter data for rank
-  fdata <- rfilter(data, rank)
+  fdata <- myrfilter(data, rank)
   #creating a raster in the size of the shape
   ras <- raster(shape, res = res)
   #raster of the occurences (sampling effort)
   r <- rasterize(fdata[, 1:2], ras , fun = "count")
   #plotting the map and the raster on the map
-  #par (mar=c(0,0,0,8))
+  par(xpd = T, mar = par()$mar + c(0,0,0,7)) #allows to add legend outside plotting window
   plot (shape, col = "white", border = FALSE, main= "occourence raster" , xlim=c(-180,180), ylim=c(-90,90)
-             , xlab="Longitude", ylab="Latitude"
-             , xaxs="i", yaxs="i")
+        , xlab="Longitude", ylab="Latitude"
+        , xaxs="i", yaxs="i")
   rect(xleft = -180, xright = 180, 
        ybottom = -90, ytop = 90, col = colsea, 
        border = FALSE)
+  plot (shape, col = colland, border = FALSE, add = TRUE)
+  plot(r, col = c(mycols(res * res)), add = TRUE, legend=FALSE)
+  #adding axes
   axis(1, xaxp=c(180,-180,4))
   axis(2, yaxp=c(90,-90,4))
-  plot (shape, col = colland, border = FALSE, add = TRUE)
-  plot(r, col = c(mycols(res * res)), add = TRUE)
+  #adding legend
+  plot(r, legend.only=TRUE,  col = c(mycols(res * res)), legend.args=list(text="",side=4), add=TRUE)
+  #restore default par values
+  par(mar=c(5, 4, 4, 2) + 0.1)
   #returning the raster
   return(r)
 }
