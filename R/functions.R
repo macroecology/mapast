@@ -197,10 +197,14 @@ pm_occraster <- function(shape, data,
   r <- rasterize(fdata[, 1:2], ras , fun = "count")
   #plotting the map and the raster on the map
   par (mar=c(0,0,0,8))
-  plot (shape, col = "white", border = FALSE)
+  plot (shape, col = "white", border = FALSE, main= "occourence raster" , xlim=c(-180,180), ylim=c(-90,90)
+             , xlab="Longitude", ylab="Latitude"
+             , xaxs="i", yaxs="i")
   rect(xleft = -180, xright = 180, 
        ybottom = -90, ytop = 90, col = colsea, 
        border = FALSE)
+  axis(1, xaxp=c(180,-180,4))
+  axis(2, yaxp=c(90,-90,4))
   plot (shape, col = colland, border = FALSE, add = TRUE)
   plot(r, col = c(mycols(res * res)), add = TRUE)
   #returning the raster
