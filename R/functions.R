@@ -188,7 +188,7 @@ pm_occraster <- function(shape, data,
                          colsea = "#00509010", 
                          colland = "#66666660"){
   
-   raster <- NULL
+  raster <- NULL
   #filter data for rank
   fdata <- myrfilter(data, rank)
   #creating a raster in the size of the shape
@@ -252,12 +252,21 @@ pm_richraster <- function (shape, data, res = 10, rank,
   r <- rank_filter(ras, data, res = res, rank)
   
   #plotting the map and the raster
-  par (mar = c(0, 0, 0, 5))
-  plot (shape, col = "white", border = FALSE)
+  par(xpd = T, mar = par()$mar + c(0,0,0,7)) #allows to add legend outside plotting window
+  plot (shape, col = "white", border = FALSE, main= "richness raster" , xlim=c(-180,180), ylim=c(-90,90)
+        , xlab="Longitude", ylab="Latitude"
+        , xaxs="i", yaxs="i")
   rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
        border = FALSE)
   plot (shape, col=colland, border = FALSE, add = TRUE)
-  plot (r, add = TRUE, axes = FALSE, box = FALSE, col=mycols(100))
+  plot (r, add = TRUE, axes = FALSE, box = FALSE, col=mycols(100), legend=FALSE)
+  #adding axes
+  axis(1, xaxp=c(180,-180,4))
+  axis(2, yaxp=c(90,-90,4))
+  #adding legend
+  plot(r, legend.only=TRUE,  col = mycols(100), legend.args=list(text="",side=4), add=TRUE)
+  #restore default par values
+  par(mar=c(5, 4, 4, 2) + 0.1)
   #return the raster
   return(r)
 }
