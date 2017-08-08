@@ -445,12 +445,21 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
                field= cordata$div, fun=fun)
   
   #plotting the map and the raster
-  par (mar=c(0,0,0,5))
-  plot (shape, col="white", border=FALSE)
+  par(xpd = T, mar = par()$mar + c(0,0,0,7)) #allows to add legend outside plotting window
+  plot (shape, col="white", border=FALSE, main= "richness raster" , xlim=c(-180,180), ylim=c(-90,90)
+        , xlab="Longitude", ylab="Latitude"
+        , xaxs="i", yaxs="i")
   rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
        border=FALSE)
   plot (shape, col=colland, border=FALSE, add=T)
-  plot (r, add=T, axes=F, box=F, col=mycols(100))
+  plot (r, add=T, axes=F, box=F, col=mycols(100), legend=FALSE)
+    #adding axes
+  axis(1, xaxp=c(180,-180,4))
+  axis(2, yaxp=c(90,-90,4))
+  #adding legend
+  plot(r, legend.only=TRUE,  col = mycols(100), legend.args=list(text="",side=4), add=TRUE)
+  #restore default par values
+  par(mar=c(5, 4, 4, 2) + 0.1)
   
   #return the raster
   r
@@ -502,13 +511,21 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10, rank="species",
   #getting the raster of the species richness
   r[r==0]<- NA
   #plotting the map and the raster
-  par (mar=c(0,0,0,5))
-  plot (shape, col="white", border=FALSE)
+  par(xpd = T, mar = par()$mar + c(0,0,0,7)) #allows to add legend outside plotting window
+  plot (shape, col="white", border=FALSE, main= "richness raster" , xlim=c(-180,180), ylim=c(-90,90)
+        , xlab="Longitude", ylab="Latitude"
+        , xaxs="i", yaxs="i")
   rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
        border=FALSE)
   plot (shape, col=colland, border=FALSE, add=T)
-  plot (r, add=T, axes=F, box=F, col=mycols(100))
-  
+  plot (r, add=T, axes=F, box=F, col=mycols(100), legend=FALSE)
+    #adding axes
+  axis(1, xaxp=c(180,-180,4))
+  axis(2, yaxp=c(90,-90,4))
+  #adding legend
+  plot(r, legend.only=TRUE,  col = mycols(100), legend.args=list(text="",side=4), add=TRUE)
+  #restore default par values
+  par(mar=c(5, 4, 4, 2) + 0.1)
   #return the raster
   r
 }
