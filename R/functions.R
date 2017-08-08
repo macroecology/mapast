@@ -196,7 +196,7 @@ pm_occraster <- function(shape, data,
   #raster of the occurences (sampling effort)
   r <- rasterize(fdata[, 1:2], ras , fun = "count")
   #plotting the map and the raster on the map
-  par (mar=c(0,0,0,8))
+  #par (mar=c(0,0,0,8))
   plot (shape, col = "white", border = FALSE, main= "occourence raster" , xlim=c(-180,180), ylim=c(-90,90)
              , xlab="Longitude", ylab="Latitude"
              , xaxs="i", yaxs="i")
