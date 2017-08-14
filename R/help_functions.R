@@ -97,19 +97,19 @@ rfilter <- function(data, rank){
     matched_rank <- NULL
     genus <- NULL
     data <- subset(data, matched_rank=="species")
-    data<- data [, c(7:8, 2)]
+    data<- data [, c("paleolat", "paleolng", "matched_name")]
   }
   if(rank=="genus"){
     data <- subset(data, genus!="NA")
-    data<- data [, c(7:8, 10)]
+    data<- data [, c("paleolat", "paleolng", "genus")]
   }
   if(rank=="family"){
     data <- subset(data, family!="NA")
-    data<- data [, c(7:8, 11)]
+    data<- data [, c("paleolat", "paleolng", "family")]
   }
   if(rank=="order"){
     data <- subset(data, order!="NA")
-    data<- data [, c(7:8, 12)]
+    data<- data [, c("paleolat", "paleolng", "order")]
   }
   return(data)
 }
