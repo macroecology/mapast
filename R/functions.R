@@ -446,7 +446,7 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
   
   #plotting the map and the raster
   par(xpd = T, mar = par()$mar + c(0,0,0,7)) #allows to add legend outside plotting window
-  plot (shape, col="white", border=FALSE, main= "richness raster" , xlim=c(-180,180), ylim=c(-90,90)
+  plot (shape, col="white", border=FALSE, main= "Shannon diversity per locality" , xlim=c(-180,180), ylim=c(-90,90)
         , xlab="Longitude", ylab="Latitude"
         , xaxs="i", yaxs="i")
   rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
@@ -512,7 +512,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10, rank="species",
   r[r==0]<- NA
   #plotting the map and the raster
   par(xpd = T, mar = par()$mar + c(0,0,0,7)) #allows to add legend outside plotting window
-  plot (shape, col="white", border=FALSE, main= "richness raster" , xlim=c(-180,180), ylim=c(-90,90)
+  plot (shape, col="white", border=FALSE, main= "Shannon diversity per cell" , xlim=c(-180,180), ylim=c(-90,90)
         , xlab="Longitude", ylab="Latitude"
         , xaxs="i", yaxs="i")
   rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
