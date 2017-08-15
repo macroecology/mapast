@@ -597,16 +597,20 @@ pm_latrich <- function(shape, data, res=10,
   yy<- c(185, rich, 185)
   xx<- c(-90, centros, 90)
   
-  par (xpd = NA, mar=c(0, 0, 0, 8))
-  plot (shape, col="white", border=FALSE)
+  par(xpd = T, mar = par()$mar + c(0,0,0,7))
+  plot (shape, col="white", border = FALSE, main= "latitudinal richness" , xlim=c(-180,180), ylim=c(-90,90)
+        , xlab="Longitude", ylab="Latitude"
+        , xaxs="i", yaxs="i")
   rect(xleft=-180, xright=180, 
        ybottom=-90, ytop=90, col=colsea, 
        border=FALSE)
   plot (shape, col=colland, border=FALSE, add=T)
   points (data2$paleolng, data2$paleolat, 
           pch=21, col=colpointborder, bg=colpoints)
-  polygon (yy, xx, col="goldenrod1", border=F)
-  
+  axis(1, xaxp=c(180,-180,4))
+  axis(2, yaxp=c(90,-90,4))
+  polygon (4, yy, xx, col="goldenrod1", border=F)
+  par(mar=c(5, 4, 4, 2) + 0.1)
   #return latitudinal richness
   return (lr)
 }
