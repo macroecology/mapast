@@ -339,7 +339,7 @@ pm_occ <- function(data, rank = "species") {
 
 
 
-########pm_occ###################
+########pm_occ_cell###################
 #' pm_occ_cell
 #' 
 #' generates a diversity matrix, with the number occurrences of each species, genus, family or order per cell
@@ -366,7 +366,7 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
   #only getting occurences with a known genus
   genus_data <-rfilter(data, rank)
   #getting list of unique taxa
-  ugenus <- as.vector (unique(genus_data [, 3]))
+  ugenus <- as.vector (unique(genus_data [, "matched_name"]))
   lat <- seq(-90 + (res / 2), 90 -(res / 2), res)
   long <- seq(-180 + (res / 2), 180 -(res / 2), res)
   nsites <- expand.grid (long, lat)
@@ -378,8 +378,8 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
   #getting the number of occurrences of a genus for each locality
   for (i in 1:nrow(nsites)) {
     #get lat & lng
-    lng_i <- nsites[i, 1]
-    lat_i <- nsites[i, 2]
+    lng_i <- nsites[i, "paleolng"]
+    lat_i <- nsites[i, "paleolat"]
     for (j in 1:length(ugenus)) {
       #get current genus
       genus_j <- ugenus[j]
@@ -390,7 +390,7 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
       flatlng <- subset(flatlng , flatlng$paleolng < lng_i + (res / 2))
       
       #select only current genus
-      fgen <- subset(flatlng, flatlng [,3] == genus_j)
+      fgen <- subset(flatlng, flatlng [,"matched_name"] == genus_j)
       count<- nrow (fgen)
       nsites[i, j + 2] <- count
     }
