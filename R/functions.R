@@ -609,7 +609,7 @@ pm_latrich <- function(shape, data, res=10,
           pch=21, col=colpointborder, bg=colpoints)
   axis(1, xaxp=c(180,-180,4))
   axis(2, yaxp=c(90,-90,4))
-  polygon (4, yy, xx, col="goldenrod1", border=F)
+  polygon (yy, xx, col="goldenrod1", border=F)
   par(mar=c(5, 4, 4, 2) + 0.1)
   #return latitudinal richness
   return (lr)
