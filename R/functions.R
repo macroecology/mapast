@@ -510,7 +510,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10, rank="species",
   drop_occ <- occ_df_cell[ , !(names(occ_df_cell) %in% drops)]
   cordata1 <- diversity(drop_occ)
   cordata <- data.frame(occ_df_cell$paleolat, 
-                        occ_df_cell$palelng, div= cordata1)
+                        occ_df_cell$paleolng, div= cordata1)
   colnames(cordata) <- c("paleolat","paleolng","div")
   
   r<-rasterize(cordata [,c("paleolat","paleolng")], ras, 
