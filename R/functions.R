@@ -507,7 +507,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10, rank="species",
   
   #getting only species data and no duplictaed in a raster field
   drops <- c("paleolat","paleolng")
-  drop_occ <- occ_df[ , !(names(occ_df_cell) %in% drops)]
+  drop_occ <- occ_df_cell[ , !(names(occ_df_cell) %in% drops)]
   cordata1 <- diversity(drop_occ)
   cordata <- data.frame(occ_df_cell$long, 
                         occ_df_cell$lat, div= cordata1)
@@ -653,18 +653,21 @@ pm_latdiv <- function(occ_df, shape, res=10,
   
   
   #calculate the shannon diversity
-  H_data <- diversity(occ_df[,3:ncol(occ_df)])
+  drops <- c("paleolat","paleolng")
+  drop_occ <- occ_df[ , !(names(occ_df) %in% drops)]
+  H_data <- diversity(drop_occ)
   
   #get the localities
-  locs <- cbind(occ_df[,1],occ_df[,2], H_data)
+  locs <- cbind(occ_df[,"paleolat"],occ_df[,"paleolng"], H_data)
+  colnames(locs) <- c("paleolat", "paleolng", "div")
   cornum <- NULL
   for(lat in seq(-90,80,res)){
-    slocs <- subset(locs, locs[,1]>=lat)
-    slocs <- subset(slocs, slocs[,1]<lat+res)
+    slocs <- subset(locs, locs[,"paleolat"]>=lat)
+    slocs <- subset(slocs, slocs[,"paleolat"]<lat+res)
     if (nrow (slocs) == 0) {
       cornum <- c(cornum, 0)  
     } else {
-      cornum <- c(cornum, fun (slocs[,3])) 
+      cornum <- c(cornum, fun (slocs[,"div"])) 
     }
   }
   
