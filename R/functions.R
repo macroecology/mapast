@@ -513,11 +513,11 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10, rank="species",
                         occ_df_cell$paleolng, div= cordata1)
   colnames(cordata) <- c("paleolat","paleolng","div")
   
-  r<-rasterize(cordata [,c("paleolat","paleolng")], ras, 
+  r<-rasterize(cordata [,c("paleolng","paleolat")], ras, 
                field= cordata$div, fun=max)
   
   #getting the raster of the species richness
-  #r[r==0]<- NA
+  r[r==0]<- NA
   #plotting the map and the raster
   par(xpd = T, mar = par()$mar + c(0,0,0,7)) #allows to add legend outside plotting window
   plot (shape, col="white", border=FALSE, main= "Shannon diversity per cell" , xlim=c(-180,180), ylim=c(-90,90)
