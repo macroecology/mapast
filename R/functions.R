@@ -2,7 +2,7 @@
 
 #' pm_getmap
 #' 
-#' generates a shapefile with the paleomap of the choosen 
+#' generates a shapefile with the paleomap of the chosen 
 #' time interval (e.g. "Cretaceous") and a plot
 #' 
 #' @usage pm_getmap (interval, do.plot, colsea, colland)
@@ -40,6 +40,7 @@ pm_getmap <- function (interval, colsea = "#00509010",
     axis(1, xaxp=c(180,-180,4))
     axis(2, yaxp=c(90,-90,4))
     sp::plot(shape, col = colland, border = FALSE, add = TRUE)
+    par(mar=c(5, 4, 4, 2) + 0.1)
   }
   # return the shape file
   return(shape)
@@ -93,7 +94,8 @@ pm_getdata <- function(interval, base_name, limit="all"){
                         "genus_no","family_no","order_no",
                         "class_no","phylum_no")
     #return data frame
-    return(data)} else { #catching error when there are no occurences for the request
+    return(data)
+  } else { #catching error when there are no occurences for the request
       
       stop("There is no data that matches your query on the paleobioDB. 
           Check if the spelling, temporal intervals, etc. are correct")
@@ -154,6 +156,7 @@ pm_plot <- function(interval, data,
            data$paleolat, 
            pch = 16, col = colpoints, 
            cex = cex)
+    par(mar=c(5, 4, 4, 2) + 0.1)
   }
 }
 
@@ -304,7 +307,7 @@ pm_occ <- function(data, rank = "species") {
   
   #getting list of unique taxa
   
-  ugenus <- as.vector(unique(genus_data[, 3]))
+  ugenus <- as.vector(unique(genus_data[, "matched_name"]))
   nsites <- uloc
   
   #fill with default values -1
@@ -315,8 +318,8 @@ pm_occ <- function(data, rank = "species") {
   #getting the number of occurrences of a genus for each locality
   for (i in 1:nrow(nsites)) {
     #get lat & lng
-    lat_i <- nsites[i, 1]
-    lng_i <- nsites[i, 2]
+    lat_i <- nsites[i, "paleolat"]
+    lng_i <- nsites[i, "paleolng"]
     for (j in 1:length(ugenus)) {
       #get current genus
       genus_j <- ugenus[j]
@@ -324,7 +327,7 @@ pm_occ <- function(data, rank = "species") {
       flat <- subset(genus_data, genus_data$paleolat == lat_i)
       flatlng <- subset(flat, flat$paleolng == lng_i)
       #select only current genus
-      fgen <- subset(flatlng, flatlng [,3] == genus_j)
+      fgen <- subset(flatlng, flatlng [,"matched_name"] == genus_j)
       count<- nrow(fgen)
       nsites[i, j + 2] <- count
     }
