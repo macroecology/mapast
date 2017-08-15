@@ -446,7 +446,7 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
   colnames(cordata) <- c("paleolat", "paleolng", "div")
   
   #getting the raster of the species richness
-  r<-rasterize(cordata[,c("paleolat","paleolng")], ras, 
+  r<-rasterize(cordata[,c("paleolng", "paleolat")], ras, 
                field= cordata$div, fun=fun)
   
   #plotting the map and the raster
