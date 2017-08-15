@@ -438,12 +438,14 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
   #creating a raster in size of the shape file
   ras <- raster(shape, res=res)
   #getting only species data and no duplictaed in a raster field
-  cordata1 <- diversity(occ_df[,3:ncol(occ_df)])
+  drops <- c("paleolat","paleolng")
+  drop_occ <- occ_df[ , !(names(occ_df) %in% drops)]
+  cordata1 <- diversity(drop_occ)
   cordata <- data.frame(occ_df$paleolng, 
                         occ_df$paleolat, div= cordata1)
   
   #getting the raster of the species richness
-  r<-rasterize(cordata [,1:2], ras, 
+  r<-rasterize(cordata [,c("paleolat","paleolng")], ras, 
                field= cordata$div, fun=fun)
   
   #plotting the map and the raster
