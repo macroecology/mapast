@@ -355,7 +355,6 @@ pm_occ <- function(data, rank = "species") {
 #' @export 
 #' @examples 
 #' \dontrun{
-#' shape <- pm_getmap(interval = "Quaternary")
 #' data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
 #' result <- pm_occ_cell(data, rank = "species", res = 10)
 #'}
@@ -373,7 +372,7 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
   #fill with default values -1
   blank <- matrix (-1, nrow = nrow (nsites), ncol = length(ugenus))
   nsites <- cbind (nsites, blank)
-  colnames(nsites) <- c ("long", "lat", ugenus)
+  colnames(nsites) <- c ("paleolng", "paleolat", ugenus)
   
   #getting the number of occurrences of a genus for each locality
   for (i in 1:nrow(nsites)) {
