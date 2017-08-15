@@ -357,7 +357,7 @@ pm_occ <- function(data, rank = "species") {
 #' \dontrun{
 #' shape <- pm_getmap(interval = "Quaternary")
 #' data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
-#' result <- pm_occ_cell(shape, data, rank = "species", res = 10)
+#' result <- pm_occ_cell(data, rank = "species", res = 10)
 #'}
 
 
