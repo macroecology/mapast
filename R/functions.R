@@ -441,8 +441,8 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
   drops <- c("paleolat","paleolng")
   drop_occ <- occ_df[ , !(names(occ_df) %in% drops)]
   cordata1 <- diversity(drop_occ)
-  cordata <- data.frame(occ_df$paleolng, 
-                        occ_df$paleolat, div= cordata1)
+  cordata <- data.frame(occ_df$paleolat, 
+                        occ_df$paleolng, div= cordata1)
   colnames(cordata) <- c("paleolat", "paleolng", "div")
   
   #getting the raster of the species richness
