@@ -689,7 +689,7 @@ pm_latdiv <- function(occ_df, shape, res=10,
        border=FALSE)
   plot (shape, col=colland, border=FALSE, 
         add=T)
-  points (occ_df [, 2], occ_df [, 1], 
+  points (occ_df [, "paleolng"], occ_df [, "paleolat"], 
           pch=21, col=colpointborder, 
           bg=colpoints)
   polygon (yy, xx, col="goldenrod1", 
