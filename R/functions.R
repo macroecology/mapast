@@ -193,11 +193,11 @@ pm_occraster <- function(shape, data,
   
   raster <- NULL
   #filter data for rank
-  fdata <- myrfilter(data, rank)
+  fdata <- rfilter(data, rank)
   #creating a raster in the size of the shape
   ras <- raster(shape, res = res)
   #raster of the occurences (sampling effort)
-  r <- rasterize(fdata[, 1:2], ras , fun = "count")
+  r <- rasterize(fdata[, c("paleolng","paleolat")], ras , fun = "count")
   #plotting the map and the raster on the map
   par(xpd = T, mar = par()$mar + c(0,0,0,7)) #allows to add legend outside plotting window
   plot (shape, col = "white", border = FALSE, main= "occourence raster" , xlim=c(-180,180), ylim=c(-90,90)
