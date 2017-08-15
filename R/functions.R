@@ -398,7 +398,7 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
 }
 
 
-#####################pm_divraster####################
+#####################pm_divraster_loc####################
 
 #' pm_divraster_loc
 #' 
@@ -471,7 +471,7 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
 }
 
 
-#####################pm_divraster####################
+#####################pm_divraster_cell####################
 
 #' pm_divraster_cell
 #' 
@@ -506,11 +506,14 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10, rank="species",
   ras <- raster(shape, res=res)
   
   #getting only species data and no duplictaed in a raster field
-  cordata1 <- diversity (occ_df_cell [,3:ncol(occ_df_cell)])
+  drops <- c("paleolat","paleolng")
+  drop_occ <- occ_df[ , !(names(occ_df_cell) %in% drops)]
+  cordata1 <- diversity(drop_occ)
   cordata <- data.frame(occ_df_cell$long, 
                         occ_df_cell$lat, div= cordata1)
+  colnames(cordata) <- c("paleolat","paleolng","div")
   
-  r<-rasterize(cordata [,1:2], ras, 
+  r<-rasterize(cordata [,c("paleolat","paleolng")], ras, 
                field= cordata$div, fun=max)
   
   #getting the raster of the species richness
