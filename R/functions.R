@@ -31,10 +31,10 @@ pm_getmap <- function (interval, colsea = "#00509010",
   if (!requireNamespace("paleogeoDB", quietly = TRUE)) {
     library(devtools)
     install_github("macroecology/paleogeoDB")
-  }
-  #data(get(interval), package="paleogeoDB")
-  
+  }  
   assign("shape", get(interval))
+  
+  data(list=interval, package="paleogeoDB")
   
   if (do.plot) {
     par(mar = c(5.1, 4.1, 4.1, 2.1))
