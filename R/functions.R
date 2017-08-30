@@ -29,6 +29,12 @@ pm_getmap <- function (interval, colsea = "#00509010",
   # get the shape file with help function getShape to open lazyload data
   assign("shape", get(interval))
   
+  if (!requireNamespace("paleogeoDB", quietly = TRUE)) {
+    library(devtools)
+    install_github("macroecology/paleogeoDB")
+  }
+  data(shape, package="paleogeoDB")
+  
   if (do.plot) {
     par(mar = c(5.1, 4.1, 4.1, 2.1))
     sp::plot(shape, col = "white", border = FALSE, main=interval, xlim=c(-180,180), ylim=c(-90,90)
