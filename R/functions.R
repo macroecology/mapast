@@ -32,7 +32,7 @@ pm_getmap <- function (interval, colsea = "#00509010",
     library(devtools)
     install_github("macroecology/paleogeoDB")
   }
-  data(interval, package="paleogeoDB")
+  data(get(interval), package="paleogeoDB")
   
   assign(shape, get(interval))
   
