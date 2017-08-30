@@ -18,8 +18,8 @@ Imports:
     raster,
     vegan,
     maptools
-    PaleogeoDB
-Additional_repositories: https://github.com/macroecology/PaleogeoDB
+    paleogeoDB
+Additional_repositories: https://github.com/macroecology/paleogeoDB
 Suggests:
     NA
 BugReports: NA
