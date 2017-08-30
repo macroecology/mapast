@@ -27,7 +27,7 @@ pm_getmap <- function (interval, colsea = "#00509010",
   
   # if user does not set plot=FALSE plot the shape file
   # get the shape file with help function getShape to open lazyload data
-  assign("shape", get(interval))
+  assign(shape, get(interval))
   
   if (!requireNamespace("paleogeoDB", quietly = TRUE)) {
     library(devtools)
