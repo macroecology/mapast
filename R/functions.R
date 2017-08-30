@@ -26,14 +26,15 @@ pm_getmap <- function (interval, colsea = "#00509010",
   
   
   # if user does not set plot=FALSE plot the shape file
-  # get the shape file with help function getShape to open lazyload data
-  assign(shape, get(interval))
+
   
   if (!requireNamespace("paleogeoDB", quietly = TRUE)) {
     library(devtools)
     install_github("macroecology/paleogeoDB")
   }
-  data(shape, package="paleogeoDB")
+  data(interval, package="paleogeoDB")
+  
+  assign(shape, get(interval))
   
   if (do.plot) {
     par(mar = c(5.1, 4.1, 4.1, 2.1))
