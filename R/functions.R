@@ -27,14 +27,13 @@ pm_getmap <- function (interval, colsea = "#00509010",
   
   # if user does not set plot=FALSE plot the shape file
 
-  
+  #get shape file from external databade
+  #load external database if not already done before
   if (!requireNamespace("paleogeoDB", quietly = TRUE)) {
     library(devtools)
     install_github("macroecology/paleogeoDB")
-  }
-  #data(get(interval), package="paleogeoDB")
-  
-  assign("shape", get(interval))
+  }  
+  assign("shape", get(data(list=interval, package="paleogeoDB")))
   
   if (do.plot) {
     par(mar = c(5.1, 4.1, 4.1, 2.1))
