@@ -34,7 +34,7 @@ pm_getmap <- function (interval, colsea = "#00509010",
   }  
   #assign("shape", get(interval))
   
-  shape <- data(list=interval, package="paleogeoDB")
+  assign("shape", get(data(list=interval, package="paleogeoDB")))
   
   if (do.plot) {
     par(mar = c(5.1, 4.1, 4.1, 2.1))
