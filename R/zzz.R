@@ -4,5 +4,5 @@
   options(repos = repos)
   invisible(repos)
   
-  install.github("macroecology/paleogeoDB")
+  install_github("macroecology/paleogeoDB")
 }
