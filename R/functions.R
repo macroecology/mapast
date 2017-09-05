@@ -48,6 +48,7 @@ pm_getmap <- function (interval, colsea = "#00509010",
     sp::plot(shape, col = colland, border = FALSE, add = TRUE)
     par(mar=c(5, 4, 4, 2) + 0.1)
   }
+  rm(interval)
   # return the shape file
   return(shape)
 }

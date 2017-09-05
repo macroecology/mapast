@@ -2,7 +2,7 @@ context("pm_getdata")
 test_that("tests on getdata_paleomap which should return a data.frame with
           at least paleolat, paleolng, taxon_name and taxon_rank")
   #get the data
-  data<-  pm_getdata(interval="Quaternary", base_name="reptilia", limit=1000)
+  data(testdata)
   #test if data is data frame
   expect_true(is.data.frame(data))
   #test if important colnames are there
@@ -41,8 +41,7 @@ test_that("test on raster_paleomap, if output is raster")
 context("pm_richraster")
 test_that("test on spraster_paleomap, if output is raster")
   #get data and shape file
-  shape <- pm_getmap(interval="Jurassic", plot=TRUE, colsea="#00005020", colland="#2B2B2B80", colborder="#2B2B2B30")
-  data <- pm_getdata(interval="Jurassic", base_name="reptilia", limit=1000)
+  data(testdata)
   #create species richness raster
   spras <- pm_richraster(shape, data)
   #test if class of raster is RasterLayer
@@ -51,7 +50,7 @@ test_that("test on spraster_paleomap, if output is raster")
 context("rank_filter")
 test_that("test if output is a dataframe and if there are only species in the data frame")
   #get data
-  data <- pm_getdata(interval="Jurassic", base_name="reptilia", limit=1000)
+  data(testdata)
   #filter data
   filter_data <- rank_filter(data, res=10, rank="species")
   #test if it is a data frame
