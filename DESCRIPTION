@@ -20,8 +20,7 @@ Imports:
     maptools,
     paleogeoDB
 Additional_repositories: https://github.com/macroecology/paleogeoDB
-Suggests:
-    NA
+Suggests: NA
 BugReports: NA
 URL: NA
 LazyData: TRUE
