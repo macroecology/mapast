@@ -1,4 +1,4 @@
-.onLoad <- function(libname, pkgname) {
+.onLoad <- function() {
   repos = getOption("repos")
   repos["PaleogeoDB"] = "https://github.com/macroecology/PaleogeoDB"
   options(repos = repos)
