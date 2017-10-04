@@ -8,15 +8,14 @@
 #'data on the maps.
 #'
 #' @name paleoMap
+#' @title paleoMap: An R-package for getting and using paleontoligcal maps.
 #' @aliases paleoMap-package
 #' @docType package
-#' @title An R-package for getting and using paleontoligcal maps.
 #' @author Sonja Rothkugel \email{rothkugelsonja@@aol.de}
 #' @author Sara Varela \email{svarela@@paleobiogeography.org}
-#' # @references
 #' 
 #' @keywords package
-#'
+#' 
 #' @details \tabular{ll}{
 #' Package: \tab paleoMap\cr
 #' Type: \tab Package\cr
@@ -25,10 +24,11 @@
 #' License: \tab GPL-2\cr
 #' }
 #' 
-#'@seealso {
+#'@seealso GPlates
 #'\url{http://www.gplates.org/}
+#'@seealso PaleobioDB
 #'\url{http://paleobiodb.org}
-#' }
+#'
 #' 
 #' @import raster maptools paleobioDB roxygen2 vegan
 #' 
@@ -53,16 +53,21 @@
 #'        colpoints="#9ACD3250",colpointborder="black")
 #'
 #'#creating a raster file for the sampling effort
-#'jurassic <- pm_getmap(interval="jurassic", plot=FALSE, colsea="#00005020", colland="#2B2B2B80", colborder="#2B2B2B30")
-#'reptilia_jurassic <- pm_getdata(interval="jurassic", base_name="reptilia", limit=1000)
-#'myraster <- pm_occraster(shape=jurassic, data=reptilia_jurassic, res=10,colsea="#00005020",
+#'jurassic <- pm_getmap(interval="jurassic", plot=FALSE, colsea="#00005020", 
+#'                       colland="#2B2B2B80", colborder="#2B2B2B30")
+#'reptilia_jurassic <- pm_getdata(interval="jurassic", 
+#'                                 base_name="reptilia", limit=1000)
+#'myraster <- pm_occraster(shape=jurassic, data=reptilia_jurassic, 
+#'                          res=10,colsea="#00005020",
 #'                          colland="#2B2B2B80", colborder="#2B2B2B30")
 #'show(myraster)
 #'
 #'#creating a raster file of the species richness
-#'jurassic <- pm_getmap(interval="jurassic", plot=FALSE, colsea="#00005020", colland="#2B2B2B80", colborder="#2B2B2B30")
+#'jurassic <- pm_getmap(interval="jurassic", plot=FALSE, 
+#'                      colsea="#00005020", colland="#2B2B2B80", colborder="#2B2B2B30")
 #'reptilia_jurassic <- pm_getdata(interval="jurassic", base_name="reptilia", limit=1000)
-#'myraster <- pm_richraster(shape=jurassic, data=reptilia_jurassic, res=10,colsea="#00005020",
+#'myraster <- pm_richraster(shape=jurassic, data=reptilia_jurassic, 
+#'                          res=10,colsea="#00005020",
 #'                          colland="#2B2B2B80", colborder="#2B2B2B30")
 #'show(myraster)
 #'

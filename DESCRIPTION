@@ -4,7 +4,7 @@ Description: Download and use paleomaps (GPlates) combined with paleobioDB
 Encoding: UTF-8
 Type: Package
 License: GPL-2
-Title: Paleogeography combined with spatial paleobiodiversity
+Title: Paleogeography Combined with Spatial Paleobiodiversity
 Version: 0.1
 Authors@R: c(person("Sara", "Varela", role = c("aut", "cre"),
     email = "svarela@paleobiogeography.org"),
@@ -17,10 +17,10 @@ Imports:
     paleobioDB,
     raster,
     vegan,
-    maptools
-Additional_repositories: https://github.com/macroecology/paleogeoDB
-Suggests: NA
-BugReports: NA
-URL: NA
+    maptools,
+    devtools,
+    sp
+BugReports: https://github.com/macroecology/paleoMap/issues
+URL: https://github.com/macroecology/paleoMap.git
 LazyData: TRUE
 RoxygenNote: 6.0.1

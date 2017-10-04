@@ -23,16 +23,15 @@ test_that("tests on getdata_paleomap which should return a data.frame with
 
 context("pm_getmap")
 test_that("tests on get_paleomap, if output is a shapefile") 
-  #get shapefile
-  shape <- pm_getmap(interval="Jurassic", plot=TRUE, colsea="#00005020", colland="#2B2B2B80", colborder="#2B2B2B30")
+  #get the data
+  data(testdata)
   #test if it is a shape file
   expect_true(shape@class[1], equals("SpatialPolygonsDataFrame"))
 
 context("pm_occraster")
 test_that("test on raster_paleomap, if output is raster")
-  #get data and shapefile
-  shape <- pm_getmap(interval="Jurassic",plot=TRUE, colsea="#00005020", colland="#2B2B2B80", colborder="#2B2B2B30")
-  data <- pm_getdata(interval="Jurassic", base_name="reptilia", limit=1000)
+  #get the data
+  data(testdata)
   #create raster
   ras <- pm_occraster(shape, data)
   #test if raster is a RasterLayer
