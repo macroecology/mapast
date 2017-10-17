@@ -4,12 +4,15 @@
 \alias{pm_plot}
 \title{pm_plot}
 \usage{
-pm_plot(interval, data,colsea = "#00509010",
+pm_plot(interval, model, data,colsea = "#00509010",
                 colland = "#66666660",colpoints = "#99000020", 
                 cex = 1)
 }
 \arguments{
 \item{interval}{time interval of interest (e.g. Quaternary)}
+
+\item{model}{which reconstruction model the map comes from. 
+"GPlates", "Golonka" or "Smith"}
 
 \item{data}{data.frame with the paleogeoreferenced fossil records 
 (can be obtained using pm_getdata)}
@@ -32,6 +35,6 @@ plots your query from the paleobioDB onto the map of the selected time interval
 \examples{
 \dontrun{
 data  <-  pm_getdata (base_name="Mammalia", interval="Cretaceous")
-pm_plot(interval="Cretaceous", data)
+pm_plot(interval="Cretaceous", model="GPlates", data)
 }
 }

@@ -4,14 +4,14 @@
 \alias{pm_latdiv}
 \title{pm_latdiv}
 \usage{
-pm_latdiv (occ_df, shape, res=10, fun= max,
+pm_latdiv (shape, occ_df, res=10, fun= max,
                   colsea="#00509010", colland="#66666680", 
                   colpoints="#FFC12530",colpointborder="black")
 }
 \arguments{
-\item{occ_df}{a data frame with abundance of taxa per locality (see example)}
-
 \item{shape}{a shape file of the corresponding time map}
+
+\item{occ_df}{a data frame with abundance of taxa per locality (see example)}
 
 \item{res}{numeric. spatial resolucion of the latitudinal bins. 
 res=10 by default.}
@@ -45,7 +45,7 @@ localities along the latitudinal gradient.
 \dontrun{
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 occ_df <- pm_occ (data)
-pm_latdiv (occ_df, shape, fun=mean)
-pm_latdiv (occ_df, shape, fun=max)
+pm_latdiv (shape, occ_df, fun=mean)
+pm_latdiv (shape, occ_df, fun=max)
 }
 }

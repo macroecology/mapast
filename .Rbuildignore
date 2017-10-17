@@ -5,3 +5,4 @@ README.md
 ## Ignore travis config file
 ^\.travis\.yml$
 ^.*\.ini$
+figure

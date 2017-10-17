@@ -26,8 +26,19 @@ pm_getmap <- function(interval, model, colsea = "#00509010",
                        do.plot = TRUE) {
  
   #get shape file from external database
-  assign("shape", get(utils::data(list=paste(model,interval, sep="_"), package="paleogeoDB"
-                           ,envir = environment())))
+  if(model=="GPlates"){
+    
+    shape <- utils::data(list=paste(model,interval, sep="_"), package="paleogeoDB"
+                         ,envir = environment())
+    assign("shape",get(interval))
+    
+  }else{
+    
+    shape <- utils::data(list=paste(model,interval, sep="_"), package="paleogeoDB"
+                         ,envir = environment())
+    assign("shape",get(paste(model,interval, sep="_")))
+  }
+  
 
   # if user does not set plot=FALSE plot the shape file
   #store default par settings
@@ -117,11 +128,13 @@ pm_getdata <- function(interval, base_name, limit="all") {
 #' plots your query from the paleobioDB onto the map of the selected time interval
 #' 
 #' 
-#' @usage pm_plot(interval, data,colsea = "#00509010",
+#' @usage pm_plot(interval, model, data,colsea = "#00509010",
 #'                 colland = "#66666660",colpoints = "#99000020", 
 #'                 cex = 1)
 #' 
 #' @param interval time interval of interest (e.g. Quaternary)
+#' @param model  which reconstruction model the map comes from. 
+#' "GPlates", "Golonka" or "Smith"
 #' @param data data.frame with the paleogeoreferenced fossil records 
 #' (can be obtained using pm_getdata)
 #' @param colsea color of the ocean
@@ -134,17 +147,17 @@ pm_getdata <- function(interval, base_name, limit="all") {
 #' @examples 
 #' \dontrun{
 #' data  <-  pm_getdata (base_name="Mammalia", interval="Cretaceous")
-#' pm_plot(interval="Cretaceous", data)
+#' pm_plot(interval="Cretaceous", model="GPlates", data)
 #'}
 
-pm_plot <- function(interval, data,
+pm_plot <- function(interval, model, data,
                     colsea = "#00509010", 
                     colland = "#66666660",
                     colpoints = "#99000020", 
                     cex = 1) {
   
   #getting the shape file for the map and the data for plotting it on the map
-  shape <- pm_getmap(interval = interval, do.plot = FALSE)
+  shape <- pm_getmap(interval = interval, model = model, do.plot = FALSE)
   #default par settings
   par.default <- graphics::par(no.readonly=TRUE) 
   #plotting the map and the data
@@ -335,8 +348,16 @@ pm_occ <- function(data, rank = "species") {
   uloc <- unique(loc)
   
   #getting list of unique taxa
+  if(rank=="species"){
+    ugenus <- as.vector(unique(genus_data[, "matched_name"]))
+  }else if(rank=="genus"){
+    ugenus <- as.vector(unique(genus_data[, "genus"]))
+  }else if(rank=="family"){
+    ugenus <- as.vector(unique(genus_data[, "family"]))
+  }else{
+    ugenus <- as.vector(unique(genus_data[, "order"]))
+  }
   
-  ugenus <- as.vector(unique(genus_data[, "matched_name"]))
   nsites <- uloc
   
   #fill with default values -1
@@ -356,7 +377,16 @@ pm_occ <- function(data, rank = "species") {
       flat <- subset(genus_data, genus_data$paleolat == lat_i)
       flatlng <- subset(flat, flat$paleolng == lng_i)
       #select only current genus
-      fgen <- subset(flatlng, flatlng[,"matched_name"] == genus_j)
+      if(rank=="species"){
+        fgen <- subset(flatlng, flatlng[,"matched_name"] == genus_j)
+      }else if(rank=="genus"){
+        fgen <- subset(flatlng, flatlng[,"genus"] == genus_j)
+      }else if(rank=="family"){
+        fgen <- subset(flatlng, flatlng[,"family"] == genus_j)
+      }else{
+        fgen <- subset(flatlng, flatlng[,"order"] == genus_j)
+      }
+      
       count<- nrow(fgen)
       nsites[i, j + 2] <- count
     }
@@ -395,7 +425,15 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
   #only getting occurences with a known genus
   genus_data <-rfilter(data, rank)
   #getting list of unique taxa
-  ugenus <- as.vector(unique(genus_data[, "matched_name"]))
+  if(rank=="species"){
+    ugenus <- as.vector(unique(genus_data[, "matched_name"]))
+  }else if(rank=="genus"){
+    ugenus <- as.vector(unique(genus_data[, "genus"]))
+  }else if(rank=="family"){
+    ugenus <- as.vector(unique(genus_data[, "family"]))
+  }else{
+    ugenus <- as.vector(unique(genus_data[, "order"]))
+  }
   lat <- seq(-90 + (res / 2), 90 -(res / 2), res)
   long <- seq(-180 + (res / 2), 180 -(res / 2), res)
   nsites <- expand.grid (long, lat)
@@ -419,7 +457,15 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
       flatlng <- subset(flatlng , flatlng$paleolng < lng_i + (res / 2))
       
       #select only current genus
-      fgen <- subset(flatlng, flatlng[,"matched_name"] == genus_j)
+      if(rank=="species"){
+        fgen <- subset(flatlng, flatlng[,"matched_name"] == genus_j)
+      }else if(rank=="genus"){
+        fgen <- subset(flatlng, flatlng[,"genus"] == genus_j)
+      }else if(rank=="family"){
+        fgen <- subset(flatlng, flatlng[,"family"] == genus_j)
+      }else{
+        fgen <- subset(flatlng, flatlng[,"order"] == genus_j)
+      }
       count<- nrow (fgen)
       nsites[i, j + 2] <- count
     }
@@ -670,12 +716,12 @@ pm_latrich <- function(shape, data, res=10,
 #' The function returns the mean or max values of diversity of the sampled 
 #' localities along the latitudinal gradient.
 #' 
-#' @usage pm_latdiv (occ_df, shape, res=10, fun= max,
+#' @usage pm_latdiv (shape, occ_df, res=10, fun= max,
 #'                   colsea="#00509010", colland="#66666680", 
 #'                   colpoints="#FFC12530",colpointborder="black")
 #' 
-#' @param occ_df a data frame with abundance of taxa per locality (see example)
 #' @param shape a shape file of the corresponding time map
+#' @param occ_df a data frame with abundance of taxa per locality (see example)
 #' @param res numeric. spatial resolucion of the latitudinal bins. 
 #' res=10 by default.
 #' @param fun values: mean, max. functions to be applied to get one single value 
@@ -696,11 +742,11 @@ pm_latrich <- function(shape, data, res=10,
 #' \dontrun{
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' occ_df <- pm_occ (data)
-#' pm_latdiv (occ_df, shape, fun=mean)
-#' pm_latdiv (occ_df, shape, fun=max)
+#' pm_latdiv (shape, occ_df, fun=mean)
+#' pm_latdiv (shape, occ_df, fun=max)
 #'}
 
-pm_latdiv <- function(occ_df, shape, res=10, 
+pm_latdiv <- function(shape, occ_df, res=10, 
                       fun= max,
                       colsea="#00509010", colland="#66666680", 
                       colpoints="#FFC12530",
