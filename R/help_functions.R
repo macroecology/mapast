@@ -114,6 +114,15 @@ rfilter <- function(data, rank) {
     data <- subset(data, data$order!="NA")
     data<- data[, c("paleolat", "paleolng", "order")]
   }
+  if (rank=="class") {
+    data <- subset(data, data$order!="NA")
+    data<- data[, c("paleolat", "paleolng", "class")]
+  }
+  if (rank=="phylum") {
+    data <- subset(data, data$order!="NA")
+    data<- data[, c("paleolat", "paleolng", "phylum")]
+  }
+  
   return(data)
 }
 

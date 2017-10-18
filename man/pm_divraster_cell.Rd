@@ -4,7 +4,7 @@
 \alias{pm_divraster_cell}
 \title{pm_divraster_cell}
 \usage{
-pm_divraster_cell  (shape, occ_df_cell, res=10, rank="species",
+pm_divraster_cell  (shape, occ_df_cell, res=10,
                            colsea="#00509010", colland="#66666680")
 }
 \arguments{
@@ -15,9 +15,6 @@ Can be created with get_paleomap}
 a taxa per locality}
 
 \item{res}{resolution of the raster/ size of the grid cell}
-
-\item{rank}{taxonomic rangk of interest. values: "species", "genus", 
-"family", "order". By default rank="species"}
 
 \item{colsea}{color of the ocean}
 

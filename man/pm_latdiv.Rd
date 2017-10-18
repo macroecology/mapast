@@ -19,7 +19,7 @@ res=10 by default.}
 \item{fun}{values: mean, max. functions to be applied to get one single value 
 of diversity, use mean to get the mean value of diversity 
 (mean of the different fossil sites at the same latitudinal bin), 
-max to get the maximum observed diversity, min to get the min 
+max to get the maximum observed diversity, min to get the mean 
 observed diversity.}
 
 \item{colsea}{defines the color of the sea}
