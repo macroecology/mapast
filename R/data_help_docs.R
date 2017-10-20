@@ -1,5 +1,5 @@
 #' Fossil dataset for examples
-#'
+#
 #'A dataframe with the fossil occurences
 #'
 #' @keywords data

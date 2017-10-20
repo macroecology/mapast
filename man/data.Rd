@@ -2,9 +2,11 @@
 % Please edit documentation in R/data_help_docs.R
 \name{data}
 \alias{data}
-\title{Fossil dataset for examples}
+\title{Fossil dataset for examples
+A dataframe with the fossil occurences}
 \format{data.frame}
 \description{
+Fossil dataset for examples
 A dataframe with the fossil occurences
 }
 \keyword{data}

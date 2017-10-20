@@ -2,6 +2,8 @@
 data(testdata)
 
 data <- data[1:100,]
+occ_species <- pm_occ(data, rank="species") 
+occ_cell_species <- pm_occ_cell(data, rank="species") 
 
 context("pm_occraster")
 test_that("test on pm_occraster, if output is raster")
@@ -23,7 +25,6 @@ test_that("test on pm_richraster, if output is raster")
   
 context("pm_occ")
   #create ocurrence matrices
-  occ_species <- pm_occ(data, rank="species") 
   occ_genus <- pm_occ(data, rank="genus")
   occ_family <- pm_occ(data, rank="family")
   occ_order <- pm_occ(data, rank="order")
@@ -70,14 +71,13 @@ test_that("test that pm_occ gives correct output for phylum")
   expect_true("paleolat" %in% coln_phylum && "paleolng" %in% coln_phylum)
   expect_true(min(occ_phylum$paleolat)>=-90 && max(occ_phylum$paleolat)<=90 
               && min(occ_phylum$paleolng)>=-180 && max(occ_phylum$paleolng<=180))
-  rm(occ_species, occ_genus, occ_family, occ_order, occ_class, occ_phylum)
+  rm(occ_genus, occ_family, occ_order, occ_class, occ_phylum)
   rm(coln_species, coln_genus, coln_family, coln_order, coln_class, coln_phylum)
   rm(nums_species, nums_genus, nums_family, nums_order, nums_class, nums_phylum)
 
     
 context("pm_occ_cell")
 #get output of function
-occ_cell_species <- pm_occ_cell(data, rank="species") 
 occ_cell_genus <- pm_occ_cell(data, rank="genus")
 occ_cell_family <- pm_occ_cell(data, rank="family")
 occ_cell_order <- pm_occ_cell(data, rank="order")
@@ -126,14 +126,12 @@ test_that("test that pm_occ_cell gives correct output for phylum")
   expect_true("paleolat" %in% coln_cell_phylum && "paleolng" %in% coln_cell_phylum)
   expect_true(min(occ_cell_phylum$paleolat)>=-90 && max(occ_cell_phylum$paleolat)<=90 
             && min(occ_cell_phylum$paleolng)>=-180 && max(occ_cell_phylum$paleolng<=180))
-rm(occ_cell_species, occ_cell_genus, occ_cell_family, occ_cell_order, occ_cell_class, occ_cell_phylum)
+rm(occ_cell_genus, occ_cell_family, occ_cell_order, occ_cell_class, occ_cell_phylum)
 rm(coln_cell_species, coln_cell_genus, coln_cell_family, coln_cell_order, coln_cell_class, coln_cell_phylum)
 rm(nums_cell_species, nums_cell_genus, nums_cell_family, nums_cell_order, nums_cell_class, nums_cell_phylum)
 
 
 context("pm_divraster_loc")
-#get occurences data from pm_occ
-occ_species <- pm_occ(data, rank="species") 
 #get diversity raster
 div_mean <- pm_divraster_loc (shape, occ_species, fun=mean)
 div_max <- pm_divraster_loc (shape, occ_species, fun=max)
@@ -144,37 +142,57 @@ test_that("test that output is a RasterLayer")
   expect_that(div_max@class[1], equals("RasterLayer"))
   expect_that(div_min@class[1], equals("RasterLayer"))
   expect_that(div_count@class[1], equals("RasterLayer"))
-rm(occ_species, div_mean, div_max, div_min, div_count)
+rm(div_mean, div_max, div_min, div_count)
   
 
 context("pm_divraster_cell")
-#get occurences per cell from pm_occ_cell
-occ_cell_species <- pm_occ_cell(data, rank="species")
 #get divraster cell
 div_cell <- pm_divraster_cell(shape, occ_cell_species)
 test_that("test that output is a RasterLayer")
   expect_that(div_cell@class[1], equals("RasterLayer"))
-rm(occ_Cell_species, div_cell)
+rm(div_cell)
 
 
 context("pm_latrich")
 latrich_species <- pm_latrich(shape, data, rank="species")
+names_species <- names(latrich_species)
+test_that("test that column names are correct")
+  expect_true("lat_min" %in% names_species)
+  expect_true("lat_max" %in% names_species)
+  expect_true("richn" %in% names_species)
 test_that("test that first two rows habe only data from ")
-expect_true(min(latrich_species$lat_min)>=-90 && max(latrich_species$lat_min)<=90 
+  expect_true(min(latrich_species$lat_min)>=-90 && max(latrich_species$lat_min)<=90 
             && min(latrich_species$lat_max)>=-90 && max(latrich_species$lat_max)<=90)
 test_that("test that richness has only numeric values")
   nums_latrich <- as.vector(t(latrich_species$richn))
   expect_true(is.numeric(nums_latrich))
-rm(latrich_species, nums_latrich)
+rm(latrich_species, nums_latrich, names_species)
 
 context("pm_latdiv")
-#get occurences data from pm_occ
-occ_species <- pm_occ(data, rank="species") 
+
 #get max and mean latitudinal diversity
 latdiv_max <- pm_latdiv(shape, occ_species, fun=max)
 latdiv_mean <- pm_latdiv(shape, occ_species, fun=mean)
+names_max <- names(latdiv_max)
+names_mean <- names(latdiv_mean)
+test_that("test that output has columns minlat, maxlat, div")
+  expect_true("minlat" %in% names_max && "minlat" %in% names_mean)
+  expect_true("maxlat" %in% names_max && "maxlat" %in% names_mean)
+  expect_true("div" %in% names_max && "div" %in% names_mean)
+  
+test_that("test that latitude values are correct")
+  expect_true(min(latdiv_max$maxlat)>=-90 && max(latdiv_max$maxlat)<=90 
+            && min(latdiv_max$minlat)>=-90 && max(latdiv_max$minlat)<=90)
+  expect_true(min(latdiv_mean$maxlat)>=-90 && max(latdiv_mean$maxlat)<=90 
+              && min(latdiv_mean$minlat)>=-90 && max(latdiv_mean$minlat)<=90)
+test_that("test that diversity column has only numeric values")
+  nums_latdiv_max <- as.vector(t(latdiv_max$div))
+  expect_true(is.numeric(nums_latdiv_max))
+  nums_latdiv_mean <- as.vector(t(latdiv_mean$div))
+  expect_true(is.numeric(nums_latdiv_mean))
+rm(latdiv_max, latdiv_mean, nums_latdiv_max, nums_latdiv_mean, names_max, names_mean)
 
-rm(occ_species, latdiv_max, latdiv_mean)
+rm(occ_species, occ_cell_species)
 
 context("rank_filter")
 test_that("test if output is a dataframe and if there are only species in the data frame")

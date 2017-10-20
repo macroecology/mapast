@@ -157,7 +157,7 @@ pm_plot <- function(interval, model, data,
                     cex = 1) {
   
   #check user input
-  if(!checkLatLng(data)){
+  if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
 
@@ -222,26 +222,26 @@ pm_occraster <- function(shape, data,
                          colsea = "#00509010", 
                          colland = "#66666660") {
   
-  if(!checkLatLng(data)){
+  if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
-  if(!checkRank(rank)){
+  if(!.checkRank(rank)){
     stop(paste("Rank: \"", rank, "\" is not a valid rank.", sep=""))
   }
-  if(!checkDataRank(data,rank)){
+  if(!.checkDataRank(data,rank)){
     if(rank=="species"){
       stop(paste("There is no column matched_name in the data frame.", sep=""))
     }else{
       stop(paste("There is no column ", rank, " in the data frame.", sep=""))
     }
   }
-  if(checkShape(shape)){
+  if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
   
   raster <- NULL
   #filter data for rank
-  fdata <- rfilter(data, rank)
+  fdata <- .rfilter(data, rank)
   #creating a raster in the size of the shape
   ras <- raster(shape, res = res)
   #raster of the occurences (sampling effort)
@@ -305,27 +305,27 @@ pm_richraster <- function (shape, data, res = 10, rank,
                            colsea = "#00509010", 
                            colland = "#66666660") {
   
-  if(!checkLatLng(data)){
+  if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
-  if(!checkRank(rank)){
+  if(!.checkRank(rank)){
     stop(paste("Rank: \"", rank, "\" is not a valid rank.", sep=""))
   }
-  if(!checkDataRank(data,rank)){
+  if(!.checkDataRank(data,rank)){
     if(rank=="species"){
       stop(paste("There is no column matched_name in the data frame.", sep=""))
     }else{
       stop(paste("There is no column ", rank, " in the data frame.", sep=""))
     }
   }
-  if(checkShape(shape)){
+  if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
   
   #creating a raster in size of the shape file
   ras <- raster(shape, res = res)
   #getting the raster of the species richness
-  r <- rank_filter(ras, data, res = res, rank)
+  r <- .rank_filter(ras, data, res = res, rank)
   
   #plotting the map and the raster
   #default par settings
@@ -378,13 +378,13 @@ pm_richraster <- function (shape, data, res = 10, rank,
 
 pm_occ <- function(data, rank = "species") {
   
-  if(!checkLatLng(data)){
+  if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
-  if(!checkRank(rank)){
+  if(!.checkRank(rank)){
     stop(paste("Rank: \"", rank, "\" is not a valid rank.", sep=""))
   }
-  if(!checkDataRank(data,rank)){
+  if(!.checkDataRank(data,rank)){
     if(rank=="species"){
       stop(paste("There is no column matched_name in the data frame.", sep=""))
     }else{
@@ -393,7 +393,7 @@ pm_occ <- function(data, rank = "species") {
   }
   
   #only getting occurences with a known genus
-  genus_data <- rfilter(data, rank)
+  genus_data <- .rfilter(data, rank)
   
   #getting locations
   loc <- data.frame(paleolat = genus_data$paleolat, 
@@ -485,13 +485,13 @@ pm_occ <- function(data, rank = "species") {
 
 pm_occ_cell <- function(data, rank = "species", res = 10) {
   
-  if(!checkLatLng(data)){
+  if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
-  if(!checkRank(rank)){
+  if(!.checkRank(rank)){
     stop(paste("Rank: \"", rank, "\" is not a valid rank.", sep=""))
   }
-  if(!checkDataRank(data,rank)){
+  if(!.checkDataRank(data,rank)){
     if(rank=="species"){
       stop(paste("There is no column matched_name in the data frame.", sep=""))
     }else{
@@ -500,7 +500,7 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
   }
   
   #only getting occurences with a known genus
-  genus_data <-rfilter(data, rank)
+  genus_data <-.rfilter(data, rank)
   #getting list of unique taxa
   if(rank=="species"){
     ugenus <- as.vector(unique(genus_data[, "matched_name"]))
@@ -594,13 +594,13 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
 pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
                              colsea="#00509010", colland="#66666680") {
   
-  if(!checkLatLng(occ_df)){
+  if(!.checkLatLng(occ_df)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
-  if(checkShape(shape)){
+  if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
-  if(!checkFun(fun, "pm_divraster_loc")){
+  if(!.checkFun(fun, "pm_divraster_loc")){
     stop(paste("\"", fun, "\" is not a valid input for parameter fun.", sep=""))
   }
   
@@ -677,10 +677,10 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
 pm_divraster_cell <- function(shape, occ_df_cell, res=10,
                               colsea="#00509010", colland="#66666680") {
   
-  if(!checkLatLng(occ_df_cell)){
+  if(!.checkLatLng(occ_df_cell)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
-  if(checkShape(shape)){
+  if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
   
@@ -766,25 +766,25 @@ pm_latrich <- function(shape, data, res=10,
                        colpoints="#FFC12530",
                        colpointborder="black", magn=10) {
   
-  if(!checkLatLng(data)){
+  if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
-  if(!checkRank(rank)){
+  if(!.checkRank(rank)){
     stop(paste("Rank: \"", rank, "\" is not a valid rank."))
   }
-  if(!checkDataRank(data,rank)){
+  if(!.checkDataRank(data,rank)){
     if(rank=="species"){
                stop(paste("There is no column matched_name in the data frame.", sep=""))
     }else{
                stop(paste("There is no column ", rank, " in the data frame.", sep=""))
     }
   }
-  if(checkShape(shape)){
+  if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
   
   
-  data2 <-rfilter(data, rank)
+  data2 <-.rfilter(data, rank)
   #setting min and max value for lat
   lr <- data.frame(lat_min= seq(-90,90-res,res), 
                    lat_max=seq(-90+res, 90, res))
@@ -868,13 +868,13 @@ pm_latdiv <- function(shape, occ_df, res=10,
                       colpoints="#FFC12530",
                       colpointborder="black") {
   
-  if(!checkLatLng(occ_df)){
+  if(!.checkLatLng(occ_df)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
-  if(checkShape(shape)){
+  if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
-  if(!checkFun(fun, "pm_latdiv")){
+  if(!.checkFun(fun, "pm_latdiv")){
     stop(paste("\"", fun, "\" is not a valid input for parameter fun.", sep=""))
   }
   

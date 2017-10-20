@@ -7,25 +7,25 @@
 mycols <- colorRampPalette(c("goldenrod1","orangered", 
                              "darkred"))
 
-#################rank_filter#######################
-#' rank_filter
-#' 
-#' creates the raster files with the number of unique taxa by pixel
-#'
-#' @usage rank_filter(r, data, res, rank)
-#' @param r blank raster
-#' @param data a data frame which needs to have a column called paleolat and 
-#'  a column called paleolng, can be created with getdata_paleomap
-#' @param res resolution of the raster file
-#' @param rank rank of interest
-#' @return a raster with the taxa richness
-#' @examples 
-#' \dontrun{
-#' data<- pm_getdata(base_name = "Canis", interval = "Quaternary")
-#' rank_filter(r, data, res = 10, rank = "genus")
-#'}
+#################.rank_filter#######################
+#.rank_filter
+# 
+#creates the raster files with the number of unique taxa by pixel
+#
+#@usage .rank_filter(r, data, res, rank)
+#@param r blank raster
+#@param data a data frame which needs to have a column called paleolat and 
+#a column called paleolng, can be created with getdata_paleomap
+#@param res resolution of the raster file
+#@param rank rank of interest
+#@return a raster with the taxa richness
+#@examples 
+#\dontrun{
+#data<- pm_getdata(base_name = "Canis", interval = "Quaternary")
+#.rank_filter(r, data, res = 10, rank = "genus")
+#}
 
-rank_filter <- function(r, data, res, rank) {
+.rank_filter <- function(r, data, res, rank) {
   #gets colnames for new data frame
   
   if (rank == "species") {
@@ -77,25 +77,24 @@ rank_filter <- function(r, data, res, rank) {
   all 
 }
 
-################rfilter###################
-#' rfilter
-#' 
-#' filters the data frame so there are only species left 
-#' and for each raster every species only once
-#' 
-#' @usage rfilter (data, rank)
-#' @param data a data frame which needs to have a column called paleolat and 
-#' a column called paleolng, can be created with getdata_paleomap
-#' @param rank rank of interest
-#' @return filtered data frame with only species
-#' @examples 
-#' \dontrun{
-#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' filtered_data <- rfilter (data, rank="genus")
-#' show(filtered_data)
-#'}
+################.rfilter###################
+#.rfilter
+#
+#filters the data frame so there are only species left 
+#and for each raster every species only once
+#@usage .rfilter (data, rank)
+#@param data a data frame which needs to have a column called paleolat and 
+#a column called paleolng, can be created with getdata_paleomap
+#@param rank rank of interest
+#@return filtered data frame with only species
+#examples 
+#\dontrun{
+#data<- pm_getdata (base_name="Canis", interval="Quaternary")
+#filtered_data <- .rfilter (data, rank="genus")
+#show(filtered_data)
+#}
 
-rfilter <- function(data, rank) {
+.rfilter <- function(data, rank) {
   if (rank=="species") {
     matched_rank <- NULL
     genus <- NULL
