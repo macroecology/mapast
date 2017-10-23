@@ -107,10 +107,9 @@
 #}
 
 .checkFun <- function(fun, fct){
-  
   if(fct == "pm_latdiv"){
     return(identical(fun,mean) || identical(fun,max))
   }else if(fct == "pm_divraster_loc"){
-    return(identical(fun,mean) || identical(fun,max) || identical(fun,min) || fun=="count")
+    return(identical(fun,mean) || identical(fun,max) || identical(fun,min) || identical(fun,"count"))
   }
 }

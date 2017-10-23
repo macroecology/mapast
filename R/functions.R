@@ -41,8 +41,6 @@ pm_getmap <- function(interval, model, colsea = "#00509010",
   
 
   # if user does not set plot=FALSE plot the shape file
-  #store default par settings
-  par.default <- graphics::par(no.readonly=TRUE) 
   if (do.plot) {
     graphics::par(mar = c(5.1, 4.1, 4.1, 2.1))
     sp::plot(shape, col = "white", border = FALSE, main=interval
@@ -55,8 +53,6 @@ pm_getmap <- function(interval, model, colsea = "#00509010",
     graphics::axis(1, xaxp=c(180,-180,4))
     graphics::axis(2, yaxp=c(90,-90,4))
     sp::plot(shape, col = colland, border = FALSE, add = TRUE)
-    #restore default par settings
-    graphics::par(par.default)
   }
 
   # return the shape file
@@ -85,6 +81,12 @@ pm_getmap <- function(interval, model, colsea = "#00509010",
 #' @examples 
 #' \dontrun{
 #' pm_getdata(interval="Quaternary",base_name="Canis")
+#' 
+#' #if you want to use FROMAGE and TOAGE to define the interval you can use the paleobioDB package
+#' myocc <- data.frame(paleobioDB::pbdb_occurrences(base_name="mammalia", 
+#'                     min_ma=0, max_ma=2.58, 
+#'                     show=c("paleoloc", "phylo"), 
+#'                     vocab="pbdb", limit=100))
 #'}
 
 
@@ -163,27 +165,24 @@ pm_plot <- function(interval, model, data,
 
   #getting the shape file for the map and the data for plotting it on the map
   shape <- pm_getmap(interval = interval, model = model, do.plot = FALSE)
-  #default par settings
-  par.default <- graphics::par(no.readonly=TRUE) 
   #plotting the map and the data
   if (class(data) == "data.frame") {
     #defines size and axes of the plot
     graphics::par(mar = c(5.1, 4.1, 4.1, 2.1))
-    plot(shape, col = "white", border = FALSE, main=interval
+    sp::plot(shape, col = "white", border = FALSE, main=interval
              , xlim=c(-180,180), ylim=c(-90,90)
              , xlab="Longitude", ylab="Latitude"
              , xaxs="i", yaxs="i")
     graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
          border = FALSE)
-    plot(shape, col = colland, border = FALSE, add = TRUE)
+    sp::plot(shape, col = colland, border = FALSE, add = TRUE)
     graphics::axis(1, xaxp=c(180,-180,4))
     graphics::axis(2, yaxp=c(90,-90,4))
     graphics::points(data$paleolng, 
            data$paleolat, 
            pch = 16, col = colpoints, 
            cex = cex)
-    graphics::par(par.default)
   }
 }
 
@@ -247,27 +246,19 @@ pm_occraster <- function(shape, data,
   #raster of the occurences (sampling effort)
   r <- rasterize(fdata[, c("paleolng","paleolat")], ras , fun = "count")
   #plotting the map and the raster on the map
-  #default par settings
-  par.default <- graphics::par(no.readonly=TRUE) 
-  #par xpd=T allows to add legend outside plotting window
-  graphics::par(xpd = T, mar = graphics::par()$mar + c(0,0,0,7)) 
-  plot(shape, col = "white", border = FALSE, main= "occourence raster" 
-        , xlim=c(-180,180), ylim=c(-90,90)
-        , xlab="Longitude", ylab="Latitude"
-        , xaxs="i", yaxs="i")
-  graphics::rect(xleft = -180, xright = 180, 
-       ybottom = -90, ytop = 90, col = colsea, 
-       border = FALSE)
-  plot (shape, col = colland, border = FALSE, add = TRUE)
-  plot(r, col = c(mycols(res * res)), add = TRUE, legend=FALSE)
+  raster::plot (r, axes=F, box=F, col=mycols(100), legend=TRUE, main= "occurence raster")
   #adding axes
+  raster::plot (shape, col="white", border=FALSE
+                , xlim=c(-180,180), ylim=c(-90,90)
+                , xlab="Longitude", ylab="Latitude"
+                , xaxs="i", yaxs="i", add=T)
+  graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
+                 border=FALSE)
+  raster::plot (shape, col=colland, border=FALSE, add=T)
   graphics::axis(1, xaxp=c(180,-180,4))
   graphics::axis(2, yaxp=c(90,-90,4))
-  #adding legend
-  plot(r, legend.only=TRUE,  col = c(mycols(res * res))
-        , legend.args=list(text="",side=4), add=TRUE)
-  #restore default par values
-  graphics::par(par.default)
+  raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE)
+  
   #returning the raster
   return(r)
 }
@@ -328,26 +319,18 @@ pm_richraster <- function (shape, data, res = 10, rank,
   r <- .rank_filter(ras, data, res = res, rank)
   
   #plotting the map and the raster
-  #default par settings
-  par.default <- graphics::par(no.readonly=TRUE) 
-  graphics::par(xpd = T, mar = graphics::par()$mar + c(0,0,0,7)) #allows to add legend outside plotting window
-  plot(shape, col = "white", border = FALSE, main= "richness raster" 
-        , xlim=c(-180,180), ylim=c(-90,90)
-        , xlab="Longitude", ylab="Latitude"
-        , xaxs="i", yaxs="i")
-  graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
-       border = FALSE)
-  plot(shape, col=colland, border = FALSE, add = TRUE)
-  plot(r, add = TRUE, axes = FALSE, box = FALSE
-         , col=mycols(100), legend=FALSE)
+  raster::plot (r, axes=F, box=F, col=mycols(100), legend=TRUE, main= "richness raster")
   #adding axes
+  raster::plot (shape, col="white", border=FALSE
+                , xlim=c(-180,180), ylim=c(-90,90)
+                , xlab="Longitude", ylab="Latitude"
+                , xaxs="i", yaxs="i", add=T)
+  graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
+                 border=FALSE)
+  raster::plot (shape, col=colland, border=FALSE, add=T)
   graphics::axis(1, xaxp=c(180,-180,4))
   graphics::axis(2, yaxp=c(90,-90,4))
-  #adding legend
-  plot(r, legend.only=TRUE,  col = mycols(100)
-        , legend.args=list(text="",side=4), add=TRUE)
-  #restore default par values
-  graphics::par(par.default)
+  raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE)
   #return the raster
   return(r)
 }
@@ -601,47 +584,40 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun=mean,
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
   if(!.checkFun(fun, "pm_divraster_loc")){
-    stop(paste("\"", fun, "\" is not a valid input for parameter fun.", sep=""))
+    stop("Chosen value for fun is not a valid input.")
   }
   
   #creating a raster in size of the shape file
-  ras <- raster(shape, res=res)
+  ras <- raster::raster(shape, res=res)
   #getting only species data and no duplictaed in a raster field
   drops <- c("paleolat","paleolng")
   drop_occ <- occ_df[, !(names(occ_df) %in% drops)]
-  cordata1 <- diversity(drop_occ)
+  cordata1 <- vegan::diversity(drop_occ)
   cordata <- data.frame(occ_df$paleolat, 
                         occ_df$paleolng, div= cordata1)
   colnames(cordata) <- c("paleolat", "paleolng", "div")
   
   #getting the raster of the species richness
-  r<-rasterize(cordata[, c("paleolng", "paleolat")], ras, 
-               field= cordata$div, fun=fun)
+  r<-raster::rasterize(cordata[, c("paleolng", "paleolat")], ras, 
+                       field= cordata$div, fun=fun)
   
   #plotting the map and the raster
-  #default par values
-  par.default <- graphics::par(no.readonly=TRUE) 
-  graphics::par(xpd = T, mar = graphics::par()$mar + c(0,0,0,7)) #allows to add legend outside plotting window
-  plot(shape, col="white", border=FALSE, main= "Shannon diversity per locality" 
-        , xlim=c(-180,180), ylim=c(-90,90)
-        , xlab="Longitude", ylab="Latitude"
-        , xaxs="i", yaxs="i")
+  raster::plot (r, axes=F, box=F, col=mycols(100), legend=TRUE, main= 'Shannon diversity per locality')
+  #adding axes
+  raster::plot (shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
+                , xlab="Longitude", ylab="Latitude"
+                , xaxs="i", yaxs="i", add=T
+  )
   graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
-       border=FALSE)
-  plot(shape, col=colland, border=FALSE, add=T)
-  plot(r, add=T, axes=F, box=F, col=mycols(100), legend=FALSE)
-    #adding axes
+                 border=FALSE)
+  raster::plot (shape, col=colland, border=FALSE, add=T)
   graphics::axis(1, xaxp=c(180,-180,4))
   graphics::axis(2, yaxp=c(90,-90,4))
-  #adding legend
-  plot(r, legend.only=TRUE,  col = mycols(100)
-        , legend.args=list(text="",side=4), add=TRUE)
-  #restore default par values
-  graphics::par(par.default)
-  
+  raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE)
   #return the raster
   return(r)
 }
+
 
 
 #####################pm_divraster_cell####################
@@ -686,41 +662,34 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
   
   
   #creating a raster in size of the shape file
-  ras <- raster(shape, res=res)
+  ras <- raster::raster(shape, res=res)
   
   #getting only species data and no duplictaed in a raster field
   drops <- c("paleolat","paleolng")
   drop_occ <- occ_df_cell[, !(names(occ_df_cell) %in% drops)]
-  cordata1 <- diversity(drop_occ)
+  cordata1 <- vegan::diversity(drop_occ)
   cordata <- data.frame(occ_df_cell$paleolat, 
                         occ_df_cell$paleolng, div= cordata1)
   colnames(cordata) <- c("paleolat","paleolng","div")
   
-  r<-rasterize(cordata[, c("paleolng","paleolat")], ras, 
+  r<-raster::rasterize(cordata[, c("paleolng","paleolat")], ras, 
                field= cordata$div, fun=max)
   
   #getting the raster of the species richness
   r[r==0]<- NA
-  #plotting the map and the raster
-  par.default <- graphics::par(no.readonly=TRUE) 
-  #allows to add legend outside plotting window
-  graphics::par(xpd = T, mar = graphics::par()$mar + c(0,0,0,7)) 
-  plot (shape, col="white", border=FALSE, main= "Shannon diversity per cell"
+  
+  raster::plot (r, axes=F, box=F, col=mycols(100), legend=TRUE, main= "Shannon diversity per cell")
+  #adding axes
+  raster::plot (shape, col="white", border=FALSE
         , xlim=c(-180,180), ylim=c(-90,90)
         , xlab="Longitude", ylab="Latitude"
-        , xaxs="i", yaxs="i")
+        , xaxs="i", yaxs="i", add=T)
   graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
-       border=FALSE)
-  plot (shape, col=colland, border=FALSE, add=T)
-  plot (r, add=T, axes=F, box=F, col=mycols(100), legend=FALSE)
-    #adding axes
+                 border=FALSE)
+  raster::plot (shape, col=colland, border=FALSE, add=T)
   graphics::axis(1, xaxp=c(180,-180,4))
   graphics::axis(2, yaxp=c(90,-90,4))
-  #adding legend
-  plot(r, legend.only=TRUE,  col = mycols(100)
-       , legend.args=list(text="",side=4), add=TRUE)
-  #restore default par values
-  graphics::par(par.default)
+  raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE)
   #return the raster
   return(r)
 }
@@ -774,9 +743,9 @@ pm_latrich <- function(shape, data, res=10,
   }
   if(!.checkDataRank(data,rank)){
     if(rank=="species"){
-               stop(paste("There is no column matched_name in the data frame.", sep=""))
+      stop(paste("There is no column matched_name in the data frame.", sep=""))
     }else{
-               stop(paste("There is no column ", rank, " in the data frame.", sep=""))
+      stop(paste("There is no column ", rank, " in the data frame.", sep=""))
     }
   }
   if(!.checkShape(shape)){
@@ -804,22 +773,20 @@ pm_latrich <- function(shape, data, res=10,
   rich<- 185 + (lr$richn*magn)
   yy<- c(185, rich, 185)
   xx<- c(-90, centros, 90)
-  par.default <- graphics::par(no.readonly=TRUE) 
-  graphics::par(xpd = T, mar = graphics::par()$mar + c(0,0,0,7))
-  plot(shape, col="white", border = FALSE, main= "latitudinal richness" 
-        , xlim=c(-180,180), ylim=c(-90,90)
-        , xlab="Longitude", ylab="Latitude"
-        , xaxs="i", yaxs="i")
+  
+  raster::plot(shape, col="white", border = FALSE, main= "latitudinal richness" 
+               , xlim=c(-180,180), ylim=c(-90,90)
+               , xlab="Longitude", ylab="Latitude"
+               , xaxs="i", yaxs="i")
   graphics::rect(xleft=-180, xright=180, 
-       ybottom=-90, ytop=90, col=colsea, 
-       border=FALSE)
-  plot(shape, col=colland, border=FALSE, add=T)
+                 ybottom=-90, ytop=90, col=colsea, 
+                 border=FALSE)
+  raster::plot(shape, col=colland, border=FALSE, add=T)
   graphics::points(data2$paleolng, data2$paleolat, 
-          pch=21, col=colpointborder, bg=colpoints)
+                   pch=21, col=colpointborder, bg=colpoints)
   graphics::axis(1, xaxp=c(180,-180,4))
   graphics::axis(2, yaxp=c(90,-90,4))
-  graphics::polygon (yy, xx, col="goldenrod1", border=F)
-  graphics::par(par.default)
+  graphics::polygon (yy, xx, col="goldenrod1", border=F, xpd=T)
   #return latitudinal richness
   return(lr)
 }
@@ -882,7 +849,7 @@ pm_latdiv <- function(shape, occ_df, res=10,
   #calculate the shannon diversity
   drops <- c("paleolat","paleolng")
   drop_occ <- occ_df[, !(names(occ_df) %in% drops)]
-  H_data <- diversity(drop_occ)
+  H_data <- vegan::diversity(drop_occ)
   
   #get the localities
   locs <- cbind(occ_df[,"paleolat"],occ_df[,"paleolng"], H_data)
@@ -909,16 +876,14 @@ pm_latdiv <- function(shape, occ_df, res=10,
   yy<- c(185, rich, 185)
   xx<- c(-90, centros, 90)
   
-  par.default <- graphics::par(no.readonly=TRUE) 
-  graphics::par(xpd = T, mar = graphics::par()$mar + c(0,0,0,7))
-  plot (shape, col="white", border = FALSE, main= "latitudinal diversity" 
+  raster::plot (shape, col="white", border = FALSE, main= "latitudinal diversity" 
         , xlim=c(-180,180), ylim=c(-90,90)
         , xlab="Longitude", ylab="Latitude"
         , xaxs="i", yaxs="i")
   graphics::rect(xleft=-180, xright=180, 
        ybottom=-90, ytop=90, col=colsea, 
        border=FALSE)
-  plot(shape, col=colland, border=FALSE, 
+  raster::plot(shape, col=colland, border=FALSE, 
         add=T)
   graphics::points(occ_df[, "paleolng"], occ_df[, "paleolat"], 
           pch=21, col=colpointborder, 
@@ -927,7 +892,6 @@ pm_latdiv <- function(shape, occ_df, res=10,
   graphics::axis(2, yaxp=c(90,-90,4))
   graphics::polygon(yy, xx, col="goldenrod1", 
            border=F)
-  graphics::par(par.default)
   #return latitudinal richness
   return(lr)
 }
