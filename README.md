@@ -415,7 +415,7 @@ values      : 0.5623351, 2.140366  (min, max)
  calculates latitudinal diversity of taxa (species, genera, families, orders)
 
 ```coffee
-> pm_latrich (shape, data, rank="species", res=10)
+> pm_latrich (shape, data, rank="species", res=10, magn=0.5)
 ```
 ```coffee
    lat_min lat_max richn
