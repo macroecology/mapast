@@ -5,7 +5,7 @@
 \title{pm_getmap}
 \usage{
 pm_getmap(interval, model, colsea = "#00509010"
-                          , colland = "#66666660", do.plot = TRUE)
+                          , colland = "#66666660", do.plot = TRUE, ...)
 }
 \arguments{
 \item{interval}{time interval of interest (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
@@ -18,6 +18,8 @@ in Smith and Golonka interval is the parameter FROMAGE}
 \item{colland}{to set the color of the land masses in the plot}
 
 \item{do.plot}{TRUE/FALSE. TRUE by default.}
+
+\item{...}{add parameters to modify the appearance of the plot (e.g. main="my own title", main.col="red")}
 }
 \value{
 a shape file and a plot (if do.plot=TRUE)

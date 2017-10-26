@@ -6,7 +6,7 @@
 #' time interval (e.g. "Cretaceous") and a plot
 #' 
 #' @usage pm_getmap(interval, model, colsea = "#00509010"
-#'                           , colland = "#66666660", do.plot = TRUE)
+#'                           , colland = "#66666660", do.plot = TRUE, ...)
 #' 
 #' @param interval time interval of interest (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
 #' in Smith and Golonka interval is the parameter FROMAGE
@@ -14,6 +14,7 @@
 #' @param colsea to set the color of the ocean in the plot
 #' @param colland to set the color of the land masses in the plot
 #' @param do.plot TRUE/FALSE. TRUE by default.
+#' @param ... add parameters to modify the appearance of the plot (e.g. main="my own title", main.col="red")
 #' @return a shape file and a plot (if do.plot=TRUE)
 #' @export
 #' @examples
@@ -27,7 +28,19 @@
 
 pm_getmap <- function(interval, model, colsea = "#00509010", 
                        colland = "#66666660", 
-                       do.plot = TRUE) {
+                       do.plot = TRUE, ...) {
+  
+  #getting final parameter list for plot
+  int_args <- base::list(x=shape, col = "white", border = FALSE, main=interval
+                         , xlim=c(-180,180), ylim=c(-90,90)
+                         , xlab="Longitude", ylab="Latitude"
+                         , xaxs="i", yaxs="i")
+  params <- base::list(...)
+  names_params <- base::as.vector(base::names(params))
+  names_intargs <- base::as.vector(base::names(int_args))
+  for( i in names_params){
+    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  }
  
   #get shape file from external database
   if(model=="GPlates"){
@@ -43,13 +56,10 @@ pm_getmap <- function(interval, model, colsea = "#00509010",
     base::assign("shape",base::get(base::paste(model,interval, sep="_")))
   }
   
-
+  arglist <- c(int_args, params)
   # if user does not set plot=FALSE plot the shape file
   if (do.plot) {
-    sp::plot(shape, col = "white", border = FALSE, main=interval
-             , xlim=c(-180,180), ylim=c(-90,90)
-             , xlab="Longitude", ylab="Latitude"
-             , xaxs="i", yaxs="i")
+    base::do.call(sp::plot, arglist)
     graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
          border = FALSE)
