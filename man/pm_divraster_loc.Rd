@@ -5,7 +5,7 @@
 \title{pm_divraster_loc}
 \usage{
 pm_divraster_loc  (shape, occ_df, res=10, fun=mean,
-                          colsea="#00509010", colland="#66666680")
+                          colsea="#00509010", colland="#66666680", ...)
 }
 \arguments{
 \item{shape}{file from the time interval of interest. 
@@ -24,6 +24,8 @@ fossil sites in per cell}
 \item{colsea}{color of the ocean}
 
 \item{colland}{color of the land masses}
+
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
 plot with map of the time intervall, the fossil occurences and the 

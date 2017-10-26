@@ -6,7 +6,8 @@
 \usage{
 pm_latdiv (shape, occ_df, res=10, fun= max, magn=1,
                   colsea="#00509010", colland="#66666680", 
-                  colpoints="#FFC12530",colpointborder="black")
+                  colpoints="#FFC12530",colpointborder="black", div.col="goldenrod1"
+                  , pch=21, ...)
 }
 \arguments{
 \item{shape}{a shape file of the corresponding time map}
@@ -32,6 +33,12 @@ observed diversity.}
 \item{colpoints}{defines the colo of the points for the occurrences}
 
 \item{colpointborder}{defines color of the border of the occurrence points}
+
+\item{div.col}{color for richnness graph}
+
+\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle)}
+
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
 data frame with shannon diversity,

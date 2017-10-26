@@ -7,7 +7,7 @@
 pm_latrich (shape, data, res=10, rank="species",
                    colsea="#00509010", colland="#66666680",
                    colpoints="#FFC12530",colpointborder="black", 
-                   magn=1)
+                   rich.col="goldenrod1", pch=21, magn=1, ...)
 }
 \arguments{
 \item{shape}{a shape file of the corresponding time map}
@@ -28,8 +28,14 @@ By default rank="species"}
 
 \item{colpointborder}{defines color of the border of the occurrence points}
 
+\item{rich.col}{color for richnness graph}
+
+\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle)}
+
 \item{magn}{numeric. index to magnify the plot of the latitudinal richness 
 (use when richness values are very low to see the latitudinal pattern more easily)}
+
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
 data frame with richness of rank and a plot of the continental masses 

@@ -14,7 +14,7 @@
 #' @param colsea to set the color of the ocean in the plot
 #' @param colland to set the color of the land masses in the plot
 #' @param do.plot TRUE/FALSE. TRUE by default.
-#' @param ... add parameters to modify the appearance of the plot (e.g. main="my own title", main.col="red")
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
 #' @return a shape file and a plot (if do.plot=TRUE)
 #' @export
 #' @examples
@@ -133,7 +133,7 @@ pm_getdata <- function(interval, base_name, limit="all") {
 #' 
 #' @usage pm_plot(interval, model, data,colsea = "#00509010",
 #'                 colland = "#66666660",colpoints = "#99000020", 
-#'                 cex = 1)
+#'                 cex = 1, pch =16, ...)
 #' 
 #' @param interval time interval of interest (e.g. Quaternary)
 #' @param model  which reconstruction model the map comes from. 
@@ -144,6 +144,8 @@ pm_getdata <- function(interval, base_name, limit="all") {
 #' @param colland color of the land masses
 #' @param colpoints color of the occurrence points
 #' @param cex numeric. size of the points. By default cex=1.
+#' @param pch point symbol for plotting the occurences. By default pch=16 (filled circle)
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
 #' @return a plot with the configuration of the continents at the selected 
 #' time interval and the fossil occurrences
 #' @export 
@@ -157,22 +159,31 @@ pm_plot <- function(interval, model, data,
                     colsea = "#00509010", 
                     colland = "#66666660",
                     colpoints = "#99000020", 
-                    cex = 1) {
+                    cex = 1, pch =16, ...) {
   
   #check user input
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
 
+  int_args <- base::list(x=shape, col = "white", border = FALSE, main=interval
+                         , xlim=c(-180,180), ylim=c(-90,90)
+                         , xlab="Longitude", ylab="Latitude"
+                         , xaxs="i", yaxs="i")
+  params <- base::list(...)
+  names_params <- base::as.vector(base::names(params))
+  names_intargs <- base::as.vector(base::names(int_args))
+  for( i in names_params){
+    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  }
+  arglist <- c(int_args, params)
+  
   #getting the shape file for the map and the data for plotting it on the map
   shape <- paleoMap::pm_getmap(interval = interval, model = model, do.plot = FALSE)
   #plotting the map and the data
   if (base::class(data) == "data.frame") {
     #defines size and axes of the plot
-    sp::plot(shape, col = "white", border = FALSE, main=interval
-             , xlim=c(-180,180), ylim=c(-90,90)
-             , xlab="Longitude", ylab="Latitude"
-             , xaxs="i", yaxs="i")
+    base::do.call(sp::plot, arglist)
     graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
          border = FALSE)
@@ -181,7 +192,7 @@ pm_plot <- function(interval, model, data,
     graphics::axis(2, yaxp=c(90,-90,4))
     graphics::points(data$paleolng, 
            data$paleolat, 
-           pch = 16, col = colpoints, 
+           pch = pch, col = colpoints, 
            cex = cex)
   }
 }
@@ -194,7 +205,7 @@ pm_plot <- function(interval, model, data,
 #' (a proxy for the sampling effort)
 #' 
 #' @usage pm_occraster(shape, data, rank = "species", res = 10,
-#'                     colsea = "#00509010", colland = "#66666660")
+#'                     colsea = "#00509010", colland = "#66666660", ...)
 #' 
 #' @param shape shapefile from the time interval of interest. 
 #' It can be created with pm_getmap
@@ -205,6 +216,7 @@ pm_plot <- function(interval, model, data,
 #' @param res resolution of the cells in the raster in degrees (by default res=10)
 #' @param colsea users can define the color of the ocean 
 #' @param colland users can define the color of the land masses
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
 #' @return a raster file and a plot with number of the fossil 
 #' occurrences in the selected interval at the selected resolution
 #' @export 
@@ -219,7 +231,7 @@ pm_occraster <- function(shape, data,
                          rank = "species", 
                          res = 10,
                          colsea = "#00509010", 
-                         colland = "#66666660") {
+                         colland = "#66666660", ...) {
   
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -245,8 +257,23 @@ pm_occraster <- function(shape, data,
   ras <- raster::raster(shape, res = res)
   #raster of the occurences (sampling effort)
   r <- raster::rasterize(fdata[, c("paleolng","paleolat")], ras , fun = "count")
+  mycol <- mycols(100)
+  int_args <- base::list(x=r, axes=F, box=F, col=mycols(100), col.grid=mycol, legend=TRUE, main= "occurence raster"
+                         , xlim=c(-180,180), ylim=c(-90,90)
+                         , xlab="Longitude", ylab="Latitude"
+                         , xaxs="i", yaxs="i")
+  params <- base::list(...)
+  names_params <- base::as.vector(base::names(params))
+  names_intargs <- base::as.vector(base::names(int_args))
+  for( i in names_params){
+    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  }
+  arglist <- c(int_args, params)
+  mycol <- arglist$col.grid
+  arglist$col <- arglist$col.grid
+  arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
   #plotting the map and the raster on the map
-  raster::plot (r, axes=F, box=F, col=mycols(100), legend=TRUE, main= "occurence raster")
+  do.call(raster::plot, arglist)
   #adding axes
   raster::plot (shape, col="white", border=FALSE
                 , xlim=c(-180,180), ylim=c(-90,90)
@@ -257,7 +284,7 @@ pm_occraster <- function(shape, data,
   raster::plot (shape, col=colland, border=FALSE, add=T)
   graphics::axis(1, xaxp=c(180,-180,4))
   graphics::axis(2, yaxp=c(90,-90,4))
-  raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE)
+  raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE)
   
   #returning the raster
   return(r)
@@ -271,7 +298,7 @@ pm_occraster <- function(shape, data,
 #' and makes a plot of the map and raster
 #' 
 #' @usage pm_richraster(shape, data, res = 10, rank, 
-#'                      colsea = "#00509010", colland = "#66666660")
+#'                      colsea = "#00509010", colland = "#66666660", ...)
 #' 
 #' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
@@ -281,6 +308,7 @@ pm_occraster <- function(shape, data,
 #' @param rank gives the rank for the richness raster (e.g. species, genus,...)
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
 #' @return plot with map of the time intervall, the fossil occurences and the 
 #' raster file. And the raster file itself
 #' @export 
@@ -294,7 +322,7 @@ pm_occraster <- function(shape, data,
 
 pm_richraster <- function (shape, data, res = 10, rank,
                            colsea = "#00509010", 
-                           colland = "#66666660") {
+                           colland = "#66666660", ...) {
   
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -318,8 +346,24 @@ pm_richraster <- function (shape, data, res = 10, rank,
   #getting the raster of the species richness
   r <- .rank_filter(ras, data, res = res, rank)
   
+  mycol <- mycols(100)
+  int_args <- base::list(x=r, axes=F, box=F, col=mycols(100), col.grid=mycol, legend=TRUE, main= "richness raster"
+                         , xlim=c(-180,180), ylim=c(-90,90)
+                         , xlab="Longitude", ylab="Latitude"
+                         , xaxs="i", yaxs="i")
+  params <- base::list(...)
+  names_params <- base::as.vector(base::names(params))
+  names_intargs <- base::as.vector(base::names(int_args))
+  for( i in names_params){
+    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  }
+  arglist <- c(int_args, params)
+  mycol <- arglist$col.grid
+  arglist$col <- arglist$col.grid
+  arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
+  
   #plotting the map and the raster
-  raster::plot (r, axes=F, box=F, col=mycols(100), legend=TRUE, main= "richness raster")
+  base::do.call(raster::plot, arglist)
   #adding axes
   raster::plot (shape, col="white", border=FALSE
                 , xlim=c(-180,180), ylim=c(-90,90)
@@ -330,7 +374,7 @@ pm_richraster <- function (shape, data, res = 10, rank,
   raster::plot (shape, col=colland, border=FALSE, add=T)
   graphics::axis(1, xaxp=c(180,-180,4))
   graphics::axis(2, yaxp=c(90,-90,4))
-  raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE)
+  raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE)
   #return the raster
   return(r)
 }
@@ -552,7 +596,7 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
 #' max, min diversity per cell, or number of unique localities per cell
 #' 
 #' @usage pm_divraster_loc  (shape, occ_df, res=10, fun=mean,
-#'                           colsea="#00509010", colland="#66666680")
+#'                           colsea="#00509010", colland="#66666680", ...)
 #' 
 #' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
@@ -565,6 +609,7 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
 #' fossil sites in per cell
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
 #' @return plot with map of the time intervall, the fossil occurences and the 
 #' raster file. And the raster file itself
 #' @export 
@@ -580,7 +625,7 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
 #'}
 
 pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
-                             colsea="#00509010", colland="#66666680") {
+                             colsea="#00509010", colland="#66666680", ...) {
   
   if(!.checkLatLng(occ_df)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -607,8 +652,25 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
                        field= cordata$div, fun=fun)
   #getting the raster of the species richness
   r[r==0]<- NA
+ 
+  mycol <- mycols(100)
+  int_args <- base::list(x=r, axes=F, box=F, col=mycols(100), col.grid=mycol, legend=TRUE, main= 'Shannon diversity per locality'                , xlim=c(-180,180), ylim=c(-90,90)
+                         , xlab="Longitude", ylab="Latitude"
+                         , xaxs="i", yaxs="i")
+  params <- base::list(...)
+  names_params <- base::as.vector(base::names(params))
+  names_intargs <- base::as.vector(base::names(int_args))
+  for( i in names_params){
+    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  }
+  arglist <- c(int_args, params)
+  mycol <- arglist$col.grid
+  arglist$col <- arglist$col.grid
+  arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
+  
   #plotting the map and the raster
-  raster::plot (r, axes=F, box=F, col=mycols(100), legend=TRUE, main= 'Shannon diversity per locality')
+  base::do.call(raster::plot, arglist)
+  
   #adding axes
   raster::plot (shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
                 , xlab="Longitude", ylab="Latitude"
@@ -619,7 +681,7 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
   raster::plot (shape, col=colland, border=FALSE, add=T)
   graphics::axis(1, xaxp=c(180,-180,4))
   graphics::axis(2, yaxp=c(90,-90,4))
-  raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE)
+  raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE)
   #return the raster
   return(r)
 }
@@ -635,7 +697,7 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #' whithin the cell)
 #' 
 #' @usage pm_divraster_cell  (shape, occ_df_cell, res=10,
-#'                            colsea="#00509010", colland="#66666680")
+#'                            colsea="#00509010", colland="#66666680", ...)
 #' 
 #' @param shape file from the time interval of interest. 
 #' Can be created with get_paleomap
@@ -644,6 +706,7 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #' @param res resolution of the raster/ size of the grid cell
 #' @param colsea color of the ocean
 #' @param colland color of the land masses
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
 #' @return plot with map of the time intervall, the fossil occurences and the 
 #' raster file. And the raster file itself
 #' @export 
@@ -657,7 +720,7 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #' }
 
 pm_divraster_cell <- function(shape, occ_df_cell, res=10,
-                              colsea="#00509010", colland="#66666680") {
+                              colsea="#00509010", colland="#66666680", ...) {
   
   if(!.checkLatLng(occ_df_cell)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -684,7 +747,24 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
   #getting the raster of the species richness
   r[r==0]<- NA
   
-  raster::plot (r, axes=F, box=F, col=mycols(100), legend=TRUE, main= "Shannon diversity per cell")
+  mycol <- mycols(100)
+  int_args <- base::list(x=r, axes=F, box=F, col=mycols(100), col.grid=mycol, legend=TRUE, main= 'Shannon diversity per cell'                
+                         , xlim=c(-180,180), ylim=c(-90,90)
+                         , xlab="Longitude", ylab="Latitude"
+                         , xaxs="i", yaxs="i")
+  params <- base::list(...)
+  names_params <- base::as.vector(base::names(params))
+  names_intargs <- base::as.vector(base::names(int_args))
+  for( i in names_params){
+    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  }
+  arglist <- c(int_args, params)
+  mycol <- arglist$col.grid
+  arglist$col <- arglist$col.grid
+  arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
+  
+  #plotting the map and the raster
+  base::do.call(raster::plot, arglist)
   #adding axes
   raster::plot (shape, col="white", border=FALSE
         , xlim=c(-180,180), ylim=c(-90,90)
@@ -695,7 +775,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
   raster::plot (shape, col=colland, border=FALSE, add=T)
   graphics::axis(1, xaxp=c(180,-180,4))
   graphics::axis(2, yaxp=c(90,-90,4))
-  raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE)
+  raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE)
   #return the raster
   return(r)
 }
@@ -710,7 +790,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 #' @usage pm_latrich (shape, data, res=10, rank="species",
 #'                    colsea="#00509010", colland="#66666680",
 #'                    colpoints="#FFC12530",colpointborder="black", 
-#'                    magn=1)
+#'                    rich.col="goldenrod1", pch=21, magn=1, ...)
 #' 
 #' @param shape a shape file of the corresponding time map
 #' @param data a data frame with fossil occurrences 
@@ -722,8 +802,11 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 #' @param colland defines the color f the landmasses
 #' @param colpoints defines the colo of the points for the occurrences
 #' @param colpointborder defines color of the border of the occurrence points
+#' @param rich.col color for richnness graph
+#' @param pch point symbol for plotting the occurences. By default pch=16 (filled circle)
 #' @param magn numeric. index to magnify the plot of the latitudinal richness 
 #' (use when richness values are very low to see the latitudinal pattern more easily)
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
 #' @return data frame with richness of rank and a plot of the continental masses 
 #' with the occurrences and the latitudinal richness
 #' @export 
@@ -739,7 +822,7 @@ pm_latrich <- function(shape, data, res=10,
                        rank="species",
                        colsea="#00509010", colland="#66666680", 
                        colpoints="#FFC12530",
-                       colpointborder="black", magn=1) {
+                       colpointborder="black", rich.col="goldenrod1", pch=21, magn=1, ...) {
   
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -758,6 +841,17 @@ pm_latrich <- function(shape, data, res=10,
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
   
+  int_args <- base::list(x=shape, col="white", border = FALSE, main= "latitudinal richness" 
+                         , xlim=c(-180,180), ylim=c(-90,90)
+                         , xlab="Longitude", ylab="Latitude"
+                         , xaxs="i", yaxs="i")
+  params <- base::list(...)
+  names_params <- base::as.vector(base::names(params))
+  names_intargs <- base::as.vector(base::names(int_args))
+  for( i in names_params){
+    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  }
+  arglist <- c(int_args, params)
   
   data2 <-.rfilter(data, rank)
   #setting min and max value for lat
@@ -780,19 +874,16 @@ pm_latrich <- function(shape, data, res=10,
   yy<- c(185, rich, 185)
   xx<- c(-90, centros, 90)
   
-  raster::plot(shape, col="white", border = FALSE, main= "latitudinal richness" 
-               , xlim=c(-180,180), ylim=c(-90,90)
-               , xlab="Longitude", ylab="Latitude"
-               , xaxs="i", yaxs="i")
+  do.call(raster::plot, arglist)
   graphics::rect(xleft=-180, xright=180, 
                  ybottom=-90, ytop=90, col=colsea, 
                  border=FALSE)
   raster::plot(shape, col=colland, border=FALSE, add=T)
   graphics::points(data2$paleolng, data2$paleolat, 
-                   pch=21, col=colpointborder, bg=colpoints)
+                   pch=pch, col=colpointborder, bg=colpoints)
   graphics::axis(1, xaxp=c(180,-180,4))
   graphics::axis(2, yaxp=c(90,-90,4))
-  graphics::polygon (yy, xx, col="goldenrod1", border=F, xpd=T)
+  graphics::polygon (yy, xx, col=rich.col, border=F, xpd=T)
   #return latitudinal richness
   return(lr)
 }
@@ -807,7 +898,8 @@ pm_latrich <- function(shape, data, res=10,
 #' 
 #' @usage pm_latdiv (shape, occ_df, res=10, fun= max, magn=1,
 #'                   colsea="#00509010", colland="#66666680", 
-#'                   colpoints="#FFC12530",colpointborder="black")
+#'                   colpoints="#FFC12530",colpointborder="black", div.col="goldenrod1"
+#'                   , pch=21, ...)
 #' 
 #' @param shape a shape file of the corresponding time map
 #' @param occ_df a data frame with abundance of taxa per locality (see example)
@@ -824,6 +916,9 @@ pm_latrich <- function(shape, data, res=10,
 #' @param colland defines the color f the landmasses
 #' @param colpoints defines the colo of the points for the occurrences
 #' @param colpointborder defines color of the border of the occurrence points
+#' @param div.col color for richnness graph
+#' @param pch point symbol for plotting the occurences. By default pch=16 (filled circle)
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
 #' @return data frame with shannon diversity,
 #' a plot of the corresponding time map with the occurrences and their
 #' latitudinal diversity
@@ -842,7 +937,7 @@ pm_latdiv <- function(shape, occ_df, res=10,
                       fun= max, magn=1,
                       colsea="#00509010", colland="#66666680", 
                       colpoints="#FFC12530",
-                      colpointborder="black") {
+                      colpointborder="black", div.col="goldenrod1", pch=21, ...) {
   
   if(!.checkLatLng(occ_df)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -853,6 +948,18 @@ pm_latdiv <- function(shape, occ_df, res=10,
   if(!.checkFun(fun, "pm_latdiv")){
     stop(base::paste("\"", fun, "\" is not a valid input for parameter fun.", sep=""))
   }
+  
+  int_args <- base::list(x=shape, col="white", border = FALSE, main= "latitudinal diversity" 
+                         , xlim=c(-180,180), ylim=c(-90,90)
+                         , xlab="Longitude", ylab="Latitude"
+                         , xaxs="i", yaxs="i")
+  params <- base::list(...)
+  names_params <- base::as.vector(base::names(params))
+  names_intargs <- base::as.vector(base::names(int_args))
+  for( i in names_params){
+    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  }
+  arglist <- c(int_args, params)
   
   
   #calculate the shannon diversity
@@ -885,21 +992,18 @@ pm_latdiv <- function(shape, occ_df, res=10,
   yy<- c(185, rich, 185)
   xx<- c(-90, centros, 90)
   
-  raster::plot (shape, col="white", border = FALSE, main= "latitudinal diversity" 
-        , xlim=c(-180,180), ylim=c(-90,90)
-        , xlab="Longitude", ylab="Latitude"
-        , xaxs="i", yaxs="i")
+  base::do.call(raster::plot, arglist)
   graphics::rect(xleft=-180, xright=180, 
        ybottom=-90, ytop=90, col=colsea, 
        border=FALSE)
   raster::plot(shape, col=colland, border=FALSE, 
         add=T)
   graphics::points(occ_df[, "paleolng"], occ_df[, "paleolat"], 
-          pch=21, col=colpointborder, 
+          pch=pch, col=colpointborder, 
           bg=colpoints)
   graphics::axis(1, xaxp=c(180,-180,4))
   graphics::axis(2, yaxp=c(90,-90,4))
-  graphics::polygon(yy, xx, col="goldenrod1", 
+  graphics::polygon(yy, xx, col=div.col, 
            border=F)
   #return latitudinal richness
   return(lr)

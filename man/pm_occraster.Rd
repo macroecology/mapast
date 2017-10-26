@@ -5,7 +5,7 @@
 \title{pm_occraster}
 \usage{
 pm_occraster(shape, data, rank = "species", res = 10,
-                    colsea = "#00509010", colland = "#66666660")
+                    colsea = "#00509010", colland = "#66666660", ...)
 }
 \arguments{
 \item{shape}{shapefile from the time interval of interest. 
@@ -22,6 +22,8 @@ By default rank="species"}
 \item{colsea}{users can define the color of the ocean}
 
 \item{colland}{users can define the color of the land masses}
+
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
 a raster file and a plot with number of the fossil 

@@ -5,7 +5,7 @@
 \title{pm_richraster}
 \usage{
 pm_richraster(shape, data, res = 10, rank, 
-                     colsea = "#00509010", colland = "#66666660")
+                     colsea = "#00509010", colland = "#66666660", ...)
 }
 \arguments{
 \item{shape}{file from the time interval of interest. 
@@ -21,6 +21,8 @@ paleolat and a column called paleolng, can be created with getdata_paleomap}
 \item{colsea}{color of the ocean}
 
 \item{colland}{color of the land masses}
+
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
 plot with map of the time intervall, the fossil occurences and the 

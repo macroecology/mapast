@@ -6,7 +6,7 @@
 \usage{
 pm_plot(interval, model, data,colsea = "#00509010",
                 colland = "#66666660",colpoints = "#99000020", 
-                cex = 1)
+                cex = 1, pch =16, ...)
 }
 \arguments{
 \item{interval}{time interval of interest (e.g. Quaternary)}
@@ -24,6 +24,10 @@ pm_plot(interval, model, data,colsea = "#00509010",
 \item{colpoints}{color of the occurrence points}
 
 \item{cex}{numeric. size of the points. By default cex=1.}
+
+\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle)}
+
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
 a plot with the configuration of the continents at the selected 

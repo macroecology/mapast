@@ -19,7 +19,7 @@ in Smith and Golonka interval is the parameter FROMAGE}
 
 \item{do.plot}{TRUE/FALSE. TRUE by default.}
 
-\item{...}{add parameters to modify the appearance of the plot (e.g. main="my own title", main.col="red")}
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
 a shape file and a plot (if do.plot=TRUE)
