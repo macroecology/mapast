@@ -32,7 +32,7 @@ and makes a plot of the map and raster
 }
 \examples{
 \dontrun{
-shape<- pm_getmap(interval="Paleocene")
+shape<- pm_getmap(interval="Paleocene", model="GPlates")
 data<- pm_getdata(base_name="Testudines", interval="Paleocene")
 richness<- pm_richraster(shape, data, rank="genus")
 }

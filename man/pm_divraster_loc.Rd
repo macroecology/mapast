@@ -36,7 +36,7 @@ max, min diversity per cell, or number of unique localities per cell
 }
 \examples{
 \dontrun{
-shape<- pm_getmap(interval="Quaternary") 
+shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 occ_df <- pm_occ (data, rank="species")
 pm_divraster_loc (shape, occ_df, fun=mean)

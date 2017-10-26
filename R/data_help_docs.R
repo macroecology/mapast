@@ -1,4 +1,4 @@
-#' Fossil dataset for examples
+#' Fossil dataset for tests
 #
 #'A dataframe with the fossil occurences
 #'
@@ -30,7 +30,7 @@ NULL
 #' Shape file
 #'
 #'
-#' @format A Large SpatialPolygonsdataFrame with the shape of the landmasses at the specific interval
+#' @format A Large SpatialPolygonsdataFrame with the shape of the landmasses at the specific interval for tests
 #' @keywords shape
 #' @format shapefile
 #' @name shape

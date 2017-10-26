@@ -33,7 +33,7 @@ creates a raster and a plot of the fossil occurences by taxonomic rank per cell
 }
 \examples{
 \dontrun{
-shape <- pm_getmap(interval="Quaternary", do.plot = FALSE) 
+shape <- pm_getmap(interval="Quaternary", model="GPlates", do.plot = FALSE)
 data <- pm_getdata(base_name="Canis", interval="Quaternary")
 pm_occraster(shape, data)
 }

@@ -31,10 +31,10 @@ whithin the cell)
 }
 \examples{
 \dontrun{
-shape<- pm_getmap(interval="Quaternary") 
+shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 occ_df_cell <- pm_occ_cell (data, rank="species")
-pm_divraster_cell (shape, occ_df_cell, res=10)
+div_cell <- pm_divraster_cell (shape, occ_df_cell, res=10)
 ## cells with diversity values = 0 (e.g., 1 species) are discarded.
 }
 }

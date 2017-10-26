@@ -4,7 +4,7 @@
 \alias{pm_latdiv}
 \title{pm_latdiv}
 \usage{
-pm_latdiv (shape, occ_df, res=10, fun= max,
+pm_latdiv (shape, occ_df, res=10, fun= max, magn=1,
                   colsea="#00509010", colland="#66666680", 
                   colpoints="#FFC12530",colpointborder="black")
 }
@@ -21,6 +21,9 @@ of diversity, use mean to get the mean value of diversity
 (mean of the different fossil sites at the same latitudinal bin), 
 max to get the maximum observed diversity, min to get the mean 
 observed diversity.}
+
+\item{magn}{numeric. index to magnify the plot of the latitudinal richness 
+(use when richness values are very low to see the latitudinal pattern more easily)}
 
 \item{colsea}{defines the color of the sea}
 
@@ -43,9 +46,10 @@ localities along the latitudinal gradient.
 }
 \examples{
 \dontrun{
+shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 occ_df <- pm_occ (data)
-pm_latdiv (shape, occ_df, fun=mean)
-pm_latdiv (shape, occ_df, fun=max)
+pm_latdiv (shape, occ_df, fun=mean, magn=10)
+pm_latdiv (shape, occ_df, fun=max, magn=5)
 }
 }

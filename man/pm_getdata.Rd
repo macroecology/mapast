@@ -28,7 +28,7 @@ uses paleobioDB R package to get data from the Paleobiology Database
 pm_getdata(interval="Quaternary",base_name="Canis")
 
 #if you want to use FROMAGE and TOAGE to define the interval you can use the paleobioDB package
-myocc <- data.frame(paleobioDB::pbdb_occurrences(base_name="mammalia", 
+myocc <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="mammalia", 
                     min_ma=0, max_ma=2.58, 
                     show=c("paleoloc", "phylo"), 
                     vocab="pbdb", limit=100))

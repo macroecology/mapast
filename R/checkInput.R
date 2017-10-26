@@ -38,7 +38,7 @@
 #}
 
 .checkLatLng <- function(data){
-  coln <- colnames(data)
+  coln <- base::colnames(data)
   
   return("paleolat" %in% coln && "paleolng" %in% coln)
 }
@@ -60,7 +60,7 @@
 #} 
 
 .checkDataRank <- function(data, rank){
-  coln <- colnames(data)
+  coln <- base::colnames(data)
   if(rank=="species"){
     return("matched_name" %in% coln)
   }else{
@@ -108,8 +108,8 @@
 
 .checkFun <- function(fun, fct){
   if(fct == "pm_latdiv"){
-    return(identical(fun,mean) || identical(fun,max))
+    return(base::grep("mean", base::list(fun))==1 || base::identical(fun,mean) || base::identical(fun,max))
   }else if(fct == "pm_divraster_loc"){
-    return(identical(fun,mean) || identical(fun,max) || identical(fun,min) || identical(fun,"count"))
+    return(base::grep("mean", base::list(fun))==1 || base::identical(fun, mean) || base::identical(fun,max) || base::identical(fun,min) || base::identical(fun,"count"))
   }
 }

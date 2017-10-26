@@ -29,5 +29,9 @@ time interval (e.g. "Cretaceous") and a plot
 \examples{
 \dontrun{
 pm_getmap(interval="Cretaceous", model="GPlates")
+
+#for checking which maps are available please use
+d <- data(package='paleogeoDB')
+d$results[, "Item"]
 }
 }

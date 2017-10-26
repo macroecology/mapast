@@ -7,7 +7,7 @@
 pm_latrich (shape, data, res=10, rank="species",
                    colsea="#00509010", colland="#66666680",
                    colpoints="#FFC12530",colpointborder="black", 
-                   magn=10)
+                   magn=1)
 }
 \arguments{
 \item{shape}{a shape file of the corresponding time map}
@@ -40,7 +40,7 @@ calculates latitudinal diversity of taxa (species, genera, families, orders)
 }
 \examples{
 \dontrun{
-shape<- pm_getmap(interval="Quaternary") 
+shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 pm_latrich (shape, data, rank="species", res=10)
 }

@@ -3,7 +3,7 @@
 \name{shape}
 \alias{shape}
 \title{Shape file}
-\format{A Large SpatialPolygonsdataFrame with the shape of the landmasses at the specific interval}
+\format{A Large SpatialPolygonsdataFrame with the shape of the landmasses at the specific interval for tests}
 \description{
 Shape file
 }

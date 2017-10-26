@@ -126,4 +126,37 @@ mycols <- colorRampPalette(c("goldenrod1","orangered",
 }
 
 
+################.checkPbdb###################
+#.checkPbdb
+#
+#checks if all columns that we need are in the returned df from the paleobioDB
+#@usage .checkPbdb (occ)
+#@param occ data frame from pbdb_occurence request
+#@return data.frame with needed columns filled with NA if not in original dataframe
+#examples 
+#\dontrun{
+#occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name=base_name, interval=interval, 
+#             show=c("paleoloc", "phylo"), 
+#             vocab="pbdb", limit=limit))
+#occ <- .checkPbdb(occ)
+#}
 
+.checkPbdb <- function(occ){
+  cols <- c("occurrence_no", "matched_name", "matched_rank",
+            "matched_no", "early_interval", "late_interval",
+            "paleolng", "paleolat", "geoplate",
+            "genus", "family", "order", "class", "phylum", 
+            "genus_no","family_no","order_no",
+            "class_no","phylum_no", "early_age", "late_age")
+  new <- data.frame(matrix(0, ncol=length(cols), nrow=nrow(occ)))
+  colnames(new) <- cols
+  for( i in cols){
+    if(i %in% names(occ)){
+      new[[i]] <- occ[[i]]
+    }else{
+      v <- rep(NA, nrow(occ))
+      new[[i]] <- v
+    }
+  }
+  return(new)
+}
