@@ -65,20 +65,27 @@ returns a dataframe with the selected fossil occurrences, downloaded from the [P
 ```
 
 ```coffee
-  occurrence_no         matched_name   matched_rank matched_no     early_interval   late_interval paleolng paleolat geoplate
-1         40165  Peritresius ornatus        species     173397          Thanetian            <NA>   -44.51    40.13      109
-2         40166 Rhetechelys platyops        species     128351          Thanetian            <NA>   -44.51    40.13      109
-3        149344   Trionyx virginiana        species     231917          Thanetian            <NA>   -47.60    38.76      109
-4        205060  Judithemys backmani        species     253836          Paleocene            <NA>   -67.18    57.12      101
-5        205061         Trionychinae unranked clade     276091          Paleocene            <NA>   -67.18    57.12      101
-6        281674 Taphrosphys sulcatus        species     131500 Late Maastrichtian Early Paleocene   -39.82    40.92      109
-        genus          family      order    class   phylum genus_no family_no order_no class_no phylum_no
-1 Peritresius     Chelydridae Testudines Reptilia Chordata    36360     37704    56475    36322     33815
-2 Rhetechelys  Pancheloniidae Testudines Reptilia Chordata   128349    165650    56475    36322     33815
-3        <NA> Pantrionychidae Testudines Reptilia Chordata       NA    361334    56475    36322     33815
-4  Judithemys   Macrobaenidae Testudines Reptilia Chordata    56471     56472    56475    36322     33815
-5        <NA>    Trionychidae Testudines Reptilia Chordata       NA     37674    56475    36322     33815
-6 Taphrosphys   Bothremydidae Testudines Reptilia Chordata    37608     67318    56475    36322     33815
+  occurrence_no         matched_name   matched_rank matched_no     early_interval   late_interval
+1         40165  Peritresius ornatus        species     173397          Thanetian            <NA>
+2         40166 Rhetechelys platyops        species     128351          Thanetian            <NA>
+3        149344   Trionyx virginiana        species     231917          Thanetian            <NA>
+4        205060  Judithemys backmani        species     253836          Paleocene            <NA>
+5        205061         Trionychinae unranked clade     276091          Paleocene            <NA>
+6        281674 Taphrosphys sulcatus        species     131500 Late Maastrichtian Early Paleocene
+  paleolng paleolat geoplate       genus          family      order    class   phylum genus_no
+1   -44.51    40.13      109 Peritresius     Chelydridae Testudines Reptilia Chordata    36360
+2   -44.51    40.13      109 Rhetechelys  Pancheloniidae Testudines Reptilia Chordata   128349
+3   -47.60    38.76      109        <NA> Pantrionychidae Testudines Reptilia Chordata       NA
+4   -67.18    57.12      101  Judithemys   Macrobaenidae Testudines Reptilia Chordata    56471
+5   -67.18    57.12      101        <NA>    Trionychidae Testudines Reptilia Chordata       NA
+6   -39.82    40.92      109 Taphrosphys   Bothremydidae Testudines Reptilia Chordata    37608
+  family_no order_no class_no phylum_no early_age late_age
+1     37704    56475    36322     33815      59.2     56.0
+2    165650    56475    36322     33815      59.2     56.0
+3    361334    56475    36322     33815      59.2     56.0
+4     56472    56475    36322     33815      66.0     56.0
+5     37674    56475    36322     33815      66.0     56.0
+6     67318    56475    36322     33815      70.6     61.7
 
 ```
 
@@ -377,7 +384,7 @@ extent      : -180, 180, -92.0605, 87.9395  (xmin, xmax, ymin, ymax)
 coord. ref. : NA 
 data source : in memory
 names       : layer 
-values      : 1, 15  (min, max)
+values      : 1, 25  (min, max)
 
 ``` 
 
@@ -399,7 +406,7 @@ extent      : -180, 180, -92.0605, 87.9395  (xmin, xmax, ymin, ymax)
 coord. ref. : NA 
 data source : in memory
 names       : layer 
-values      : 0.6365142, 2.059229  (min, max)
+values      : 0.5623351, 2.140366  (min, max)
 ```
 ![plot of chunk map](figure/div_cell.png) 
 
@@ -411,24 +418,24 @@ values      : 0.6365142, 2.059229  (min, max)
 > pm_latrich (shape, data, rank="species", res=10)
 ```
 ```coffee
- lat_min lat_max richn
+   lat_min lat_max richn
 1      -90     -80     0
 2      -80     -70     0
 3      -70     -60     0
 4      -60     -50     0
-5      -50     -40     3
-6      -40     -30     0
+5      -50     -40     4
+6      -40     -30     2
 7      -30     -20     0
-8      -20     -10     0
+8      -20     -10     4
 9      -10       0     0
-10       0      10     3
+10       0      10     5
 11      10      20     1
-12      20      30     6
-13      30      40    17
-14      40      50    17
+12      20      30     8
+13      30      40    18
+14      40      50    32
 15      50      60    13
-16      60      70     0
-17      70      80     0
+16      60      70     3
+17      70      80     1
 18      80      90     0
 ```
 
@@ -441,8 +448,8 @@ calculates the Shannon diversity along the latitudinal gradient based on the ind
 
 ```coffee
 > occ_df <- pm_occ (data)
-> pm_latdiv (occ_df, shape, fun=mean)
-> pm_latdiv (occ_df, shape, fun=max)
+> pm_latdiv (occ_df, shape, fun=mean, magn=10)
+> pm_latdiv (occ_df, shape, fun=max, magn=10)
 
 ```
 
@@ -452,18 +459,18 @@ calculates the Shannon diversity along the latitudinal gradient based on the ind
 2     -80    -70 0.0000000
 3     -70    -60 0.0000000
 4     -60    -50 0.0000000
-5     -50    -40 0.6931472
+5     -50    -40 1.0549202
 6     -40    -30 0.0000000
 7     -30    -20 0.0000000
-8     -20    -10 0.0000000
+8     -20    -10 0.6365142
 9     -10      0 0.0000000
-10      0     10 0.6931472
+10      0     10 1.0986123
 11     10     20 0.0000000
 12     20     30 0.6931472
-13     30     40 1.5607104
-14     40     50 1.3321790
-15     50     60 1.0986123
-16     60     70 0.0000000
+13     30     40 1.3862944
+14     40     50 1.7677615
+15     50     60 1.2730283
+16     60     70 0.6931472
 17     70     80 0.0000000
 18     80     90 0.0000000
 ``` 
