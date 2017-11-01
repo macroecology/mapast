@@ -535,8 +535,8 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
   }else{
     ugenus <- base::as.vector(base::unique(genus_data[, "phylum"]))
   }
-  lat <- base::seq(-90 + (res / 2), 90 -(res / 2), res)
-  long <- base::seq(-180 + (res / 2), 180 -(res / 2), res)
+  lat <- base::seq(-90 , 90, res)
+  long <- base::seq(-180, 180, res)
   nsites <- base::expand.grid (long, lat)
   #fill with default values -1
   blank <- base::matrix(-1, nrow = base::nrow (nsites), ncol = base::length(ugenus))
