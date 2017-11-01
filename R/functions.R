@@ -29,18 +29,6 @@ pm_getmap <- function(interval, model, colland = "#66666660",
                       colsea = "#00509010", 
                       do.plot = TRUE, ...) {
   
-  #getting final parameter list for plot
-  int_args <- base::list(x=shape, col = "white", border = FALSE, main=interval
-                         , xlim=c(-180,180), ylim=c(-90,90)
-                         , xlab="Longitude", ylab="Latitude"
-                         , xaxs="i", yaxs="i")
-  params <- base::list(...)
-  names_params <- base::as.vector(base::names(params))
-  names_intargs <- base::as.vector(base::names(int_args))
-  for( i in names_params){
-    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
-  }
- 
   #get shape file from external database
   if(model=="GPlates"){
     
@@ -54,6 +42,19 @@ pm_getmap <- function(interval, model, colland = "#66666660",
                          ,envir = base::environment())
     base::assign("shape",base::get(base::paste(model,interval, sep="_")))
   }
+  
+  #getting final parameter list for plot
+  int_args <- base::list(x=shape, col = "white", border = FALSE, main=interval
+                         , xlim=c(-180,180), ylim=c(-90,90)
+                         , xlab="Longitude", ylab="Latitude"
+                         , xaxs="i", yaxs="i")
+  params <- base::list(...)
+  names_params <- base::as.vector(base::names(params))
+  names_intargs <- base::as.vector(base::names(int_args))
+  for( i in names_params){
+    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  }
+ 
   
   arglist <- c(int_args, params)
   # if user does not set plot=FALSE plot the shape file
