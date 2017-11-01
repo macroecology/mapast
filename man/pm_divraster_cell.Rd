@@ -5,22 +5,21 @@
 \title{pm_divraster_cell}
 \usage{
 pm_divraster_cell  (shape, occ_df_cell, res=10,
-                           colsea="#00509010", colland="#66666680", ...)
+                           colland="#66666680", colsea="#00509010", ...)
 }
 \arguments{
-\item{shape}{file from the time interval of interest. 
-Can be created with get_paleomap}
+\item{shape}{SpatialPolygonsDataFrame object containing a map.}
 
-\item{occ_df_cell}{a data frame with number of occurrences of 
-a taxa per locality}
+\item{occ_df_cell}{data.frame with fossil occurrences. Can be created with pm_occ_cell (data)}
 
-\item{res}{resolution of the raster/ size of the grid cell}
+\item{res}{numeric. Defining the spatial resolution. Default res=10.}
 
-\item{colsea}{color of the ocean}
+\item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
-\item{colland}{color of the land masses}
+\item{colsea}{define the color of the sea. By default colsea = "#00509010".}
 
-\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to
+plot, such as main="my own title", main.col="red".}
 }
 \value{
 plot with map of the time intervall, the fossil occurences and the 

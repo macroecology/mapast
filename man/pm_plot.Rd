@@ -4,28 +4,26 @@
 \alias{pm_plot}
 \title{pm_plot}
 \usage{
-pm_plot(interval, model, data,colsea = "#00509010",
-                colland = "#66666660",colpoints = "#99000020", 
-                cex = 1, pch =16, ...)
+pm_plot(interval, model, data, colland = "#66666660",
+                colsea = "#00509010",colpoints = "#99000020", 
+                pch =16, cex = 1, ...)
 }
 \arguments{
-\item{interval}{time interval of interest (e.g. Quaternary)}
+\item{interval}{character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)}
 
-\item{model}{which reconstruction model the map comes from. 
-"GPlates", "Golonka" or "Smith"}
+\item{model}{character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka"}
 
-\item{data}{data.frame with the paleogeoreferenced fossil records 
-(can be obtained using pm_getdata)}
+\item{data}{data.frame with fossil occurrences. Can be created with pm_getdata(interval, base_name)}
 
-\item{colsea}{color of the ocean}
+\item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
-\item{colland}{color of the land masses}
+\item{colsea}{define the color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{color of the occurrence points}
+\item{colpoints}{define the color of the occurrence-points. By default colpoints = "#99000020".}
+
+\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle).}
 
 \item{cex}{numeric. size of the points. By default cex=1.}
-
-\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle)}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
@@ -38,7 +36,7 @@ plots your query from the paleobioDB onto the map of the selected time interval
 }
 \examples{
 \dontrun{
-data  <-  pm_getdata (base_name="Mammalia", interval="Cretaceous")
+data  <-  pm_getdata (interval="Cretaceous", base_name="Mammalia")
 pm_plot(interval="Cretaceous", model="GPlates", data)
 }
 }

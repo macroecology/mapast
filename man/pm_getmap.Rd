@@ -4,25 +4,24 @@
 \alias{pm_getmap}
 \title{pm_getmap}
 \usage{
-pm_getmap(interval, model, colsea = "#00509010"
-                          , colland = "#66666660", do.plot = TRUE, ...)
+pm_getmap(interval, model, colland = "#66666660"
+                          , colsea = "#00509010", do.plot = TRUE, ...)
 }
 \arguments{
-\item{interval}{time interval of interest (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
-in Smith and Golonka interval is the parameter FROMAGE}
+\item{interval}{character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)}
 
-\item{model}{which reconstruction model the map comes from. "GPlates", "Golonka" or "Smith"}
+\item{model}{character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka"}
 
-\item{colsea}{to set the color of the ocean in the plot}
+\item{colland}{define the color of the land masses. By default colland = "#66666660"}
 
-\item{colland}{to set the color of the land masses in the plot}
+\item{colsea}{define the color of the sea. By default colsea = "#00509010"}
 
-\item{do.plot}{TRUE/FALSE. TRUE by default.}
+\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
-a shape file and a plot (if do.plot=TRUE)
+a SpatialPolygonsDataFrame and a plot (if do.plot=TRUE)
 }
 \description{
 generates a shapefile with the paleomap of the chosen 

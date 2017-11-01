@@ -5,17 +5,16 @@
 #' generates a shapefile with the paleomap of the chosen 
 #' time interval (e.g. "Cretaceous") and a plot
 #' 
-#' @usage pm_getmap(interval, model, colsea = "#00509010"
-#'                           , colland = "#66666660", do.plot = TRUE, ...)
+#' @usage pm_getmap(interval, model, colland = "#66666660"
+#'                           , colsea = "#00509010", do.plot = TRUE, ...)
 #' 
-#' @param interval time interval of interest (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
-#' in Smith and Golonka interval is the parameter FROMAGE
-#' @param model which reconstruction model the map comes from. "GPlates", "Golonka" or "Smith"
-#' @param colsea to set the color of the ocean in the plot
-#' @param colland to set the color of the land masses in the plot
-#' @param do.plot TRUE/FALSE. TRUE by default.
+#' @param interval character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
+#' @param model character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka"
+#' @param colland define the color of the land masses. By default colland = "#66666660"
+#' @param colsea define the color of the sea. By default colsea = "#00509010"
+#' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
-#' @return a shape file and a plot (if do.plot=TRUE)
+#' @return a SpatialPolygonsDataFrame and a plot (if do.plot=TRUE)
 #' @export
 #' @examples
 #' \dontrun{
@@ -26,9 +25,9 @@
 #' d$results[, "Item"]
 #'}
 
-pm_getmap <- function(interval, model, colsea = "#00509010", 
-                       colland = "#66666660", 
-                       do.plot = TRUE, ...) {
+pm_getmap <- function(interval, model, colland = "#66666660", 
+                      colsea = "#00509010", 
+                      do.plot = TRUE, ...) {
   
   #getting final parameter list for plot
   int_args <- base::list(x=shape, col = "white", border = FALSE, main=interval
@@ -82,14 +81,10 @@ pm_getmap <- function(interval, model, colsea = "#00509010",
 #'  
 #' @usage pm_getdata(interval, base_name, limit="all")
 #' 
-#' @param interval time interval of interest (e.g. jurassic)
-#' @param base_name name of the taxon you want to get data from 
-#' (e.g mammalia, canidae, canis) 
-#' @param limit numeric. To set the limit of occurrences 
-#' to be downloaded from the Paleobiology Database e.g. 500. 
-#' There is no limit by default. 
-#' @return a data frame with the occurrences and the values needed 
-#' for the other functions in paleoMap
+#' @param interval character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
+#' @param base_name character. The name of the taxon of interest. (e.g. "Canis" or "reptilia")
+#' @param limit integer. Defining the max. number of occurrences to be downloaded from paleobioDB. By default limit="all"
+#' @return a data frame with fossil occurrences
 #' @export 
 #' @examples 
 #' \dontrun{
@@ -131,35 +126,33 @@ pm_getdata <- function(interval, base_name, limit="all") {
 #' plots your query from the paleobioDB onto the map of the selected time interval
 #' 
 #' 
-#' @usage pm_plot(interval, model, data,colsea = "#00509010",
-#'                 colland = "#66666660",colpoints = "#99000020", 
-#'                 cex = 1, pch =16, ...)
+#' @usage pm_plot(interval, model, data, colland = "#66666660",
+#'                 colsea = "#00509010",colpoints = "#99000020", 
+#'                 pch =16, cex = 1, ...)
 #' 
-#' @param interval time interval of interest (e.g. Quaternary)
-#' @param model  which reconstruction model the map comes from. 
-#' "GPlates", "Golonka" or "Smith"
-#' @param data data.frame with the paleogeoreferenced fossil records 
-#' (can be obtained using pm_getdata)
-#' @param colsea color of the ocean
-#' @param colland color of the land masses
-#' @param colpoints color of the occurrence points
+#' @param interval character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
+#' @param model character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka"
+#' @param data data.frame with fossil occurrences. Can be created with pm_getdata(interval, base_name)
+#' @param colland define the color of the land masses. By default colland = "#66666660".
+#' @param colsea define the color of the sea. By default colsea = "#00509010".
+#' @param colpoints define the color of the occurrence-points. By default colpoints = "#99000020".
+#' @param pch point symbol for plotting the occurences. By default pch=16 (filled circle).
 #' @param cex numeric. size of the points. By default cex=1.
-#' @param pch point symbol for plotting the occurences. By default pch=16 (filled circle)
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
 #' @return a plot with the configuration of the continents at the selected 
 #' time interval and the fossil occurrences
 #' @export 
 #' @examples 
 #' \dontrun{
-#' data  <-  pm_getdata (base_name="Mammalia", interval="Cretaceous")
+#' data  <-  pm_getdata (interval="Cretaceous", base_name="Mammalia")
 #' pm_plot(interval="Cretaceous", model="GPlates", data)
 #'}
 
 pm_plot <- function(interval, model, data,
-                    colsea = "#00509010", 
                     colland = "#66666660",
+                    colsea = "#00509010", 
                     colpoints = "#99000020", 
-                    cex = 1, pch =16, ...) {
+                    pch =16, cex = 1, ...) {
   
   #check user input
   if(!.checkLatLng(data)){
@@ -205,20 +198,18 @@ pm_plot <- function(interval, model, data,
 #' (a proxy for the sampling effort)
 #' 
 #' @usage pm_occraster(shape, data, rank = "species", res = 10,
-#'                     colsea = "#00509010", colland = "#66666660", ...)
+#'                     colland = "#66666660", colsea = "#00509010", ...)
 #' 
-#' @param shape shapefile from the time interval of interest. 
-#' It can be created with pm_getmap
-#' @param data a data frame which needs to have a column called paleolat 
-#' and a column called paleolng. It can be created with getdata_paleomap
-#' @param rank taxonomic rank of interest (e.g. genus, family, etc.). 
-#' By default rank="species"
-#' @param res resolution of the cells in the raster in degrees (by default res=10)
-#' @param colsea users can define the color of the ocean 
-#' @param colland users can define the color of the land masses
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
-#' @return a raster file and a plot with number of the fossil 
-#' occurrences in the selected interval at the selected resolution
+#' @param shape SpatialPolygonsDataFrame object containing a map.
+#' @param data data.frame with fossil occurrences. Can be created with 
+#' pm_getdata(interval, base_name)
+#' @param rank character. Defining the taxonomic rank of interest. 
+#' "species", "genus", "family", "order", "class" or "phylum".
+#' @param res numeric. Defining the spatial resolution. Default res=10. 
+#' @param colland define the color of the land masses. By default colland = "#66666660".
+#' @param colsea define the color of the sea. By default colsea = "#00509010".
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
+#' plot, such as main="my own title", main.col="red".
 #' @export 
 #' @examples 
 #' \dontrun{
@@ -229,9 +220,9 @@ pm_plot <- function(interval, model, data,
 
 pm_occraster <- function(shape, data, 
                          rank = "species", 
-                         res = 10,
-                         colsea = "#00509010", 
-                         colland = "#66666660", ...) {
+                         res = 10, 
+                         colland = "#66666660",
+                         colsea = "#00509010", ...) {
   
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -297,18 +288,19 @@ pm_occraster <- function(shape, data,
 #' Creates a raster of species richness
 #' and makes a plot of the map and raster
 #' 
-#' @usage pm_richraster(shape, data, res = 10, rank, 
-#'                      colsea = "#00509010", colland = "#66666660", ...)
+#' @usage pm_richraster(shape, data, rank, res = 10, 
+#'                      colland = "#66666660", colsea = "#00509010", ...)
 #' 
-#' @param shape file from the time interval of interest. 
-#' Can be created with get_paleomap
-#' @param data a data frame which needs to have a column called 
-#' paleolat and a column called paleolng, can be created with getdata_paleomap
-#' @param res resolution of the raster/ size of the grid cell
-#' @param rank gives the rank for the richness raster (e.g. species, genus,...)
-#' @param colsea color of the ocean
-#' @param colland color of the land masses
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
+#' @param shape SpatialPolygonsDataFrame object containing a map.
+#' @param data data.frame with fossil occurrences. Can be created with 
+#' pm_getdata(interval, base_name)
+#' @param rank character. Defining the taxonomic rank of interest. 
+#' "species", "genus", "family", "order", "class" or "phylum".
+#' @param res numeric. Defining the spatial resolution. Default res=10. 
+#' @param colland define the color of the land masses. By default colland = "#66666660".
+#' @param colsea define the color of the sea. By default colsea = "#00509010".
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
+#' plot, such as main="my own title", main.col="red".
 #' @return plot with map of the time intervall, the fossil occurences and the 
 #' raster file. And the raster file itself
 #' @export 
@@ -320,9 +312,9 @@ pm_occraster <- function(shape, data,
 #'}
 #'
 
-pm_richraster <- function (shape, data, res = 10, rank,
-                           colsea = "#00509010", 
-                           colland = "#66666660", ...) {
+pm_richraster <- function (shape, data, rank, res = 10, 
+                           colland = "#66666660",
+                           colsea = "#00509010", ...) {
   
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -390,10 +382,10 @@ pm_richraster <- function (shape, data, res = 10, rank,
 #' 
 #' @usage pm_occ(data, rank = "species")
 #' 
-#' @param data a data frame with fossil occurrences 
-#' Can be created with pm_getdata(interval, base_name)
-#' @param rank character: "species", "genus", "family", "order". 
-#' By default rank="species"
+#' @param data data.frame with fossil occurrences. Can be created with 
+#' pm_getdata(interval, base_name)
+#' @param rank character. Defining the taxonomic rank of interest. 
+#' "species", "genus", "family", "order", "class" or "phylum". By default rank="species"
 #' @return data frame with number of species, genera, families or orders per locality
 #' @export 
 #' @examples 
@@ -495,11 +487,11 @@ pm_occ <- function(data, rank = "species") {
 #' 
 #' @usage pm_occ_cell(data, rank = "species", res = 10)
 #' 
-#' @param data a data frame with fossil occurrences 
-#' Can be created with pm_getdata(interval, base_name)
-#' @param rank character: "species", "genus", "family", "order". 
-#' By default rank="species"
-#' @param res numeric. resolution of the cells. By default res=10
+#' @param data data.frame with fossil occurrences. Can be created with 
+#' pm_getdata(interval, base_name)
+#' @param rank character. Defining the taxonomic rank of interest. 
+#' "species", "genus", "family", "order", "class" or "phylum". By default rank="species"
+#' @param res numeric. Defining the spatial resolution. Default res=10. 
 #' @return data frame with number of species, genera, families or orders per locality
 #' @export 
 #' @examples 
@@ -596,20 +588,17 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
 #' max, min diversity per cell, or number of unique localities per cell
 #' 
 #' @usage pm_divraster_loc  (shape, occ_df, res=10, fun=mean,
-#'                           colsea="#00509010", colland="#66666680", ...)
+#'                           colland="#66666680", colsea="#00509010", ...)
 #' 
-#' @param shape file from the time interval of interest. 
-#' Can be created with get_paleomap
-#' @param occ_df a data frame with number of occurrences of a taxa per locality
-#' @param res resolution of the raster/ size of the grid cell
-#' @param fun values: mean, max, min, "count". functions to be applied when 
-#' making the raster use mean to get the mean value of diversity in the cell
-#' (mean of the different fossil sites), max to get the maximum diversity, 
-#' min to get the min value of diversity, "count" to get the number of 
-#' fossil sites in per cell
-#' @param colsea color of the ocean
-#' @param colland color of the land masses
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
+#' @param shape SpatialPolygonsDataFrame object containing a map.
+#' @param occ_df data.frame with fossil occurrences. Can be created with pm_occ(data).
+#' @param res numeric. Defining the spatial resolution. Default res=10. 
+#' @param fun function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
+#' You can use functions such as min, max, or mean, or the character value: 'count'. 
+#' @param colland define the color of the land masses. By default colland = "#66666660".
+#' @param colsea define the color of the sea. By default colsea = "#00509010".
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
+#' plot, such as main="my own title", main.col="red".
 #' @return plot with map of the time intervall, the fossil occurences and the 
 #' raster file. And the raster file itself
 #' @export 
@@ -625,7 +614,7 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
 #'}
 
 pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
-                             colsea="#00509010", colland="#66666680", ...) {
+                             colland="#66666680", colsea="#00509010", ...) {
   
   if(!.checkLatLng(occ_df)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -697,16 +686,15 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #' whithin the cell)
 #' 
 #' @usage pm_divraster_cell  (shape, occ_df_cell, res=10,
-#'                            colsea="#00509010", colland="#66666680", ...)
+#'                            colland="#66666680", colsea="#00509010", ...)
 #' 
-#' @param shape file from the time interval of interest. 
-#' Can be created with get_paleomap
-#' @param occ_df_cell a data frame with number of occurrences of 
-#' a taxa per locality
-#' @param res resolution of the raster/ size of the grid cell
-#' @param colsea color of the ocean
-#' @param colland color of the land masses
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
+#' @param shape SpatialPolygonsDataFrame object containing a map.
+#' @param occ_df_cell data.frame with fossil occurrences. Can be created with pm_occ_cell (data)
+#' @param res numeric. Defining the spatial resolution. Default res=10. 
+#' @param colland define the color of the land masses. By default colland = "#66666660".
+#' @param colsea define the color of the sea. By default colsea = "#00509010".
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
+#' plot, such as main="my own title", main.col="red".
 #' @return plot with map of the time intervall, the fossil occurences and the 
 #' raster file. And the raster file itself
 #' @export 
@@ -720,7 +708,7 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #' }
 
 pm_divraster_cell <- function(shape, occ_df_cell, res=10,
-                              colsea="#00509010", colland="#66666680", ...) {
+                              colland="#66666680", colsea="#00509010", ...) {
   
   if(!.checkLatLng(occ_df_cell)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -787,26 +775,26 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 #' 
 #' calculates latitudinal diversity of taxa (species, genera, families, orders)
 #' 
-#' @usage pm_latrich (shape, data, res=10, rank="species",
-#'                    colsea="#00509010", colland="#66666680",
+#' @usage pm_latrich (shape, data, rank="species", res=10, magn=1,
+#'                    colland="#66666680", colsea="#00509010", 
 #'                    colpoints="#FFC12530",colpointborder="black", 
-#'                    rich.col="goldenrod1", pch=21, magn=1, ...)
+#'                    rich.col="goldenrod1", pch=21, ...)
 #' 
-#' @param shape a shape file of the corresponding time map
-#' @param data a data frame with fossil occurrences 
-#' Can be created with pm_getdata(interval, base_name)
-#' @param rank character, taxonomic rank: "species", "genus", "family", "order". 
-#' By default rank="species"
-#' @param res resolution in of the segmentation of the latitude. By default res=1.
-#' @param colsea defines the color of the sea
-#' @param colland defines the color f the landmasses
-#' @param colpoints defines the colo of the points for the occurrences
-#' @param colpointborder defines color of the border of the occurrence points
-#' @param rich.col color for richnness graph
-#' @param pch point symbol for plotting the occurences. By default pch=16 (filled circle)
-#' @param magn numeric. index to magnify the plot of the latitudinal richness 
-#' (use when richness values are very low to see the latitudinal pattern more easily)
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
+#' @param shape SpatialPolygonsDataFrame object containing a map.
+#' @param data data.frame with fossil occurrences. Can be created with
+#'  pm_getdata(interval, base_name)
+#' @param rank character. Defining the taxonomic rank of interest. 
+#' "species", "genus", "family", "order", "class" or "phylum". By default rank="species".
+#' @param res numeric. Defining the spatial resolution. Default res=10. 
+#' @param magn numeric. Defining the magnitude of the richness curve.
+#' @param colland define the color of the land masses. By default colland = "#66666660".
+#' @param colsea define the color of the sea. By default colsea = "#00509010".
+#' @param colpoints define the color of the occurrence-points. By default colpoints="#FFC12530". 
+#' @param colpointborder define the color of the occurrence-points border. By default colpointborder="black".
+#' @param rich.col define the color of the richness curve. By default rich.col="goldenrod1".
+#' @param pch point symbol for plotting the occurences. By default pch=16 (filled circle).
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, 
+#' such as main="my own title", main.col="red".
 #' @return data frame with richness of rank and a plot of the continental masses 
 #' with the occurrences and the latitudinal richness
 #' @export 
@@ -818,11 +806,11 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 #'}
 
 
-pm_latrich <- function(shape, data, res=10, 
-                       rank="species",
-                       colsea="#00509010", colland="#66666680", 
+pm_latrich <- function(shape, data, rank="species",
+                       res=10, magn=1, 
+                       colland="#66666680", colsea="#00509010", 
                        colpoints="#FFC12530",
-                       colpointborder="black", rich.col="goldenrod1", pch=21, magn=1, ...) {
+                       colpointborder="black", rich.col="goldenrod1", pch=21, ...) {
   
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -897,27 +885,22 @@ pm_latrich <- function(shape, data, res=10,
 #' localities along the latitudinal gradient.
 #' 
 #' @usage pm_latdiv (shape, occ_df, res=10, fun= max, magn=1,
-#'                   colsea="#00509010", colland="#66666680", 
-#'                   colpoints="#FFC12530",colpointborder="black", div.col="goldenrod1"
-#'                   , pch=21, ...)
+#'                   colland="#66666680", colsea="#00509010",  
+#'                   colpoints="#FFC12530",colpointborder="black", 
+#'                   div.col="goldenrod1", pch=21, ...)
 #' 
-#' @param shape a shape file of the corresponding time map
-#' @param occ_df a data frame with abundance of taxa per locality (see example)
-#' @param res numeric. spatial resolucion of the latitudinal bins. 
-#' res=10 by default.
-#' @param fun values: mean, max. functions to be applied to get one single value 
-#' of diversity, use mean to get the mean value of diversity 
-#' (mean of the different fossil sites at the same latitudinal bin), 
-#' max to get the maximum observed diversity, min to get the mean 
-#' observed diversity. 
-#' @param magn numeric. index to magnify the plot of the latitudinal richness 
-#' (use when richness values are very low to see the latitudinal pattern more easily)
-#' @param colsea defines the color of the sea
-#' @param colland defines the color f the landmasses
-#' @param colpoints defines the colo of the points for the occurrences
-#' @param colpointborder defines color of the border of the occurrence points
-#' @param div.col color for richnness graph
-#' @param pch point symbol for plotting the occurences. By default pch=16 (filled circle)
+#' @param shape SpatialPolygonsDataFrame object containing a map.
+#' @param occ_df data.frame with fossil occurrences. Can be created with pm_occ(data)
+#' @param res numeric. Defining the spatial resolution. By default res=10. 
+#' @param fun function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
+#' You can use functions such as min, max, or mean, or the character value: 'count'. 
+#' @param magn numeric. Defining the magnitude of the diversity curve.
+#' @param colland define the color of the land masses. By default colland = "#66666660".
+#' @param colsea define the color of the sea. By default colsea = "#00509010".
+#' @param colpoints define the color of the occurrence-points. By default colpoints="#FFC12530".
+#' @param colpointborder define the color of the occurrence-points border. Bx default colpointborder="black".
+#' @param div.col define the color od zje diversity curve. By default div.col="goldenrod1".
+#' @param pch point symbol for plotting the occurences. By default pch=16 (filled circle).
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
 #' @return data frame with shannon diversity,
 #' a plot of the corresponding time map with the occurrences and their
@@ -935,7 +918,7 @@ pm_latrich <- function(shape, data, res=10,
 
 pm_latdiv <- function(shape, occ_df, res=10, 
                       fun= max, magn=1,
-                      colsea="#00509010", colland="#66666680", 
+                      colland="#66666680", colsea="#00509010", 
                       colpoints="#FFC12530",
                       colpointborder="black", div.col="goldenrod1", pch=21, ...) {
   

@@ -7,11 +7,11 @@
 pm_occ(data, rank = "species")
 }
 \arguments{
-\item{data}{a data frame with fossil occurrences 
-Can be created with pm_getdata(interval, base_name)}
+\item{data}{data.frame with fossil occurrences. Can be created with 
+pm_getdata(interval, base_name)}
 
-\item{rank}{character: "species", "genus", "family", "order". 
-By default rank="species"}
+\item{rank}{character. Defining the taxonomic rank of interest. 
+"species", "genus", "family", "order", "class" or "phylum". By default rank="species"}
 }
 \value{
 data frame with number of species, genera, families or orders per locality

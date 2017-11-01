@@ -4,25 +4,26 @@
 \alias{pm_richraster}
 \title{pm_richraster}
 \usage{
-pm_richraster(shape, data, res = 10, rank, 
-                     colsea = "#00509010", colland = "#66666660", ...)
+pm_richraster(shape, data, rank, res = 10, 
+                     colland = "#66666660", colsea = "#00509010", ...)
 }
 \arguments{
-\item{shape}{file from the time interval of interest. 
-Can be created with get_paleomap}
+\item{shape}{SpatialPolygonsDataFrame object containing a map.}
 
-\item{data}{a data frame which needs to have a column called 
-paleolat and a column called paleolng, can be created with getdata_paleomap}
+\item{data}{data.frame with fossil occurrences. Can be created with 
+pm_getdata(interval, base_name)}
 
-\item{res}{resolution of the raster/ size of the grid cell}
+\item{rank}{character. Defining the taxonomic rank of interest. 
+"species", "genus", "family", "order", "class" or "phylum".}
 
-\item{rank}{gives the rank for the richness raster (e.g. species, genus,...)}
+\item{res}{numeric. Defining the spatial resolution. Default res=10.}
 
-\item{colsea}{color of the ocean}
+\item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
-\item{colland}{color of the land masses}
+\item{colsea}{define the color of the sea. By default colsea = "#00509010".}
 
-\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to
+plot, such as main="my own title", main.col="red".}
 }
 \value{
 plot with map of the time intervall, the fossil occurences and the 

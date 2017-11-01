@@ -7,18 +7,14 @@
 pm_getdata(interval, base_name, limit="all")
 }
 \arguments{
-\item{interval}{time interval of interest (e.g. jurassic)}
+\item{interval}{character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)}
 
-\item{base_name}{name of the taxon you want to get data from 
-(e.g mammalia, canidae, canis)}
+\item{base_name}{character. The name of the taxon of interest. (e.g. "Canis" or "reptilia")}
 
-\item{limit}{numeric. To set the limit of occurrences 
-to be downloaded from the Paleobiology Database e.g. 500. 
-There is no limit by default.}
+\item{limit}{integer. Defining the max. number of occurrences to be downloaded from paleobioDB. By default limit="all"}
 }
 \value{
-a data frame with the occurrences and the values needed 
-for the other functions in paleoMap
+a data frame with fossil occurrences
 }
 \description{
 uses paleobioDB R package to get data from the Paleobiology Database

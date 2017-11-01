@@ -5,38 +5,33 @@
 \title{pm_latdiv}
 \usage{
 pm_latdiv (shape, occ_df, res=10, fun= max, magn=1,
-                  colsea="#00509010", colland="#66666680", 
-                  colpoints="#FFC12530",colpointborder="black", div.col="goldenrod1"
-                  , pch=21, ...)
+                  colland="#66666680", colsea="#00509010",  
+                  colpoints="#FFC12530",colpointborder="black", 
+                  div.col="goldenrod1", pch=21, ...)
 }
 \arguments{
-\item{shape}{a shape file of the corresponding time map}
+\item{shape}{SpatialPolygonsDataFrame object containing a map.}
 
-\item{occ_df}{a data frame with abundance of taxa per locality (see example)}
+\item{occ_df}{data.frame with fossil occurrences. Can be created with pm_occ(data)}
 
-\item{res}{numeric. spatial resolucion of the latitudinal bins. 
-res=10 by default.}
+\item{res}{numeric. Defining the spatial resolution. By default res=10.}
 
-\item{fun}{values: mean, max. functions to be applied to get one single value 
-of diversity, use mean to get the mean value of diversity 
-(mean of the different fossil sites at the same latitudinal bin), 
-max to get the maximum observed diversity, min to get the mean 
-observed diversity.}
+\item{fun}{function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
+You can use functions such as min, max, or mean, or the character value: 'count'.}
 
-\item{magn}{numeric. index to magnify the plot of the latitudinal richness 
-(use when richness values are very low to see the latitudinal pattern more easily)}
+\item{magn}{numeric. Defining the magnitude of the diversity curve.}
 
-\item{colsea}{defines the color of the sea}
+\item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
-\item{colland}{defines the color f the landmasses}
+\item{colsea}{define the color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{defines the colo of the points for the occurrences}
+\item{colpoints}{define the color of the occurrence-points. By default colpoints="#FFC12530".}
 
-\item{colpointborder}{defines color of the border of the occurrence points}
+\item{colpointborder}{define the color of the occurrence-points border. Bx default colpointborder="black".}
 
-\item{div.col}{color for richnness graph}
+\item{div.col}{define the color od zje diversity curve. By default div.col="goldenrod1".}
 
-\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle)}
+\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle).}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }

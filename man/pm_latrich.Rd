@@ -4,38 +4,38 @@
 \alias{pm_latrich}
 \title{pm_latrich}
 \usage{
-pm_latrich (shape, data, res=10, rank="species",
-                   colsea="#00509010", colland="#66666680",
+pm_latrich (shape, data, rank="species", res=10, magn=1,
+                   colland="#66666680", colsea="#00509010", 
                    colpoints="#FFC12530",colpointborder="black", 
-                   rich.col="goldenrod1", pch=21, magn=1, ...)
+                   rich.col="goldenrod1", pch=21, ...)
 }
 \arguments{
-\item{shape}{a shape file of the corresponding time map}
+\item{shape}{SpatialPolygonsDataFrame object containing a map.}
 
-\item{data}{a data frame with fossil occurrences 
-Can be created with pm_getdata(interval, base_name)}
+\item{data}{data.frame with fossil occurrences. Can be created with
+pm_getdata(interval, base_name)}
 
-\item{res}{resolution in of the segmentation of the latitude. By default res=1.}
+\item{rank}{character. Defining the taxonomic rank of interest. 
+"species", "genus", "family", "order", "class" or "phylum". By default rank="species".}
 
-\item{rank}{character, taxonomic rank: "species", "genus", "family", "order". 
-By default rank="species"}
+\item{res}{numeric. Defining the spatial resolution. Default res=10.}
 
-\item{colsea}{defines the color of the sea}
+\item{magn}{numeric. Defining the magnitude of the richness curve.}
 
-\item{colland}{defines the color f the landmasses}
+\item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
-\item{colpoints}{defines the colo of the points for the occurrences}
+\item{colsea}{define the color of the sea. By default colsea = "#00509010".}
 
-\item{colpointborder}{defines color of the border of the occurrence points}
+\item{colpoints}{define the color of the occurrence-points. By default colpoints="#FFC12530".}
 
-\item{rich.col}{color for richnness graph}
+\item{colpointborder}{define the color of the occurrence-points border. By default colpointborder="black".}
 
-\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle)}
+\item{rich.col}{define the color of the richness curve. By default rich.col="goldenrod1".}
 
-\item{magn}{numeric. index to magnify the plot of the latitudinal richness 
-(use when richness values are very low to see the latitudinal pattern more easily)}
+\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle).}
 
-\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, 
+such as main="my own title", main.col="red".}
 }
 \value{
 data frame with richness of rank and a plot of the continental masses 
