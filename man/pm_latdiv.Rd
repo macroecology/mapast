@@ -4,10 +4,10 @@
 \alias{pm_latdiv}
 \title{pm_latdiv}
 \usage{
-pm_latdiv (shape, occ_df, res=10, fun= max, magn=1,
+pm_latdiv (shape, occ_df, res=10, fun= max,
                   colland="#66666680", colsea="#00509010",  
-                  colpoints="#FFC12530",colpointborder="black", 
-                  div.col="goldenrod1", pch=21, ...)
+                  colpoints="#8B696980",colpointborder="#8B696980", 
+                  div.col="#8B696980", pch=21, do.plot=TRUE, ...)
 }
 \arguments{
 \item{shape}{SpatialPolygonsDataFrame object containing a map.}
@@ -19,19 +19,19 @@ pm_latdiv (shape, occ_df, res=10, fun= max, magn=1,
 \item{fun}{function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
 You can use functions such as min, max, or mean, or the character value: 'count'.}
 
-\item{magn}{numeric. Defining the magnitude of the diversity curve.}
-
 \item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
 \item{colsea}{define the color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{define the color of the occurrence-points. By default colpoints="#FFC12530".}
+\item{colpoints}{define the color of the occurrence-points. By default colpoints="#8B696980".}
 
-\item{colpointborder}{define the color of the occurrence-points border. Bx default colpointborder="black".}
+\item{colpointborder}{define the color of the occurrence-points border. By default colpointborder="#8B696980".}
 
-\item{div.col}{define the color od zje diversity curve. By default div.col="goldenrod1".}
+\item{div.col}{define the color od zje diversity curve. By default div.col="#8B696980".}
 
-\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle).}
+\item{pch}{point symbol for plotting the occurences. By default pch=21.}
+
+\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
@@ -51,7 +51,7 @@ localities along the latitudinal gradient.
 shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 occ_df <- pm_occ (data)
-pm_latdiv (shape, occ_df, fun=mean, magn=10)
-pm_latdiv (shape, occ_df, fun=max, magn=5)
+pm_latdiv (shape, occ_df, fun=mean)
+pm_latdiv (shape, occ_df, fun=max)
 }
 }

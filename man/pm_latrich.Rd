@@ -4,10 +4,10 @@
 \alias{pm_latrich}
 \title{pm_latrich}
 \usage{
-pm_latrich (shape, data, rank="species", res=10, magn=1,
+pm_latrich (shape, data, rank="species", res=10,
                    colland="#66666680", colsea="#00509010", 
-                   colpoints="#FFC12530",colpointborder="black", 
-                   rich.col="goldenrod1", pch=21, ...)
+                   colpoints="#8B696980",colpointborder="#8B696980", 
+                   rich.col="#8B696980", pch=21, do.plot=TRUE, ...)
 }
 \arguments{
 \item{shape}{SpatialPolygonsDataFrame object containing a map.}
@@ -20,19 +20,19 @@ pm_getdata(interval, base_name)}
 
 \item{res}{numeric. Defining the spatial resolution. Default res=10.}
 
-\item{magn}{numeric. Defining the magnitude of the richness curve.}
-
 \item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
 \item{colsea}{define the color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{define the color of the occurrence-points. By default colpoints="#FFC12530".}
+\item{colpoints}{define the color of the occurrence-points. By default colpoints="#8B696980".}
 
-\item{colpointborder}{define the color of the occurrence-points border. By default colpointborder="black".}
+\item{colpointborder}{define the color of the occurrence-points border. By default colpointborder="#8B696980".}
 
-\item{rich.col}{define the color of the richness curve. By default rich.col="goldenrod1".}
+\item{rich.col}{define the color of the richness curve. By default rich.col="#8B696980".}
 
-\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle).}
+\item{pch}{point symbol for plotting the occurences. By default pch=21.}
+
+\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, 
 such as main="my own title", main.col="red".}

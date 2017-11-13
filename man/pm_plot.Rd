@@ -5,7 +5,7 @@
 \title{pm_plot}
 \usage{
 pm_plot(interval, model, data, colland = "#66666660",
-                colsea = "#00509010",colpoints = "#99000020", 
+                colsea = "#00509010",colpoints = "#65432190", 
                 pch =16, cex = 1, ...)
 }
 \arguments{
@@ -19,7 +19,7 @@ pm_plot(interval, model, data, colland = "#66666660",
 
 \item{colsea}{define the color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{define the color of the occurrence-points. By default colpoints = "#99000020".}
+\item{colpoints}{define the color of the occurrence-points. By default colpoints = "#65432190".}
 
 \item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle).}
 

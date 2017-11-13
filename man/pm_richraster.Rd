@@ -5,7 +5,8 @@
 \title{pm_richraster}
 \usage{
 pm_richraster(shape, data, rank, res = 10, 
-                     colland = "#66666660", colsea = "#00509010", ...)
+                     colland = "#66666660", colsea = "#00509010", col.grid= mycols(100), 
+                     do.plot=TRUE, ...)
 }
 \arguments{
 \item{shape}{SpatialPolygonsDataFrame object containing a map.}
@@ -21,6 +22,10 @@ pm_getdata(interval, base_name)}
 \item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
 \item{colsea}{define the color of the sea. By default colsea = "#00509010".}
+
+\item{col.grid}{define the color of the raster.}
+
+\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to
 plot, such as main="my own title", main.col="red".}

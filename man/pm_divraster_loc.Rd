@@ -4,8 +4,8 @@
 \alias{pm_divraster_loc}
 \title{pm_divraster_loc}
 \usage{
-pm_divraster_loc  (shape, occ_df, res=10, fun=mean,
-                          colland="#66666680", colsea="#00509010", ...)
+pm_divraster_loc  (shape, occ_df, res=10, fun=mean, colland = "#66666660"
+                          , colsea = "#00509010", do.plot=TRUE, ...)
 }
 \arguments{
 \item{shape}{SpatialPolygonsDataFrame object containing a map.}
@@ -20,6 +20,8 @@ You can use functions such as min, max, or mean, or the character value: 'count'
 \item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
 \item{colsea}{define the color of the sea. By default colsea = "#00509010".}
+
+\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to
 plot, such as main="my own title", main.col="red".}

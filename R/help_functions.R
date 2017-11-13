@@ -4,8 +4,12 @@
 ##############################color palette ########################################
 
 #creating a color palette for the raster
-mycols <- colorRampPalette(c("goldenrod1","orangered", 
-                             "darkred"))
+# mycols <- colorRampPalette(c("goldenrod1","orangered", 
+#                              "darkred"))
+mycols <- colorRampPalette(c("#F5DEB3",
+                             "#D2B48C",
+                             "#654321"))
+
 
 #################.rank_filter#######################
 #.rank_filter
@@ -159,4 +163,37 @@ mycols <- colorRampPalette(c("goldenrod1","orangered",
     }
   }
   return(new)
+}
+
+
+################.getShapeInfo#################
+#.getShapeInfo
+#
+#extracts Name, fromage, toage and model info from shape files
+#@usage .getShapeInfo(shape)
+#@param shape a SpatialPolygonsDataFrame containing a map
+#@return vector
+#examples 
+#\dontrun{
+#shape.info <- getShapeInfo(shape)
+#}
+.getShapeInfo <- function(shape){
+  name <- ""
+  model <- ""
+  fromage <- shape$FROMAGE[1]
+  toage <- shape$TOAGE[1]
+  shape.name <- shape$NAME[1]
+  if(length(grep("Smith", shape.name))!=0){
+    model <- "Smith"
+    name <- paste0("fromage ", shape$FROMAGE, "mya")
+  }else if(length(grep("Golonka", shape.name))!=0){
+    model <- "Golonka"
+    name <- paste0("fromage ", shape$FROMAGE, "mya")
+  }else{
+    model <- "GPlates"
+    name <- shape.name
+  }
+  info <- c(name, model, fromage, toage)
+  
+  info
 }

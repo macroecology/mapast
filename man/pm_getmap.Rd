@@ -16,7 +16,7 @@ pm_getmap(interval, model, colland = "#66666660"
 
 \item{colsea}{define the color of the sea. By default colsea = "#00509010"}
 
-\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE}
+\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
