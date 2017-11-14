@@ -6,8 +6,8 @@
 \usage{
 pm_latrich (shape, data, rank="species", res=10,
                    colland="#66666680", colsea="#00509010", 
-                   colpoints="#8B696980",colpointborder="#8B696980", 
-                   rich.col="#8B696980", pch=21, do.plot=TRUE, ...)
+                   colpoints="#65432190", 
+                   rich.col="#65432190", pch=21, do.plot=TRUE, ...)
 }
 \arguments{
 \item{shape}{SpatialPolygonsDataFrame object containing a map.}
@@ -24,11 +24,9 @@ pm_getdata(interval, base_name)}
 
 \item{colsea}{define the color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{define the color of the occurrence-points. By default colpoints="#8B696980".}
+\item{colpoints}{define the color of the occurrence-points. By default colpoints="#65432190".}
 
-\item{colpointborder}{define the color of the occurrence-points border. By default colpointborder="#8B696980".}
-
-\item{rich.col}{define the color of the richness curve. By default rich.col="#8B696980".}
+\item{rich.col}{define the color of the richness curve. By default rich.col="#65432190".}
 
 \item{pch}{point symbol for plotting the occurences. By default pch=21.}
 

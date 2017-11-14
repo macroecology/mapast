@@ -3,31 +3,31 @@
 
 ##############################color palette ########################################
 
-#creating a color palette for the raster
-# mycols <- colorRampPalette(c("goldenrod1","orangered", 
-#                              "darkred"))
+## creating a color palette for the raster
+## mycols <- colorRampPalette(c("goldenrod1","orangered",
+##                              "darkred"))
 mycols <- colorRampPalette(c("#F5DEB3",
-                             "#D2B48C",
+                             "#8c714e",
                              "#654321"))
 
-
 #################.rank_filter#######################
-#.rank_filter
+# .rank_filter
 # 
-#creates the raster files with the number of unique taxa by pixel
-#
-#@usage .rank_filter(r, data, res, rank)
-#@param r blank raster
-#@param data a data frame which needs to have a column called paleolat and 
-#a column called paleolng, can be created with getdata_paleomap
-#@param res resolution of the raster file
-#@param rank rank of interest
-#@return a raster with the taxa richness
-#@examples 
-#\dontrun{
-#data<- pm_getdata(base_name = "Canis", interval = "Quaternary")
-#.rank_filter(r, data, res = 10, rank = "genus")
-#}
+# creates the raster files with the number of unique taxa by pixel
+# 
+# @usage .rank_filter(r, data, res, rank)
+# @param r blank raster
+# @param data a data frame which needs to have a column called paleolat and
+# a column called paleolng, can be created with getdata_paleomap
+# @param res resolution of the raster file
+# @param rank rank of interest
+# @return a raster with the taxa richness
+# @keywords internal
+# @examples
+# \dontrun{
+# data<- pm_getdata(base_name = "Canis", interval = "Quaternary")
+# .rank_filter(r, data, res = 10, rank = "genus")
+# }
 
 .rank_filter <- function(r, data, res, rank) {
   #gets colnames for new data frame
@@ -82,21 +82,21 @@ mycols <- colorRampPalette(c("#F5DEB3",
 }
 
 ################.rfilter###################
-#.rfilter
-#
-#filters the data frame so there are only species left 
-#and for each raster every species only once
-#@usage .rfilter (data, rank)
-#@param data a data frame which needs to have a column called paleolat and 
-#a column called paleolng, can be created with getdata_paleomap
-#@param rank rank of interest
-#@return filtered data frame with only species
-#examples 
-#\dontrun{
-#data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#filtered_data <- .rfilter (data, rank="genus")
-#show(filtered_data)
-#}
+##.rfilter
+##
+##filters the data frame so there are only species left 
+##and for each raster every species only once
+##@usage .rfilter (data, rank)
+##@param data a data frame which needs to have a column called paleolat and 
+##a column called paleolng, can be created with getdata_paleomap
+##@param rank rank of interest
+##@return filtered data frame with only species
+##examples 
+##\dontrun{
+##data<- pm_getdata (base_name="Canis", interval="Quaternary")
+##filtered_data <- .rfilter (data, rank="genus")
+##show(filtered_data)
+##}
 
 .rfilter <- function(data, rank) {
   if (rank=="species") {
@@ -131,19 +131,19 @@ mycols <- colorRampPalette(c("#F5DEB3",
 
 
 ################.checkPbdb###################
-#.checkPbdb
-#
-#checks if all columns that we need are in the returned df from the paleobioDB
-#@usage .checkPbdb (occ)
-#@param occ data frame from pbdb_occurence request
-#@return data.frame with needed columns filled with NA if not in original dataframe
-#examples 
-#\dontrun{
-#occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name=base_name, interval=interval, 
-#             show=c("paleoloc", "phylo"), 
-#             vocab="pbdb", limit=limit))
-#occ <- .checkPbdb(occ)
-#}
+##.checkPbdb
+##
+##checks if all columns that we need are in the returned df from the paleobioDB
+##@usage .checkPbdb (occ)
+##@param occ data frame from pbdb_occurence request
+##@return data.frame with needed columns filled with NA if not in original dataframe
+##examples 
+##\dontrun{
+##occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name=base_name, interval=interval, 
+##             show=c("paleoloc", "phylo"), 
+##             vocab="pbdb", limit=limit))
+##occ <- .checkPbdb(occ)
+##}
 
 .checkPbdb <- function(occ){
   cols <- c("occurrence_no", "matched_name", "matched_rank",
@@ -167,16 +167,16 @@ mycols <- colorRampPalette(c("#F5DEB3",
 
 
 ################.getShapeInfo#################
-#.getShapeInfo
-#
-#extracts Name, fromage, toage and model info from shape files
-#@usage .getShapeInfo(shape)
-#@param shape a SpatialPolygonsDataFrame containing a map
-#@return vector
-#examples 
-#\dontrun{
-#shape.info <- getShapeInfo(shape)
-#}
+##.getShapeInfo
+##
+##extracts Name, fromage, toage and model info from shape files
+##@usage .getShapeInfo(shape)
+##@param shape a SpatialPolygonsDataFrame containing a map
+##@return vector
+##examples 
+##\dontrun{
+##shape.info <- getShapeInfo(shape)
+##}
 .getShapeInfo <- function(shape){
   name <- ""
   model <- ""

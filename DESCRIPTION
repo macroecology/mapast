@@ -11,7 +11,7 @@ Authors@R: c(person("Sonja", "Rothkugel", role = c("aut", "cre"),
 	person("Sara", "Varela", role = c("aut"),
     email = "svarela@paleobiogeography.org"))
 Maintainer: Sonja Rothkugel <rothkugelsonja@aol.de>
-Depends: R (>= 2.10)
+Depends: R (>= 3.4)
 Imports:
     roxygen2,
     paleobioDB,

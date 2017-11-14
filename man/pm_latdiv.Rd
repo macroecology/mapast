@@ -6,8 +6,8 @@
 \usage{
 pm_latdiv (shape, occ_df, res=10, fun= max,
                   colland="#66666680", colsea="#00509010",  
-                  colpoints="#8B696980",colpointborder="#8B696980", 
-                  div.col="#8B696980", pch=21, do.plot=TRUE, ...)
+                  colpoints="#65432190",
+                  div.col="#654321", pch=21, do.plot=TRUE, ...)
 }
 \arguments{
 \item{shape}{SpatialPolygonsDataFrame object containing a map.}
@@ -23,11 +23,9 @@ You can use functions such as min, max, or mean, or the character value: 'count'
 
 \item{colsea}{define the color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{define the color of the occurrence-points. By default colpoints="#8B696980".}
+\item{colpoints}{define the color of the occurrence-points. By default colpoints="#65432190".}
 
-\item{colpointborder}{define the color of the occurrence-points border. By default colpointborder="#8B696980".}
-
-\item{div.col}{define the color od zje diversity curve. By default div.col="#8B696980".}
+\item{div.col}{define the color od zje diversity curve. By default div.col="#654321".}
 
 \item{pch}{point symbol for plotting the occurences. By default pch=21.}
 

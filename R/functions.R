@@ -324,8 +324,11 @@ pm_occraster <- function(shape, data,
     
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), legend.args=list(text='occurrences', side=3, line=1, adj=0.25, cex=0.6, col=mycols(1)))
-
+    graphics::par(bty= "n")
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='occurrences', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
+    graphics::par(bty= "o")
+    
     graphics::par(mar=def.mar)
     graphics::par(oma=def.oma)
   }
@@ -436,7 +439,10 @@ pm_richraster <- function (shape, data, rank, res = 10,
     
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), legend.args=list(text='richness', side=3, line=1, adj=0.25, cex=0.8, col="darkgrey"))
+    graphics::par(bty= "n")
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='richness', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
+    graphics::par(bty= "o")
     
     graphics::par(mar=def.mar)
     graphics::par(oma=def.oma)
@@ -762,8 +768,10 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
     
     raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), legend.args=list(text='diversity', side=3, line=1, adj=0.25, cex=0.8, col="darkgrey"))
-    
+    graphics::par(bty= "n")
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='diversity', line=1, side=3, adj=0.25, cex=0.6, col=mycol[length(mycol)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=mycol[length(mycol)/2]))
+    graphics::par(bty= "o")
     
     graphics::par(mar=def.mar)
     graphics::par(oma=def.oma)
@@ -877,8 +885,10 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
     
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), legend.args=list(text='diversity', side=3, line=1, adj=0.25, cex=0.8, col="darkgrey"))
-    
+    graphics::par(bty= "n")
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='diversity', line=1, side=3, adj=0.25, cex=0.6, col=mycol[length(mycol)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=mycol[length(mycol)/2]))
+    graphics::par(bty= "o")
     
     graphics::par(mar=def.mar)
     graphics::par(oma=def.oma)
@@ -897,8 +907,8 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 #' 
 #' @usage pm_latrich (shape, data, rank="species", res=10,
 #'                    colland="#66666680", colsea="#00509010", 
-#'                    colpoints="#8B696980",colpointborder="#8B696980", 
-#'                    rich.col="#8B696980", pch=21, do.plot=TRUE, ...)
+#'                    colpoints="#65432190", 
+#'                    rich.col="#65432190", pch=21, do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param data data.frame with fossil occurrences. Can be created with
@@ -908,9 +918,8 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 #' @param res numeric. Defining the spatial resolution. Default res=10. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
 #' @param colsea define the color of the sea. By default colsea = "#00509010".
-#' @param colpoints define the color of the occurrence-points. By default colpoints="#8B696980". 
-#' @param colpointborder define the color of the occurrence-points border. By default colpointborder="#8B696980".
-#' @param rich.col define the color of the richness curve. By default rich.col="#8B696980".
+#' @param colpoints define the color of the occurrence-points. By default colpoints="#65432190". 
+#' @param rich.col define the color of the richness curve. By default rich.col="#65432190".
 #' @param pch point symbol for plotting the occurences. By default pch=21.
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, 
@@ -929,8 +938,8 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 pm_latrich <- function(shape, data, rank="species",
                        res=10, 
                        colland="#66666680", colsea="#00509010", 
-                       colpoints="#8B696980",
-                       colpointborder="#8B696980", rich.col="#8B696980", pch=21, do.plot=TRUE, ...) {
+                       colpoints="#65432190",
+                       rich.col="#65432190", pch=21, do.plot=TRUE, ...) {
   
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -994,7 +1003,7 @@ pm_latrich <- function(shape, data, rank="species",
                    border=FALSE)
     raster::plot(shape, col=colland, border=FALSE, add=T)
     graphics::points(data2$paleolng, data2$paleolat, 
-                     pch=pch, col=colpointborder, bg=colpoints)
+                     pch=pch, col=NA, bg=colpoints)
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     
@@ -1002,9 +1011,9 @@ pm_latrich <- function(shape, data, rank="species",
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     
     shape.info <- .getShapeInfo(shape)
-    graphics::axis(side = 3, pos=94, lwd = 0, at=145 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
-    graphics::axis(side = 3, pos=86, lwd = 0, at=145 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
-    graphics::axis(side = 3, pos=78, lwd = 0, at=145 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
+    graphics::axis(side = 3, pos=94, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
+    graphics::axis(side = 3, pos=86, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
+    graphics::axis(side = 3, pos=78, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     
     graphics::polygon (yy, xx, col=rich.col, border=F, xpd=T)
     
@@ -1014,9 +1023,8 @@ pm_latrich <- function(shape, data, rank="species",
     ax_lab <- round(ax_lab/magn)
     graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = rich.col ,col.axis = rich.col , col= rich.col , cex.axis=0.6, tck=-0.01)
     graphics::axis(side=3, pos=80, lwd =0, xpd=TRUE, at=ax_seq, labels=ax_lab , col.ticks = rich.col ,col.axis = rich.col , col= rich.col , cex.axis=0.6, tck=-0.01)
-    graphics::axis(side=3, pos=87, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="richness", col.ticks=rich.col, col.axis=rich.col, col=rich.col, cex.axis=0.8, tck=-0.01)
-    # graphics::mtext(text="latitudinal richness", adj=1.15, line = 1, col=rich.col, cex=0.5)
-    
+    graphics::axis(side=3, pos=90, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="richness", col.ticks=rich.col, col.axis=rich.col, col=rich.col, cex.axis=0.8, tck=-0.01, cex.lab=0.8)
+  
     graphics::par(mar=def.mar)
   }
   
@@ -1034,8 +1042,8 @@ pm_latrich <- function(shape, data, rank="species",
 #' 
 #' @usage pm_latdiv (shape, occ_df, res=10, fun= max,
 #'                   colland="#66666680", colsea="#00509010",  
-#'                   colpoints="#8B696980",colpointborder="#8B696980", 
-#'                   div.col="#8B696980", pch=21, do.plot=TRUE, ...)
+#'                   colpoints="#65432190",
+#'                   div.col="#654321", pch=21, do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param occ_df data.frame with fossil occurrences. Can be created with pm_occ(data)
@@ -1044,9 +1052,8 @@ pm_latrich <- function(shape, data, rank="species",
 #' You can use functions such as min, max, or mean, or the character value: 'count'. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
 #' @param colsea define the color of the sea. By default colsea = "#00509010".
-#' @param colpoints define the color of the occurrence-points. By default colpoints="#8B696980".
-#' @param colpointborder define the color of the occurrence-points border. By default colpointborder="#8B696980".
-#' @param div.col define the color od zje diversity curve. By default div.col="#8B696980".
+#' @param colpoints define the color of the occurrence-points. By default colpoints="#65432190".
+#' @param div.col define the color od zje diversity curve. By default div.col="#654321".
 #' @param pch point symbol for plotting the occurences. By default pch=21.
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
@@ -1067,8 +1074,8 @@ pm_latrich <- function(shape, data, rank="species",
 pm_latdiv <- function(shape, occ_df, res=10, 
                       fun= max,
                       colland="#66666680", colsea="#00509010", 
-                      colpoints="#8B696980",
-                      colpointborder="#8B696980", div.col="#8B696980", pch=21, do.plot=TRUE, ...) {
+                      colpoints="#65432190",
+                      div.col="#654321", pch=21, do.plot=TRUE, ...) {
   
   if(!.checkLatLng(occ_df)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -1135,7 +1142,7 @@ pm_latdiv <- function(shape, occ_df, res=10,
     raster::plot(shape, col=colland, border=FALSE, 
                  add=T)
     graphics::points(occ_df[, "paleolng"], occ_df[, "paleolat"], 
-                     pch=pch, col=colpointborder, 
+                     pch=pch, col=NA, 
                      bg=colpoints)
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
@@ -1144,9 +1151,9 @@ pm_latdiv <- function(shape, occ_df, res=10,
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     
     shape.info <- .getShapeInfo(shape)
-    graphics::axis(side = 3, pos=94, lwd = 0, at=145 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
-    graphics::axis(side = 3, pos=86, lwd = 0, at=145 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
-    graphics::axis(side = 3, pos=78, lwd = 0, at=145 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
+    graphics::axis(side = 3, pos=94, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
+    graphics::axis(side = 3, pos=86, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
+    graphics::axis(side = 3, pos=78, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     
     graphics::polygon(yy, xx, col=div.col, 
                       border=F, xpd=T)
@@ -1157,9 +1164,8 @@ pm_latdiv <- function(shape, occ_df, res=10,
     ax_lab <- round(ax_lab/magn)
     graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
     graphics::axis(side=3, pos=80, lwd =0, xpd=TRUE, at=ax_seq, labels=ax_lab , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
-    graphics::axis(side=3, pos=87, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="diversity", col.ticks=div.col, col.axis=div.col, col=div.col, cex.axis=0.8, tck=-0.01)
-    # graphics::mtext(text="latitudinal diversity", adj=1.15, line = 1, col=div.col, cex=0.5)
-    
+    graphics::axis(side=3, pos=90, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="diversity", col.ticks=div.col, col.axis=div.col, col=div.col, cex.axis=0.8, tck=-0.01)
+
     graphics::par(mar=def.mar) 
   }
   
