@@ -4,10 +4,10 @@
 \alias{pm_latrich}
 \title{pm_latrich}
 \usage{
-pm_latrich (shape, data, rank="species", res=10,
+pm_latrich (shape, data, rank = "genus", res=10,
                    colland="#66666680", colsea="#00509010", 
                    colpoints="#65432190", 
-                   rich.col="#65432190", pch=21, do.plot=TRUE, ...)
+                   rich.col="#654321", pch=21, do.plot=TRUE, ...)
 }
 \arguments{
 \item{shape}{SpatialPolygonsDataFrame object containing a map.}
@@ -16,7 +16,7 @@ pm_latrich (shape, data, rank="species", res=10,
 pm_getdata(interval, base_name)}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
-"species", "genus", "family", "order", "class" or "phylum". By default rank="species".}
+"species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".}
 
 \item{res}{numeric. Defining the spatial resolution. Default res=10.}
 
@@ -26,7 +26,7 @@ pm_getdata(interval, base_name)}
 
 \item{colpoints}{define the color of the occurrence-points. By default colpoints="#65432190".}
 
-\item{rich.col}{define the color of the richness curve. By default rich.col="#65432190".}
+\item{rich.col}{define the color of the richness curve. By default rich.col="#654321".}
 
 \item{pch}{point symbol for plotting the occurences. By default pch=21.}
 
@@ -46,6 +46,17 @@ calculates latitudinal diversity of taxa (species, genera, families, orders)
 \dontrun{
 shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
-pm_latrich (shape, data, rank="species", res=10)
+pm_latrich (shape, data, rank = "genus", res=10)
+
+#save as pdf file
+pdf("pm_latrich-GPlates_Quaternary-Canis.pdf")
+pm_latrich (shape, data, rank = "genus", res=10)
+dev.off()
+#save as tiff image
+tiff("pm_latrich-GPlates_Quaternary-Canis.tiff", 
+      height = 9, width = 17.5, units = 'cm', res=300)
+pm_latrich (shape, data, rank = "genus", res=10)
+dev.off()
+
 }
 }

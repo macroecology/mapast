@@ -185,10 +185,10 @@ mycols <- colorRampPalette(c("#F5DEB3",
   shape.name <- shape$NAME[1]
   if(length(grep("Smith", shape.name))!=0){
     model <- "Smith"
-    name <- paste0("fromage ", shape$FROMAGE, "mya")
+    name <- paste0("fromage ", shape$FROMAGE, " mya")
   }else if(length(grep("Golonka", shape.name))!=0){
     model <- "Golonka"
-    name <- paste0("fromage ", shape$FROMAGE, "mya")
+    name <- paste0("fromage ", shape$FROMAGE, " mya")
   }else{
     model <- "GPlates"
     name <- shape.name

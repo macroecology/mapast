@@ -38,5 +38,16 @@ plots your query from the paleobioDB onto the map of the selected time interval
 \dontrun{
 data  <-  pm_getdata (interval="Cretaceous", base_name="Mammalia")
 pm_plot(interval="Cretaceous", model="GPlates", data)
+
+#save as pdf file
+pdf("pm_plot-GPlates_Cretaceous-Mammalia.pdf")
+pm_plot(interval="Cretaceous", model="GPlates", data)
+dev.off()
+#save as tiff image
+tiff("pm_plot-GPlates_Cretaceous-Mammalia.tiff", 
+      height = 10.5, width = 17, units = 'cm', res=300)
+pm_plot(interval="Cretaceous", model="GPlates", data)
+dev.off()
+
 }
 }

@@ -39,10 +39,21 @@ max, min diversity per cell, or number of unique localities per cell
 \dontrun{
 shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
-occ_df <- pm_occ (data, rank="species")
+occ_df <- pm_occ (data, rank = "genus")
 pm_divraster_loc (shape, occ_df, fun=mean)
 pm_divraster_loc (shape, occ_df, fun=max)
 pm_divraster_loc (shape, occ_df, fun=min)
 pm_divraster_loc (shape, occ_df, fun="count")
+
+#save as pdf file
+pdf("pm_divraster_loc-GPlates_Quaternary-Canis.pdf")
+pm_divraster_loc (shape, occ_df, fun=mean)
+dev.off()
+#save as tiff image
+tiff("pm_divraster_loc-GPlates_Quaternary-Canis.tiff", 
+      height = 10.5, width = 19, units = 'cm', res=300)
+pm_divraster_loc (shape, occ_df, fun=mean)
+dev.off()
+
 }
 }

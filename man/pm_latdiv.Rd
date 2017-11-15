@@ -51,5 +51,16 @@ data<- pm_getdata (base_name="Canis", interval="Quaternary")
 occ_df <- pm_occ (data)
 pm_latdiv (shape, occ_df, fun=mean)
 pm_latdiv (shape, occ_df, fun=max)
+
+#save as pdf file
+pdf("pm_latrich-GPlates_Quaternary-Canis.pdf")
+pm_latdiv (shape, occ_df, fun=mean)
+dev.off()
+#save as tiff image
+tiff("pm_latrich-GPlates_Quaternary-Canis.tiff", 
+      height = 9, width = 17.5, units = 'cm', res=300)
+pm_latdiv (shape, occ_df, fun=mean)
+dev.off()
+
 }
 }

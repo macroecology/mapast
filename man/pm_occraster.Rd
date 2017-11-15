@@ -4,7 +4,7 @@
 \alias{pm_occraster}
 \title{pm_occraster}
 \usage{
-pm_occraster(shape, data, rank = "species", res = 10,
+pm_occraster(shape, data, rank = "genus", res = 10,
                     colland = "#66666660", colsea = "#00509010", col.grid=mycols(100), 
                     do.plot=TRUE, ...)
 }
@@ -39,5 +39,16 @@ creates a raster and a plot of the fossil occurences by taxonomic rank per cell
 shape <- pm_getmap(interval="Quaternary", model="GPlates", do.plot = FALSE)
 data <- pm_getdata(base_name="Canis", interval="Quaternary")
 pm_occraster(shape, data)
+
+#save as pdf file
+pdf("pm_occraster-GPlates_Quaternary-Canis.pdf")
+occras <- pm_occraster(shape, data)
+dev.off()
+save as tiff image
+tiff("pm_occraster-GPlates_Quaternary-Canis.tiff", 
+      height = 10.5, width = 19, units = 'cm', res=300)
+pm_occraster(shape, data)
+dev.off()
+
 }
 }

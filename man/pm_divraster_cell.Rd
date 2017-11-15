@@ -36,8 +36,17 @@ whithin the cell)
 \dontrun{
 shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
-occ_df_cell <- pm_occ_cell (data, rank="species")
+occ_df_cell <- pm_occ_cell (data, rank = "genus")
 div_cell <- pm_divraster_cell (shape, occ_df_cell, res=10)
-## cells with diversity values = 0 (e.g., 1 species) are discarded.
+
+#save as pdf file
+pdf("pm_divraster_loc-GPlates_Quaternary-Canis.pdf")
+pm_divraster_cell (shape, occ_df_cell, res=10)
+dev.off()
+#save as tiff image
+tiff("pm_divraster_loc-GPlates_Quaternary-Canis.tiff", 
+      height = 10.5, width = 19, units = 'cm', res=300)
+pm_divraster_cell (shape, occ_df_cell, res=10)
+dev.off()
 }
 }

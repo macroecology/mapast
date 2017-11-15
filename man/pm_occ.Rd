@@ -4,14 +4,14 @@
 \alias{pm_occ}
 \title{pm_occ}
 \usage{
-pm_occ(data, rank = "species")
+pm_occ(data, rank = "genus")
 }
 \arguments{
 \item{data}{data.frame with fossil occurrences. Can be created with 
 pm_getdata(interval, base_name)}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
-"species", "genus", "family", "order", "class" or "phylum". By default rank="species"}
+"species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"}
 }
 \value{
 data frame with number of species, genera, families or orders per locality
@@ -23,6 +23,6 @@ genus, family or order per locality
 \examples{
 \dontrun{
 data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
-result <- pm_occ(data, rank = "species")
+result <- pm_occ(data, rank = "genus")
 }
 }

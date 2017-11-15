@@ -11,7 +11,7 @@ We have developed paleoMap, an R-package designed to make palaeontolgical maps
 available to plot the fossil occurences from paleontological databases onto the maps of the past.
 }
 \details{
-We programmed functions for getting the shape files of the paleo-maps, 
+We programmed functions for getting the shape files of the paleontological maps, 
 functions to get fossil data from the paleobilogy database and plotting this 
 data on the maps.
 
@@ -19,13 +19,16 @@ data on the maps.
 Package: \tab paleoMap\cr
 Type: \tab Package\cr
 Version: \tab 0.1\cr
-Date: \tab 2016-01-01\cr
+Date: \tab 2017-12-12\cr
 License: \tab GPL-2\cr
 }
 }
 \seealso{
 GPlates
 \url{http://www.gplates.org/}
+
+Golonka & Smith Global Paleoshorelines
+\url{https://github.com/chhei/Heine_AJES_15_GlobalPaleoshorelines}
 
 PaleobioDB
 \url{http://paleobiodb.org}

@@ -43,6 +43,16 @@ and makes a plot of the map and raster
 shape<- pm_getmap(interval="Paleocene", model="GPlates")
 data<- pm_getdata(base_name="Testudines", interval="Paleocene")
 richness<- pm_richraster(shape, data, rank="genus")
+
+#save as pdf file
+pdf("pm_richraster-GPlates_Paleocene-Testudines.pdf")
+richness<- pm_richraster(shape, data, rank="genus")
+dev.off()
+#save as tiff image
+tiff("pm_richraster-GPlates_Paleocene-Testudines.tiff", 
+      height = 10.5, width = 19, units = 'cm', res=300)
+richness<- pm_richraster(shape, data, rank="genus")
+dev.off()
 }
 
 }

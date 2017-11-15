@@ -18,11 +18,28 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' #GPlates
 #' pm_getmap(interval="Cretaceous", model="GPlates")
+#' #save map as pdf file
+#' pdf("pm_getmap-GPlates_Cretaceous.pdf")
+#' pm_getmap(interval="Cretaceous", model="GPlates")
+#' dev.off()
+#'#save map as tiff image
+#' tiff("pm_getmap-GPlates_Cretaceous.tiff", 
+#'       height = 10, width = 17, units = 'cm', res=300)
+#' pm_getmap(interval="Cretaceous", model="GPlates")
+#' dev.off()
 #' 
-#' #for checking which maps are available please use
-#' d <- data(package='paleogeoDB')
-#' d$results[, "Item"]
+#' 
+#' #Smith
+#' pm_getmap(interval="112", model="Smith")
+#' 
+#' 
+#' #Golonka
+#' pm_getmap(interval="123", model="Golonka")
+#' 
+#' #for checking which maps are available including a specific age look at ??pm_checkAge
+#' 
 #'}
 
 pm_getmap <- function(interval, model, colland = "#66666660", 
@@ -74,9 +91,9 @@ pm_getmap <- function(interval, model, colland = "#66666660",
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     
     shape.info <- .getShapeInfo(shape)
-    graphics::axis(side = 3, pos=97, lwd = 0, at=165 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
-    graphics::axis(side = 3, pos=90, lwd = 0, at=165 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
-    graphics::axis(side = 3, pos=85, lwd = 0, at=165 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
+    graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
+    graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
+    graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
 
     sp::plot(shape, col = colland, border = FALSE, add = TRUE)
     
@@ -164,6 +181,17 @@ pm_getdata <- function(interval, base_name, limit="all") {
 #' \dontrun{
 #' data  <-  pm_getdata (interval="Cretaceous", base_name="Mammalia")
 #' pm_plot(interval="Cretaceous", model="GPlates", data)
+#' 
+#' #save as pdf file
+#' pdf("pm_plot-GPlates_Cretaceous-Mammalia.pdf")
+#' pm_plot(interval="Cretaceous", model="GPlates", data)
+#' dev.off()
+#' #save as tiff image
+#' tiff("pm_plot-GPlates_Cretaceous-Mammalia.tiff", 
+#'       height = 10.5, width = 17, units = 'cm', res=300)
+#' pm_plot(interval="Cretaceous", model="GPlates", data)
+#' dev.off()
+#' 
 #'}
 
 pm_plot <- function(interval, model, data,
@@ -210,9 +238,9 @@ pm_plot <- function(interval, model, data,
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     
     shape.info <- .getShapeInfo(shape)
-    graphics::axis(side = 3, pos=97, lwd = 0, at=165 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
-    graphics::axis(side = 3, pos=90, lwd = 0, at=165 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
-    graphics::axis(side = 3, pos=85, lwd = 0, at=165 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
+    graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
+    graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
+    graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     
     graphics::points(data$paleolng, 
            data$paleolat, 
@@ -231,7 +259,7 @@ pm_plot <- function(interval, model, data,
 #' creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
 #' (a proxy for the sampling effort)
 #' 
-#' @usage pm_occraster(shape, data, rank = "species", res = 10,
+#' @usage pm_occraster(shape, data, rank = "genus", res = 10,
 #'                     colland = "#66666660", colsea = "#00509010", col.grid=mycols(100), 
 #'                     do.plot=TRUE, ...)
 #' 
@@ -253,10 +281,21 @@ pm_plot <- function(interval, model, data,
 #' shape <- pm_getmap(interval="Quaternary", model="GPlates", do.plot = FALSE)
 #' data <- pm_getdata(base_name="Canis", interval="Quaternary")
 #' pm_occraster(shape, data)
+#' 
+#' #save as pdf file
+#' pdf("pm_occraster-GPlates_Quaternary-Canis.pdf")
+#' occras <- pm_occraster(shape, data)
+#' dev.off()
+#' save as tiff image
+#' tiff("pm_occraster-GPlates_Quaternary-Canis.tiff", 
+#'       height = 10.5, width = 19, units = 'cm', res=300)
+#' pm_occraster(shape, data)
+#' dev.off()
+#' 
 #'}
 
 pm_occraster <- function(shape, data, 
-                         rank = "species", 
+                         rank = "genus", 
                          res = 10, 
                          colland = "#66666660",
                          colsea = "#00509010", col.grid = mycols(100), do.plot=TRUE, ...) {
@@ -318,9 +357,9 @@ pm_occraster <- function(shape, data,
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     
     shape.info <- .getShapeInfo(shape)
-    graphics::axis(side = 3, pos=97, lwd = 0, at=155 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
-    graphics::axis(side = 3, pos=90, lwd = 0, at=155 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
-    graphics::axis(side = 3, pos=85, lwd = 0, at=155 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
+    graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
+    graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
+    graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
@@ -368,6 +407,16 @@ pm_occraster <- function(shape, data,
 #' shape<- pm_getmap(interval="Paleocene", model="GPlates")
 #' data<- pm_getdata(base_name="Testudines", interval="Paleocene")
 #' richness<- pm_richraster(shape, data, rank="genus")
+#' 
+#' #save as pdf file
+#' pdf("pm_richraster-GPlates_Paleocene-Testudines.pdf")
+#' richness<- pm_richraster(shape, data, rank="genus")
+#' dev.off()
+#' #save as tiff image
+#' tiff("pm_richraster-GPlates_Paleocene-Testudines.tiff", 
+#'       height = 10.5, width = 19, units = 'cm', res=300)
+#' richness<- pm_richraster(shape, data, rank="genus")
+#' dev.off()
 #'}
 #'
 
@@ -433,9 +482,9 @@ pm_richraster <- function (shape, data, rank, res = 10,
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     
     shape.info <- .getShapeInfo(shape)
-    graphics::axis(side = 3, pos=97, lwd = 0, at=155 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
-    graphics::axis(side = 3, pos=90, lwd = 0, at=155 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
-    graphics::axis(side = 3, pos=85, lwd = 0, at=155 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
+    graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
+    graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
+    graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
@@ -461,22 +510,22 @@ pm_richraster <- function (shape, data, rank, res = 10,
 #' generates a diversity matrix, with the number occurrences of each species, 
 #' genus, family or order per locality
 #' 
-#' @usage pm_occ(data, rank = "species")
+#' @usage pm_occ(data, rank = "genus")
 #' 
 #' @param data data.frame with fossil occurrences. Can be created with 
 #' pm_getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
-#' "species", "genus", "family", "order", "class" or "phylum". By default rank="species"
+#' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
 #' @return data frame with number of species, genera, families or orders per locality
 #' @export 
 #' @examples 
 #' \dontrun{
 #' data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
-#' result <- pm_occ(data, rank = "species")
+#' result <- pm_occ(data, rank = "genus")
 #'}
 
 
-pm_occ <- function(data, rank = "species") {
+pm_occ <- function(data, rank = "genus") {
   
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -566,24 +615,24 @@ pm_occ <- function(data, rank = "species") {
 #' generates a diversity matrix, with the number occurrences of each species, 
 #' genus, family or order per cell
 #' 
-#' @usage pm_occ_cell(data, rank = "species", res = 10)
+#' @usage pm_occ_cell(data, rank = "genus", res = 10)
 #' 
 #' @param data data.frame with fossil occurrences. Can be created with 
 #' pm_getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
-#' "species", "genus", "family", "order", "class" or "phylum". By default rank="species"
-#' @param res numeric. Defining the spatial resolution. Default res=10. 
+#' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
+#' @param res numeric. Defining the spatial resolution. By default res=10. 
 #' @return data frame with number of species, genera, families or orders per locality
 #' @export 
 #' @examples 
 #' \dontrun{
 #' data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
-#' result <- pm_occ_cell(data, rank = "species", res = 10)
+#' result <- pm_occ_cell(data, rank = "genus", res = 10)
 #'}
 
 
 
-pm_occ_cell <- function(data, rank = "species", res = 10) {
+pm_occ_cell <- function(data, rank = "genus", res = 10) {
   
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -688,11 +737,22 @@ pm_occ_cell <- function(data, rank = "species", res = 10) {
 #' \dontrun{
 #' shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' occ_df <- pm_occ (data, rank="species")
+#' occ_df <- pm_occ (data, rank = "genus")
 #' pm_divraster_loc (shape, occ_df, fun=mean)
 #' pm_divraster_loc (shape, occ_df, fun=max)
 #' pm_divraster_loc (shape, occ_df, fun=min)
 #' pm_divraster_loc (shape, occ_df, fun="count")
+#' 
+#' #save as pdf file
+#' pdf("pm_divraster_loc-GPlates_Quaternary-Canis.pdf")
+#' pm_divraster_loc (shape, occ_df, fun=mean)
+#' dev.off()
+#' #save as tiff image
+#' tiff("pm_divraster_loc-GPlates_Quaternary-Canis.tiff", 
+#'       height = 10.5, width = 19, units = 'cm', res=300)
+#' pm_divraster_loc (shape, occ_df, fun=mean)
+#' dev.off()
+#' 
 #'}
 
 pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
@@ -745,12 +805,8 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
     graphics::par(oma=c(0,0,0,2))
     graphics::par(mar=c(1.5,1.5,2,3))
     #plotting the map and the raster
-    # base::do.call(raster::plot, arglist)
-    
     #adding axes
-    # raster::plot (shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
-    #               , xaxs="i", yaxs="i", add=T)
-    raster::plot (shape, col=colland, border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
+    raster::plot (shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
                   , xaxs="i", yaxs="i", bty='L')
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE,bty='L')
@@ -762,9 +818,9 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     
     shape.info <- .getShapeInfo(shape)
-    graphics::axis(side = 3, pos=97, lwd = 0, at=155 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
-    graphics::axis(side = 3, pos=90, lwd = 0, at=155 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
-    graphics::axis(side = 3, pos=85, lwd = 0, at=155 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
+    graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
+    graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
+    graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     
     raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
@@ -808,9 +864,18 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #' \dontrun{
 #'shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 #'data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#'occ_df_cell <- pm_occ_cell (data, rank="species")
+#'occ_df_cell <- pm_occ_cell (data, rank = "genus")
 #'div_cell <- pm_divraster_cell (shape, occ_df_cell, res=10)
-#' ## cells with diversity values = 0 (e.g., 1 species) are discarded.
+#' 
+#' #save as pdf file
+#' pdf("pm_divraster_loc-GPlates_Quaternary-Canis.pdf")
+#' pm_divraster_cell (shape, occ_df_cell, res=10)
+#' dev.off()
+#' #save as tiff image
+#' tiff("pm_divraster_loc-GPlates_Quaternary-Canis.tiff", 
+#'       height = 10.5, width = 19, units = 'cm', res=300)
+#' pm_divraster_cell (shape, occ_df_cell, res=10)
+#' dev.off()
 #' }
 
 pm_divraster_cell <- function(shape, occ_df_cell, res=10,
@@ -865,7 +930,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
     #plotting the map and the raster
     # base::do.call(raster::plot, arglist)
     #adding axes
-    raster::plot (shape, col=colland, border=FALSE
+    raster::plot (shape, col="white", border=FALSE
                   , xlim=c(-180,180), ylim=c(-90,90)
                   , xlab="Longitude", ylab="Latitude"
                   , xaxs="i", yaxs="i", bty='L')
@@ -879,9 +944,9 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     
     shape.info <- .getShapeInfo(shape)
-    graphics::axis(side = 3, pos=97, lwd = 0, at=155 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
-    graphics::axis(side = 3, pos=90, lwd = 0, at=155 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
-    graphics::axis(side = 3, pos=85, lwd = 0, at=155 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
+    graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
+    graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
+    graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
@@ -905,21 +970,21 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 #' 
 #' calculates latitudinal diversity of taxa (species, genera, families, orders)
 #' 
-#' @usage pm_latrich (shape, data, rank="species", res=10,
+#' @usage pm_latrich (shape, data, rank = "genus", res=10,
 #'                    colland="#66666680", colsea="#00509010", 
 #'                    colpoints="#65432190", 
-#'                    rich.col="#65432190", pch=21, do.plot=TRUE, ...)
+#'                    rich.col="#654321", pch=21, do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param data data.frame with fossil occurrences. Can be created with
 #'  pm_getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
-#' "species", "genus", "family", "order", "class" or "phylum". By default rank="species".
+#' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".
 #' @param res numeric. Defining the spatial resolution. Default res=10. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
 #' @param colsea define the color of the sea. By default colsea = "#00509010".
 #' @param colpoints define the color of the occurrence-points. By default colpoints="#65432190". 
-#' @param rich.col define the color of the richness curve. By default rich.col="#65432190".
+#' @param rich.col define the color of the richness curve. By default rich.col="#654321".
 #' @param pch point symbol for plotting the occurences. By default pch=21.
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, 
@@ -931,15 +996,26 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 #' \dontrun{
 #' shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' pm_latrich (shape, data, rank="species", res=10)
+#' pm_latrich (shape, data, rank = "genus", res=10)
+#' 
+#' #save as pdf file
+#' pdf("pm_latrich-GPlates_Quaternary-Canis.pdf")
+#' pm_latrich (shape, data, rank = "genus", res=10)
+#' dev.off()
+#' #save as tiff image
+#' tiff("pm_latrich-GPlates_Quaternary-Canis.tiff", 
+#'       height = 9, width = 17.5, units = 'cm', res=300)
+#' pm_latrich (shape, data, rank = "genus", res=10)
+#' dev.off()
+#' 
 #'}
 
 
-pm_latrich <- function(shape, data, rank="species",
+pm_latrich <- function(shape, data, rank = "genus",
                        res=10, 
                        colland="#66666680", colsea="#00509010", 
                        colpoints="#65432190",
-                       rich.col="#65432190", pch=21, do.plot=TRUE, ...) {
+                       rich.col="#654321", pch=21, do.plot=TRUE, ...) {
   
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -1069,6 +1145,17 @@ pm_latrich <- function(shape, data, rank="species",
 #' occ_df <- pm_occ (data)
 #' pm_latdiv (shape, occ_df, fun=mean)
 #' pm_latdiv (shape, occ_df, fun=max)
+#' 
+#' #save as pdf file
+#' pdf("pm_latrich-GPlates_Quaternary-Canis.pdf")
+#' pm_latdiv (shape, occ_df, fun=mean)
+#' dev.off()
+#' #save as tiff image
+#' tiff("pm_latrich-GPlates_Quaternary-Canis.tiff", 
+#'       height = 9, width = 17.5, units = 'cm', res=300)
+#' pm_latdiv (shape, occ_df, fun=mean)
+#' dev.off()
+#' 
 #'}
 
 pm_latdiv <- function(shape, occ_df, res=10, 
@@ -1190,7 +1277,8 @@ pm_latdiv <- function(shape, occ_df, res=10,
 #'}
 
 pm_checkAge <- function(age){
-  assign("df_maps", load("df_maps.rda"))
+  df_maps <- NULL
+  utils::data(df_maps,envir = base::environment())
   
   maps <- df_maps[as.numeric(df_maps$fromage) >= as.numeric(age),]
   maps <- maps[as.numeric(maps$toage) <= as.numeric(age),]

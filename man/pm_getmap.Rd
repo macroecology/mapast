@@ -29,10 +29,27 @@ time interval (e.g. "Cretaceous") and a plot
 }
 \examples{
 \dontrun{
+#GPlates
 pm_getmap(interval="Cretaceous", model="GPlates")
+#save map as pdf file
+pdf("pm_getmap-GPlates_Cretaceous.pdf")
+pm_getmap(interval="Cretaceous", model="GPlates")
+dev.off()
+#save map as tiff image
+tiff("pm_getmap-GPlates_Cretaceous.tiff", 
+      height = 10, width = 17, units = 'cm', res=300)
+pm_getmap(interval="Cretaceous", model="GPlates")
+dev.off()
 
-#for checking which maps are available please use
-d <- data(package='paleogeoDB')
-d$results[, "Item"]
+
+#Smith
+pm_getmap(interval="112", model="Smith")
+
+
+#Golonka
+pm_getmap(interval="123", model="Golonka")
+
+#for checking which maps are available including a specific age look at ??pm_checkAge
+
 }
 }
