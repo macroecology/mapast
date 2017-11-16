@@ -21,14 +21,15 @@ pm_getmap(interval, model, colland = "#66666660"
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
-a SpatialPolygonsDataFrame and a plot (if do.plot=TRUE)
+Returns a SpatialPolygonsDataFrame and creates a plot (if do.plot=TRUE).
 }
 \description{
-generates a shapefile with the paleomap of the chosen 
-time interval (e.g. "Cretaceous") and a plot
+Generates a shapefile with the paleomap of the chosen 
+time interval (e.g. "Cretaceous") and a plot.
 }
 \examples{
 \dontrun{
+
 #GPlates
 pm_getmap(interval="Cretaceous", model="GPlates")
 #save map as pdf file

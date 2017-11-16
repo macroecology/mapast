@@ -36,14 +36,15 @@ pm_getdata(interval, base_name)}
 such as main="my own title", main.col="red".}
 }
 \value{
-data frame with richness of rank and a plot of the continental masses 
-with the occurrences and the latitudinal richness
+Returns adata frame with richness of rank and a plot of the continental masses 
+with the occurrences and the latitudinal richness.
 }
 \description{
-calculates latitudinal diversity of taxa (species, genera, families, orders)
+Calculates latitudinal diversity of taxa (species, genera, families, orders).
 }
 \examples{
 \dontrun{
+
 shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 pm_latrich (shape, data, rank = "genus", res=10)

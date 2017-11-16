@@ -28,14 +28,15 @@ pm_plot(interval, model, data, colland = "#66666660",
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
-a plot with the configuration of the continents at the selected 
-time interval and the fossil occurrences
+Creates a plot with the configuration of the continents at the selected 
+time interval and the fossil occurrences.
 }
 \description{
-plots your query from the paleobioDB onto the map of the selected time interval
+Plots your query from the paleobioDB onto the map of the selected time interval.
 }
 \examples{
 \dontrun{
+
 data  <-  pm_getdata (interval="Cretaceous", base_name="Mammalia")
 pm_plot(interval="Cretaceous", model="GPlates", data)
 

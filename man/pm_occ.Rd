@@ -14,15 +14,18 @@ pm_getdata(interval, base_name)}
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"}
 }
 \value{
-data frame with number of species, genera, families or orders per locality
+Returns a data frame with number of species, genera, families or orders 
+per locality.
 }
 \description{
-generates a diversity matrix, with the number occurrences of each species, 
-genus, family or order per locality
+Generates a diversity matrix, with the number occurrences of each species, 
+genus, family or order per locality.
 }
 \examples{
 \dontrun{
+
 data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
 result <- pm_occ(data, rank = "genus")
+
 }
 }

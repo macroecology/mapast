@@ -16,15 +16,18 @@ pm_getdata(interval, base_name)}
 \item{res}{numeric. Defining the spatial resolution. By default res=10.}
 }
 \value{
-data frame with number of species, genera, families or orders per locality
+Returns a data frame with number of species, genera, families or orders 
+per cell.
 }
 \description{
-generates a diversity matrix, with the number occurrences of each species, 
-genus, family or order per cell
+Generates a diversity matrix, with the number occurrences of each species, 
+genus, family or order per cell.
 }
 \examples{
 \dontrun{
+
 data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
 result <- pm_occ_cell(data, rank = "genus", res = 10)
+
 }
 }

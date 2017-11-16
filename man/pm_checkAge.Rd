@@ -4,19 +4,24 @@
 \alias{pm_checkAge}
 \title{pm_checkAge}
 \usage{
-pm_checkAge(age)
+pm_checkAge(age="all")
 }
 \arguments{
-\item{age}{character. defining the age of interest.}
+\item{age}{character. defining the age of interest. By default age="all", which gives complete list.}
 }
 \value{
-a data.frame which maps are available
+Returns a data.frame which maps are available
 }
 \description{
-creates a data frame with all maps that contain the age requested
+Creates a data frame with all maps that contain the age requested.
 }
 \examples{
 \dontrun{
+
 pm_checkAge(age="112")
+
+#get complete list with all available maps
+pm_checkAge()
+
 }
 }

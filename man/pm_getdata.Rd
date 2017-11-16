@@ -14,13 +14,15 @@ pm_getdata(interval, base_name, limit="all")
 \item{limit}{integer. Defining the max. number of occurrences to be downloaded from paleobioDB. By default limit="all"}
 }
 \value{
-a data frame with fossil occurrences
+Returns a data frame with fossil occurrences
 }
 \description{
-uses paleobioDB R package to get data from the Paleobiology Database
+Uses the paleobioDB R package to extract data used in for other functions of this package
+from the Paleobiology Database.
 }
 \examples{
 \dontrun{
+
 pm_getdata(interval="Quaternary",base_name="Canis")
 
 #if you want to use FROMAGE and TOAGE to define the interval you can use the paleobioDB package
@@ -28,5 +30,6 @@ myocc <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="mammalia",
                     min_ma=0, max_ma=2.58, 
                     show=c("paleoloc", "phylo"), 
                     vocab="pbdb", limit=100))
+                    
 }
 }

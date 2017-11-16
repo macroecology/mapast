@@ -2,8 +2,8 @@
 
 #' pm_getmap
 #' 
-#' generates a shapefile with the paleomap of the chosen 
-#' time interval (e.g. "Cretaceous") and a plot
+#' Generates a shapefile with the paleomap of the chosen 
+#' time interval (e.g. "Cretaceous") and a plot.
 #' 
 #' @usage pm_getmap(interval, model, colland = "#66666660"
 #'                           , colsea = "#00509010", do.plot = TRUE, ...)
@@ -14,10 +14,11 @@
 #' @param colsea define the color of the sea. By default colsea = "#00509010"
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
-#' @return a SpatialPolygonsDataFrame and a plot (if do.plot=TRUE)
+#' @return Returns a SpatialPolygonsDataFrame and creates a plot (if do.plot=TRUE).
 #' @export
 #' @examples
 #' \dontrun{
+#' 
 #' #GPlates
 #' pm_getmap(interval="Cretaceous", model="GPlates")
 #' #save map as pdf file
@@ -112,17 +113,19 @@ pm_getmap <- function(interval, model, colland = "#66666660",
 
 #' pm_getdata
 #' 
-#' uses paleobioDB R package to get data from the Paleobiology Database
+#' Uses the paleobioDB R package to extract data used in for other functions of this package
+#' from the Paleobiology Database.
 #'  
 #' @usage pm_getdata(interval, base_name, limit="all")
 #' 
 #' @param interval character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
 #' @param base_name character. The name of the taxon of interest. (e.g. "Canis" or "reptilia")
 #' @param limit integer. Defining the max. number of occurrences to be downloaded from paleobioDB. By default limit="all"
-#' @return a data frame with fossil occurrences
+#' @return Returns a data frame with fossil occurrences
 #' @export 
 #' @examples 
 #' \dontrun{
+#' 
 #' pm_getdata(interval="Quaternary",base_name="Canis")
 #' 
 #' #if you want to use FROMAGE and TOAGE to define the interval you can use the paleobioDB package
@@ -130,6 +133,7 @@ pm_getmap <- function(interval, model, colland = "#66666660",
 #'                     min_ma=0, max_ma=2.58, 
 #'                     show=c("paleoloc", "phylo"), 
 #'                     vocab="pbdb", limit=100))
+#'                     
 #'}
 
 
@@ -143,6 +147,8 @@ pm_getdata <- function(interval, base_name, limit="all") {
                         , silent=TRUE)
   if (base::nrow(occ) != 0) {
     data <- .checkPbdb(occ)
+    data <- data[!is.na(data$paleolat),]
+    data <- data[!is.na(data$paleolng),]
     #return data frame
     return(data)
   } else { #catching error when there are no occurences for the request
@@ -158,7 +164,7 @@ pm_getdata <- function(interval, base_name, limit="all") {
 
 #' pm_plot
 #' 
-#' plots your query from the paleobioDB onto the map of the selected time interval
+#' Plots your query from the paleobioDB onto the map of the selected time interval.
 #' 
 #' 
 #' @usage pm_plot(interval, model, data, colland = "#66666660",
@@ -174,11 +180,12 @@ pm_getdata <- function(interval, base_name, limit="all") {
 #' @param pch point symbol for plotting the occurences. By default pch=16 (filled circle).
 #' @param cex numeric. size of the points. By default cex=1.
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
-#' @return a plot with the configuration of the continents at the selected 
-#' time interval and the fossil occurrences
+#' @return Creates a plot with the configuration of the continents at the selected 
+#' time interval and the fossil occurrences.
 #' @export 
 #' @examples 
 #' \dontrun{
+#' 
 #' data  <-  pm_getdata (interval="Cretaceous", base_name="Mammalia")
 #' pm_plot(interval="Cretaceous", model="GPlates", data)
 #' 
@@ -256,8 +263,8 @@ pm_plot <- function(interval, model, data,
 
 #' pm_occraster
 #' 
-#' creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
-#' (a proxy for the sampling effort)
+#' Creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
+#' (a proxy for the sampling effort).
 #' 
 #' @usage pm_occraster(shape, data, rank = "genus", res = 10,
 #'                     colland = "#66666660", colsea = "#00509010", col.grid=mycols(100), 
@@ -275,9 +282,11 @@ pm_plot <- function(interval, model, data,
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
 #' plot, such as main="my own title", main.col="red".
+#' @return Returns a RasterLayer with the number of occurrences.
 #' @export 
 #' @examples 
 #' \dontrun{
+#' 
 #' shape <- pm_getmap(interval="Quaternary", model="GPlates", do.plot = FALSE)
 #' data <- pm_getdata(base_name="Canis", interval="Quaternary")
 #' pm_occraster(shape, data)
@@ -381,7 +390,7 @@ pm_occraster <- function(shape, data,
 #' pm_richraster
 #' 
 #' Creates a raster of species richness
-#' and makes a plot of the map and raster
+#' and makes a plot of the map and raster.
 #' 
 #' @usage pm_richraster(shape, data, rank, res = 10, 
 #'                      colland = "#66666660", colsea = "#00509010", col.grid= mycols(100), 
@@ -399,11 +408,12 @@ pm_occraster <- function(shape, data,
 #' @param col.grid define the color of the raster.
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
 #' plot, such as main="my own title", main.col="red".
-#' @return plot with map of the time intervall, the fossil occurences and the 
-#' raster file. And the raster file itself
+#' @return Creates a plot with map of the time intervall, the fossil occurences and the 
+#' RasterLayer. And returns the RasterLayer itself
 #' @export 
 #' @examples 
 #' \dontrun{
+#' 
 #' shape<- pm_getmap(interval="Paleocene", model="GPlates")
 #' data<- pm_getdata(base_name="Testudines", interval="Paleocene")
 #' richness<- pm_richraster(shape, data, rank="genus")
@@ -417,6 +427,7 @@ pm_occraster <- function(shape, data,
 #'       height = 10.5, width = 19, units = 'cm', res=300)
 #' richness<- pm_richraster(shape, data, rank="genus")
 #' dev.off()
+#' 
 #'}
 #'
 
@@ -507,8 +518,8 @@ pm_richraster <- function (shape, data, rank, res = 10,
 ########pm_occ###################
 #' pm_occ
 #' 
-#' generates a diversity matrix, with the number occurrences of each species, 
-#' genus, family or order per locality
+#' Generates a diversity matrix, with the number occurrences of each species, 
+#' genus, family or order per locality.
 #' 
 #' @usage pm_occ(data, rank = "genus")
 #' 
@@ -516,12 +527,15 @@ pm_richraster <- function (shape, data, rank, res = 10,
 #' pm_getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
-#' @return data frame with number of species, genera, families or orders per locality
+#' @return Returns a data frame with number of species, genera, families or orders 
+#' per locality.
 #' @export 
 #' @examples 
 #' \dontrun{
+#' 
 #' data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
 #' result <- pm_occ(data, rank = "genus")
+#' 
 #'}
 
 
@@ -612,8 +626,8 @@ pm_occ <- function(data, rank = "genus") {
 ########pm_occ_cell###################
 #' pm_occ_cell
 #' 
-#' generates a diversity matrix, with the number occurrences of each species, 
-#' genus, family or order per cell
+#' Generates a diversity matrix, with the number occurrences of each species, 
+#' genus, family or order per cell.
 #' 
 #' @usage pm_occ_cell(data, rank = "genus", res = 10)
 #' 
@@ -622,12 +636,15 @@ pm_occ <- function(data, rank = "genus") {
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
 #' @param res numeric. Defining the spatial resolution. By default res=10. 
-#' @return data frame with number of species, genera, families or orders per locality
+#' @return Returns a data frame with number of species, genera, families or orders 
+#' per cell.
 #' @export 
 #' @examples 
 #' \dontrun{
+#' 
 #' data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
 #' result <- pm_occ_cell(data, rank = "genus", res = 10)
+#' 
 #'}
 
 
@@ -713,9 +730,9 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
 
 #' pm_divraster_loc
 #' 
-#' calculates the Shannon diversity per unique locality (based on 
-#' its coordinates), makes a raster file and a plot showing mean, 
-#' max, min diversity per cell, or number of unique localities per cell
+#' Calculates the Shannon diversity per unique locality (based on 
+#' its coordinates), makes a RasterLayer and a plot showing mean, 
+#' max, min diversity per cell, or number of unique localities per cell.
 #' 
 #' @usage pm_divraster_loc  (shape, occ_df, res=10, fun=mean, colland = "#66666660"
 #'                           , colsea = "#00509010", do.plot=TRUE, ...)
@@ -730,11 +747,12 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
 #' plot, such as main="my own title", main.col="red".
-#' @return plot with map of the time intervall, the fossil occurences and the 
-#' raster file. And the raster file itself
+#' @return Creates a plot with map of the time intervall, the fossil occurences and the 
+#' RasterLayer. And returns the RasterLayer itself.
 #' @export 
 #' @examples 
 #' \dontrun{
+#' 
 #' shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' occ_df <- pm_occ (data, rank = "genus")
@@ -842,9 +860,9 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 
 #' pm_divraster_cell
 #' 
-#' calculates the Shannon diversity per cell 
+#' Calculates the Shannon diversity per cell 
 #' (taking into account relative abundances of all the fossil records 
-#' whithin the cell)
+#' whithin the cell).
 #' 
 #' @usage pm_divraster_cell  (shape, occ_df_cell, res=10,
 #'                            colland="#66666660", colsea="#00509010", do.plot=TRUE, ...)
@@ -857,11 +875,12 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
 #' plot, such as main="my own title", main.col="red".
-#' @return plot with map of the time intervall, the fossil occurences and the 
-#' raster file. And the raster file itself
+#' @return Creates a plot with map of the time intervall, the fossil occurences and the 
+#' RasterLayer. And returns the RasterLayer itself.
 #' @export 
 #' @examples 
 #' \dontrun{
+#' 
 #'shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 #'data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #'occ_df_cell <- pm_occ_cell (data, rank = "genus")
@@ -876,6 +895,7 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #'       height = 10.5, width = 19, units = 'cm', res=300)
 #' pm_divraster_cell (shape, occ_df_cell, res=10)
 #' dev.off()
+#' 
 #' }
 
 pm_divraster_cell <- function(shape, occ_df_cell, res=10,
@@ -968,7 +988,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 ###################################pm_latrich###################
 #' pm_latrich
 #' 
-#' calculates latitudinal diversity of taxa (species, genera, families, orders)
+#' Calculates latitudinal diversity of taxa (species, genera, families, orders).
 #' 
 #' @usage pm_latrich (shape, data, rank = "genus", res=10,
 #'                    colland="#66666680", colsea="#00509010", 
@@ -989,11 +1009,12 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, 
 #' such as main="my own title", main.col="red".
-#' @return data frame with richness of rank and a plot of the continental masses 
-#' with the occurrences and the latitudinal richness
+#' @return Returns adata frame with richness of rank and a plot of the continental masses 
+#' with the occurrences and the latitudinal richness.
 #' @export 
 #' @examples 
 #' \dontrun{
+#' 
 #' shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' pm_latrich (shape, data, rank = "genus", res=10)
@@ -1111,7 +1132,7 @@ pm_latrich <- function(shape, data, rank = "genus",
 ###################################pm_latdiv###################
 #' pm_latdiv
 #' 
-#' calculates the Shannon diversity along the latitudinal gradient based on 
+#' Calculates the Shannon diversity along the latitudinal gradient based on 
 #' the individual values of diverstiy the fossil localities of those latitudes.
 #' The function returns the mean or max values of diversity of the sampled 
 #' localities along the latitudinal gradient.
@@ -1133,13 +1154,14 @@ pm_latrich <- function(shape, data, rank = "genus",
 #' @param pch point symbol for plotting the occurences. By default pch=21.
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
-#' @return data frame with shannon diversity,
+#' @return Returns adata frame with shannon diversity,
 #' a plot of the corresponding time map with the occurrences and their
 #' latitudinal diversity
 #' 
 #' @export 
 #' @examples 
 #' \dontrun{
+#' 
 #' shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 #' data<- pm_getdata (base_name="Canis", interval="Quaternary")
 #' occ_df <- pm_occ (data)
@@ -1264,24 +1286,34 @@ pm_latdiv <- function(shape, occ_df, res=10,
 ###########################pm_checkAge#############################
 #' pm_checkAge
 #' 
-#' creates a data frame with all maps that contain the age requested
+#' Creates a data frame with all maps that contain the age requested.
 #' 
-#' @usage pm_checkAge(age)
+#' @usage pm_checkAge(age="all")
 #' 
-#' @param age character. defining the age of interest.
-#' @return a data.frame which maps are available
+#' @param age character. defining the age of interest. By default age="all", which gives complete list.
+#' @return Returns a data.frame which maps are available
 #' @export
 #' @examples
 #' \dontrun{
+#' 
 #' pm_checkAge(age="112")
+#' 
+#' #get complete list with all available maps
+#' pm_checkAge()
+#' 
 #'}
 
-pm_checkAge <- function(age){
+pm_checkAge <- function(age="all"){
   df_maps <- NULL
   utils::data(df_maps,envir = base::environment())
   
-  maps <- df_maps[as.numeric(df_maps$fromage) >= as.numeric(age),]
-  maps <- maps[as.numeric(maps$toage) <= as.numeric(age),]
+  if(age!="all"){
+    maps <- df_maps[as.numeric(df_maps$fromage) >= as.numeric(age),]
+    maps <- maps[as.numeric(maps$toage) <= as.numeric(age),]
+    
+  }else{
+    maps <- df_maps
+  }
   
   maps
 }

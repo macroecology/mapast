@@ -30,12 +30,16 @@ pm_getdata(interval, base_name)}
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to
 plot, such as main="my own title", main.col="red".}
 }
+\value{
+Returns a RasterLayer with the number of occurrences.
+}
 \description{
-creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
-(a proxy for the sampling effort)
+Creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
+(a proxy for the sampling effort).
 }
 \examples{
 \dontrun{
+
 shape <- pm_getmap(interval="Quaternary", model="GPlates", do.plot = FALSE)
 data <- pm_getdata(base_name="Canis", interval="Quaternary")
 pm_occraster(shape, data)

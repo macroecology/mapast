@@ -24,16 +24,17 @@ pm_divraster_cell  (shape, occ_df_cell, res=10,
 plot, such as main="my own title", main.col="red".}
 }
 \value{
-plot with map of the time intervall, the fossil occurences and the 
-raster file. And the raster file itself
+Creates a plot with map of the time intervall, the fossil occurences and the 
+RasterLayer. And returns the RasterLayer itself.
 }
 \description{
-calculates the Shannon diversity per cell 
+Calculates the Shannon diversity per cell 
 (taking into account relative abundances of all the fossil records 
-whithin the cell)
+whithin the cell).
 }
 \examples{
 \dontrun{
+
 shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 occ_df_cell <- pm_occ_cell (data, rank = "genus")
@@ -48,5 +49,6 @@ tiff("pm_divraster_loc-GPlates_Quaternary-Canis.tiff",
       height = 10.5, width = 19, units = 'cm', res=300)
 pm_divraster_cell (shape, occ_df_cell, res=10)
 dev.off()
+
 }
 }

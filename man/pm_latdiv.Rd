@@ -34,18 +34,19 @@ You can use functions such as min, max, or mean, or the character value: 'count'
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
-data frame with shannon diversity,
+Returns adata frame with shannon diversity,
 a plot of the corresponding time map with the occurrences and their
 latitudinal diversity
 }
 \description{
-calculates the Shannon diversity along the latitudinal gradient based on 
+Calculates the Shannon diversity along the latitudinal gradient based on 
 the individual values of diverstiy the fossil localities of those latitudes.
 The function returns the mean or max values of diversity of the sampled 
 localities along the latitudinal gradient.
 }
 \examples{
 \dontrun{
+
 shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 occ_df <- pm_occ (data)

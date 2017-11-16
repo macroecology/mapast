@@ -27,16 +27,17 @@ You can use functions such as min, max, or mean, or the character value: 'count'
 plot, such as main="my own title", main.col="red".}
 }
 \value{
-plot with map of the time intervall, the fossil occurences and the 
-raster file. And the raster file itself
+Creates a plot with map of the time intervall, the fossil occurences and the 
+RasterLayer. And returns the RasterLayer itself.
 }
 \description{
-calculates the Shannon diversity per unique locality (based on 
-its coordinates), makes a raster file and a plot showing mean, 
-max, min diversity per cell, or number of unique localities per cell
+Calculates the Shannon diversity per unique locality (based on 
+its coordinates), makes a RasterLayer and a plot showing mean, 
+max, min diversity per cell, or number of unique localities per cell.
 }
 \examples{
 \dontrun{
+
 shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- pm_getdata (base_name="Canis", interval="Quaternary")
 occ_df <- pm_occ (data, rank = "genus")
