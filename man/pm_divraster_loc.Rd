@@ -5,7 +5,7 @@
 \title{pm_divraster_loc}
 \usage{
 pm_divraster_loc  (shape, occ_df, res=10, fun=mean, colland = "#66666660"
-                          , colsea = "#00509010", do.plot=TRUE, ...)
+                          , colsea = "#00509010", col.grid=mycols(100), do.plot=TRUE, ...)
 }
 \arguments{
 \item{shape}{SpatialPolygonsDataFrame object containing a map.}
@@ -20,6 +20,8 @@ You can use functions such as min, max, or mean, or the character value: 'count'
 \item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
 \item{colsea}{define the color of the sea. By default colsea = "#00509010".}
+
+\item{col.grid}{define the color of the raster.}
 
 \item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
 

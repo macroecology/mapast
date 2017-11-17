@@ -47,19 +47,27 @@ pm_getmap <- function(interval, model, colland = "#66666660",
                       colsea = "#00509010", 
                       do.plot = TRUE, ...) {
   
-  #get shape file from external database
-  if(model=="GPlates"){
-    
-    shape <- utils::data(list=base::paste(model,interval, sep="_"), package="paleogeoDB"
-                         ,envir = base::environment())
-    base::assign("shape",base::get(interval))
-    
+  #check if requested map is available
+  b <- .mapAvailable(interval, model)
+
+  if(b){
+    #get shape file from external database
+    if(model=="GPlates"){
+      shape <- utils::data(list=base::paste(model,interval, sep="_"), package="paleogeoDB"
+                           ,envir = base::environment())
+      base::assign("shape",base::get(interval))
+      
+    }else{
+      shape <- utils::data(list=base::paste(model,interval, sep="_"), package="paleogeoDB"
+                           ,envir = base::environment())
+      base::assign("shape",base::get(base::paste(model,interval, sep="_")))
+    }
   }else{
-    
-    shape <- utils::data(list=base::paste(model,interval, sep="_"), package="paleogeoDB"
-                         ,envir = base::environment())
-    base::assign("shape",base::get(base::paste(model,interval, sep="_")))
+    stop(paste0("No map available for interval=\"",interval,"\", model=\"",
+                model,"\". Please use pm_checkAge() to see which maps are available."))
   }
+  
+  
   
   #getting final parameter list for plot
   int_args <- base::list(x=shape, col = "white", border = FALSE
@@ -77,8 +85,8 @@ pm_getmap <- function(interval, model, colland = "#66666660",
   # if user does not set plot=FALSE plot the shape file
   if (do.plot) {
     def.mar <- graphics::par("mar")
-    def.oma <- graphics::par("oma")
-    graphics::par(oma=c(0,0,0,0))
+    # def.oma <- graphics::par("oma")
+    # graphics::par(oma=c(0,0,0,0))
     graphics::par(mar=c(2,2,2,2))
     base::do.call(sp::plot, arglist)
     graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
@@ -99,7 +107,7 @@ pm_getmap <- function(interval, model, colland = "#66666660",
     sp::plot(shape, col = colland, border = FALSE, add = TRUE)
     
     graphics::par(mar=def.mar)
-    graphics::par(oma=def.oma)
+    # graphics::par(oma=def.oma)
     
   }
 
@@ -211,7 +219,9 @@ pm_plot <- function(interval, model, data,
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
-
+  
+  #getting the shape file for the map and the data for plotting it on the map
+  shape <- paleoMap::pm_getmap(interval = interval, model = model, do.plot = FALSE)
   int_args <- base::list(x=shape, col = "white", border = FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i")
@@ -222,14 +232,12 @@ pm_plot <- function(interval, model, data,
     if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
   }
   arglist <- c(int_args, params)
-  
-  #getting the shape file for the map and the data for plotting it on the map
-  shape <- paleoMap::pm_getmap(interval = interval, model = model, do.plot = FALSE)
+
   #plotting the map and the data
   if (base::class(data) == "data.frame") {
     def.mar <- graphics::par("mar")
-    def.oma <- graphics::par("oma")
-    graphics::par(oma=c(0,0,0,0))
+    # def.oma <- graphics::par("oma")
+    # graphics::par(oma=c(0,0,0,0))
     graphics::par(mar=c(1.5,1.5,2,1.5))
     #defines size and axes of the plot
     base::do.call(sp::plot, arglist)
@@ -255,7 +263,7 @@ pm_plot <- function(interval, model, data,
            cex = cex)
     
     graphics::par(mar=def.mar)
-    graphics::par(oma=def.oma)
+    # graphics::par(oma=def.oma)
   }
 }
 
@@ -333,9 +341,9 @@ pm_occraster <- function(shape, data,
   ras <- raster::raster(shape, res = res)
   #raster of the occurences (sampling effort)
   r <- raster::rasterize(fdata[, c("paleolng","paleolat")], ras , fun = "count")
-  int_args <- base::list(x=r, axes=F, box=F, col="white", col.grid=col.grid, legend=FALSE
+  int_args <- base::list(x=shape, col = "white", border = FALSE, col.grid=col.grid
                          , xlim=c(-180,180), ylim=c(-90,90)
-                         , xaxs="i", yaxs="i", bty='L')
+                         , xaxs="i", yaxs="i")
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
@@ -344,20 +352,20 @@ pm_occraster <- function(shape, data,
   }
   arglist <- c(int_args, params)
   mycol <- arglist$col.grid
-  arglist$col <- arglist$col.grid
   arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
   if(do.plot){
     def.mar <- graphics::par("mar")
-    def.oma <- graphics::par("oma")
-    graphics::par(oma=c(0,0,0,2))
-    graphics::par(mar=c(1.5,1.5,2,3))
+    # def.oma <- graphics::par("oma")
+    # graphics::par(oma=c(0,0,0,2))
+    graphics::par(mar=c(1.5,1.5,2,4))
+    base::do.call(raster::plot, arglist)
     #plotting the map and the raster on the map
-    raster::plot (shape, col="white", border=FALSE
-                  , xlim=c(-180,180), ylim=c(-90,90)
-                  , xaxs="i", yaxs="i", bty='L')
+    # raster::plot (shape, col="white", border=FALSE
+    #               , xlim=c(-180,180), ylim=c(-90,90)
+    #               , xaxs="i", yaxs="i", bty='L')
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE)
-    raster::plot (shape, col=colland, border=FALSE, add=T, bty='L')
+    raster::plot (shape, col=colland, border=FALSE, add=T)
     
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
@@ -373,12 +381,12 @@ pm_occraster <- function(shape, data,
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='occurrences', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='occurrences', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
     graphics::par(bty= "o")
     
     graphics::par(mar=def.mar)
-    graphics::par(oma=def.oma)
+    # graphics::par(oma=def.oma)
   }
  
   #returning the raster
@@ -458,9 +466,9 @@ pm_richraster <- function (shape, data, rank, res = 10,
   r <- .rank_filter(ras, data, res = res, rank)
   
   mycol <- mycols(100)
-  int_args <- base::list(x=r, axes=F, box=F, col="white", col.grid=col.grid, legend=TRUE
-                         , xlim=c(-180,180), ylim=c(-90,90)
-                         , xaxs="i", yaxs="i", bty='L')
+  int_args <- base::list(x=shape, col="white", border=FALSE, col.grid=col.grid
+                                       , xlim=c(-180,180), ylim=c(-90,90)
+                                       , xaxs="i", yaxs="i")
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
@@ -469,19 +477,18 @@ pm_richraster <- function (shape, data, rank, res = 10,
   }
   arglist <- c(int_args, params)
   mycol <- arglist$col.grid
-  arglist$col <- arglist$col.grid
   arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
   if(do.plot){
     def.mar <- graphics::par("mar")
-    def.oma <- graphics::par("oma")
-    graphics::par(oma=c(0,0,0,2))
-    graphics::par(mar=c(1.5,1.5,2,3))
+    # def.oma <- graphics::par("oma")
+    # graphics::par(oma=c(0,0,0,2))
+    graphics::par(mar=c(1.5,1.5,2,4))
     #plotting the map and the raster
-    # base::do.call(raster::plot, arglist)
+    base::do.call(raster::plot, arglist)
     #adding axes
-    raster::plot (shape, col="white", border=FALSE
-                  , xlim=c(-180,180), ylim=c(-90,90)
-                  , xaxs="i", yaxs="i", bty='L')
+    # raster::plot (shape, col="white", border=FALSE
+    #               , xlim=c(-180,180), ylim=c(-90,90)
+    #               , xaxs="i", yaxs="i", bty='L')
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE)
     raster::plot (shape, col=colland, border=FALSE, add=T, bty='L')
@@ -500,12 +507,12 @@ pm_richraster <- function (shape, data, rank, res = 10,
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='richness', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='richness', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
     graphics::par(bty= "o")
     
     graphics::par(mar=def.mar)
-    graphics::par(oma=def.oma)
+    # graphics::par(oma=def.oma)
   }
   
   #return the raster
@@ -735,7 +742,7 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
 #' max, min diversity per cell, or number of unique localities per cell.
 #' 
 #' @usage pm_divraster_loc  (shape, occ_df, res=10, fun=mean, colland = "#66666660"
-#'                           , colsea = "#00509010", do.plot=TRUE, ...)
+#'                           , colsea = "#00509010", col.grid=mycols(100), do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param occ_df data.frame with fossil occurrences. Can be created with pm_occ(data).
@@ -744,6 +751,7 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
 #' You can use functions such as min, max, or mean, or the character value: 'count'. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
 #' @param colsea define the color of the sea. By default colsea = "#00509010".
+#' @param col.grid define the color of the raster.
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
 #' plot, such as main="my own title", main.col="red".
@@ -774,7 +782,7 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
 #'}
 
 pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
-                             colland="#66666660", colsea="#00509010", do.plot=TRUE, ...) {
+                             colland="#66666660", colsea="#00509010", col.grid=mycols(100), do.plot=TRUE, ...) {
   
   if(!.checkLatLng(occ_df)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -803,9 +811,8 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
   r[r==0]<- NA
  
   mycol <- mycols(100)
-  int_args <- base::list(x=r, axes=F, box=F, col=mycols(100), col.grid=mycol, legend=TRUE, xlim=c(-180,180), ylim=c(-90,90)
-                         , xlab="Longitude", ylab="Latitude"
-                         , xaxs="i", yaxs="i", legend.args=list(text='diversity', side=3, line=1, adj=0.25, cex=0.8, col="darkgrey"), bty='L')
+  int_args <- base::list(x=shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
+                         , xaxs="i", yaxs="i", col.grid=col.grid)
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
@@ -814,18 +821,18 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
   }
   arglist <- c(int_args, params)
   mycol <- arglist$col.grid
-  arglist$col <- arglist$col.grid
   arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
   
   if(do.plot){
     def.mar <- graphics::par("mar")
-    def.oma <- graphics::par("oma")
-    graphics::par(oma=c(0,0,0,2))
-    graphics::par(mar=c(1.5,1.5,2,3))
+    # def.oma <- graphics::par("oma")
+    # graphics::par(oma=c(0,0,0,2))
+    graphics::par(mar=c(1.5,1.5,2,4))
     #plotting the map and the raster
+    base::do.call(raster::plot, arglist)
     #adding axes
-    raster::plot (shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
-                  , xaxs="i", yaxs="i", bty='L')
+    # raster::plot (shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
+    #               , xaxs="i", yaxs="i", bty='L')
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE,bty='L')
     raster::plot (shape, col=colland, border=FALSE, add=T, bty='L')
@@ -843,12 +850,12 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
     raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='diversity', line=1, side=3, adj=0.25, cex=0.6, col=mycol[length(mycol)/2]))
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=mycol[length(mycol)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='diversity', line=1, side=3, adj=0.25, cex=0.6, col=mycol[length(mycol)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=mycol[length(mycol)/2]))
     graphics::par(bty= "o")
     
     graphics::par(mar=def.mar)
-    graphics::par(oma=def.oma)
+    # graphics::par(oma=def.oma)
   }
   #return the raster
   return(r)
@@ -865,13 +872,15 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #' whithin the cell).
 #' 
 #' @usage pm_divraster_cell  (shape, occ_df_cell, res=10,
-#'                            colland="#66666660", colsea="#00509010", do.plot=TRUE, ...)
+#'                            colland="#66666660", colsea="#00509010", col.grid=mycols(100), 
+#'                            do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param occ_df_cell data.frame with fossil occurrences. Can be created with pm_occ_cell (data)
 #' @param res numeric. Defining the spatial resolution. Default res=10. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
 #' @param colsea define the color of the sea. By default colsea = "#00509010".
+#' @param col.grid define the color of the raster.
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
 #' plot, such as main="my own title", main.col="red".
@@ -899,7 +908,8 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #' }
 
 pm_divraster_cell <- function(shape, occ_df_cell, res=10,
-                              colland="#66666660", colsea="#00509010", do.plot=TRUE, ...) {
+                              colland="#66666660", colsea="#00509010", col.grid=mycols(100), 
+                              do.plot=TRUE, ...) {
   
   if(!.checkLatLng(occ_df_cell)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -927,10 +937,10 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
   r[r==0]<- NA
   
   mycol <- mycols(100)
-  int_args <- base::list(x=r, axes=F, box=F, col=mycols(100), col.grid=mycol, legend=TRUE, main= 'Shannon diversity per cell'                
+  int_args <- base::list(x=shape, col="white", border=FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
                          , xlab="Longitude", ylab="Latitude"
-                         , xaxs="i", yaxs="i")
+                         , xaxs="i", yaxs="i", col.grid=col.grid)
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
@@ -939,21 +949,20 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
   }
   arglist <- c(int_args, params)
   mycol <- arglist$col.grid
-  arglist$col <- arglist$col.grid
   arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
   
   if(do.plot){
     def.mar <- graphics::par("mar")
-    def.oma <- graphics::par("oma")
-    graphics::par(oma=c(0,0,0,2))
-    graphics::par(mar=c(1.5,1.5,2,3))
+    # def.oma <- graphics::par("oma")
+    # graphics::par(oma=c(0,0,0,2))
+    graphics::par(mar=c(1.5,1.5,2,4))
     #plotting the map and the raster
-    # base::do.call(raster::plot, arglist)
+    base::do.call(raster::plot, arglist)
     #adding axes
-    raster::plot (shape, col="white", border=FALSE
-                  , xlim=c(-180,180), ylim=c(-90,90)
-                  , xlab="Longitude", ylab="Latitude"
-                  , xaxs="i", yaxs="i", bty='L')
+    # raster::plot (shape, col="white", border=FALSE
+    #               , xlim=c(-180,180), ylim=c(-90,90)
+    #               , xlab="Longitude", ylab="Latitude"
+    #               , xaxs="i", yaxs="i", bty='L')
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE)
     raster::plot (shape, col=colland, border=FALSE, add=T, bty='L')
@@ -971,12 +980,12 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='diversity', line=1, side=3, adj=0.25, cex=0.6, col=mycol[length(mycol)/2]))
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.95,0.99, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=mycol[length(mycol)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='diversity', line=1, side=3, adj=0.25, cex=0.6, col=mycol[length(mycol)/2]))
+    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=mycol[length(mycol)/2]))
     graphics::par(bty= "o")
     
     graphics::par(mar=def.mar)
-    graphics::par(oma=def.oma)
+    # graphics::par(oma=def.oma)
   }
   
   #return the raster

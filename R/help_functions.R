@@ -197,3 +197,25 @@ mycols <- colorRampPalette(c("#F5DEB3",
   
   info
 }
+
+
+################.mapAvailable#################
+##.mapAvailable
+##
+##looks up if map is available
+##@usage .mapAvailable(interval, model)
+##@param interval time interval of interest
+##@param model model of interest
+##@return boolean
+.mapAvailable <- function(interval, model){
+  df_maps <- NULL
+  utils::data(df_maps,envir = base::environment())
+  
+  maps <- df_maps[df_maps$interval==interval,]
+  maps <- maps[maps$model==model,]
+  
+  b <- length(maps$model)>=1
+  
+  return(b)
+  
+}
