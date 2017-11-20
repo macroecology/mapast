@@ -7,8 +7,8 @@
 \alias{paleoMap-package}
 \title{paleoMap: An R-package for getting and using paleontological maps.}
 \description{
-We have developed paleoMap, an R-package designed to make palaeontolgical maps 
-available to plot the fossil occurences from paleontological databases onto the maps of the past.
+We have developed paleoMap, an R-package designed to make paleontolgical maps available to
+plot the fossil occurences from Paleobiology Database onto the maps of the past.
 }
 \details{
 We programmed functions for getting the shape files of the paleontological maps, 

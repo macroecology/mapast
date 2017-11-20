@@ -1,6 +1,6 @@
 
-#'We have developed paleoMap, an R-package designed to make palaeontolgical maps 
-#'available to plot the fossil occurences from paleontological databases onto the maps of the past.  
+#'We have developed paleoMap, an R-package designed to make paleontolgical maps available to
+#'plot the fossil occurences from Paleobiology Database onto the maps of the past.
 #'
 #'
 #'We programmed functions for getting the shape files of the paleontological maps, 
