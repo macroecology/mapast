@@ -18,7 +18,7 @@ mycols <- colorRampPalette(c("#F5DEB3",
 # @usage .rank_filter(r, data, res, rank)
 # @param r blank raster
 # @param data a data frame which needs to have a column called paleolat and
-# a column called paleolng, can be created with getdata_paleomap
+# a column called paleolng, can be created with pm_getdata
 # @param res resolution of the raster file
 # @param rank rank of interest
 # @return a raster with the taxa richness
@@ -30,17 +30,21 @@ mycols <- colorRampPalette(c("#F5DEB3",
 # }
 
 .rank_filter <- function(r, data, res, rank) {
-  #gets colnames for new data frame
-  
+  #get species data
   if (rank == "species") {
     if (length(data$matched_rank) != 0) {
+      #only extract data where a matched rank exists
       identified <- data[!is.na(data$matched_rank), ]
+      #extract only species data
       species <- identified[identified$matched_rank == rank, ]
+      #split of the matched number
       S <- split(species, species$matched_no)
     }
     
     R <- lapply(S, function(y) {
+      #split off paleolat and paleolng
       s <- split(y, paste(y$paleolng, y$paleolat))
+      
       X <- as.matrix(do.call(rbind,lapply(s,function(x)c(x$paleolng[1],
                                                        x$paleolat[1],1))))
       X <- rbind(X[1,], X)
@@ -51,7 +55,7 @@ mycols <- colorRampPalette(c("#F5DEB3",
     values(all)[values(all)==0]<-NA
     all
   }
-  
+  #if taxonomic rank is not species
   if (rank != "species") {
     ranks<-data.frame(rank=c("genus","family","order","class","phylum"),
                       matched_rank=c("genus_no","family_no","order_no",
@@ -102,30 +106,36 @@ mycols <- colorRampPalette(c("#F5DEB3",
   if (rank=="species") {
     matched_rank <- NULL
     genus <- NULL
+    #save all fossil occurrences where the rank is species
     data <- subset(data, data$matched_rank=="species")
     data<- data[, c("paleolat", "paleolng", "matched_name")]
   }
   if (rank=="genus") {
+    #save all fossil occurrences where there is a known genus
     data <- subset(data, data$genus!="NA")
     data<- data[, c("paleolat", "paleolng", "genus")]
   }
   if (rank=="family") {
+    #save all fossil occurrences where there is a known family
     data <- subset(data, data$family!="NA")
     data<- data[, c("paleolat", "paleolng", "family")]
   }
   if (rank=="order") {
+    #save all fossil occurrences where there is a known order
     data <- subset(data, data$order!="NA")
     data<- data[, c("paleolat", "paleolng", "order")]
   }
   if (rank=="class") {
+    #save all fossil occurrences where there is a known class
     data <- subset(data, data$order!="NA")
     data<- data[, c("paleolat", "paleolng", "class")]
   }
   if (rank=="phylum") {
+    #save all fossil occurrences where there is a known phylum
     data <- subset(data, data$order!="NA")
     data<- data[, c("paleolat", "paleolng", "phylum")]
   }
-  
+  #return the data filtered for the taxonomic rank
   return(data)
 }
 
@@ -146,18 +156,23 @@ mycols <- colorRampPalette(c("#F5DEB3",
 ##}
 
 .checkPbdb <- function(occ){
+  #list of wanted columns
   cols <- c("occurrence_no", "matched_name", "matched_rank",
             "matched_no", "early_interval", "late_interval",
             "paleolng", "paleolat", "geoplate",
             "genus", "family", "order", "class", "phylum", 
             "genus_no","family_no","order_no",
             "class_no","phylum_no", "early_age", "late_age")
+  # create a data frame with all wanted columns
   new <- data.frame(matrix(0, ncol=length(cols), nrow=nrow(occ)))
   colnames(new) <- cols
+  #go hrough columns
   for( i in cols){
+    #if column in original df exists, save in new df
     if(i %in% names(occ)){
       new[[i]] <- occ[[i]]
     }else{
+      #if it is not existing fill the new df with NA's
       v <- rep(NA, nrow(occ))
       new[[i]] <- v
     }

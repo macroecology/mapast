@@ -39,78 +39,78 @@
 #' #Golonka
 #' pm_getmap(interval="123", model="Golonka")
 #' 
-#' #for checking which maps are available including a specific age look at ??pm_checkAge
+#' #for checking which maps are available including a specific age 
+#' # or the complete list of maps provided by this package
+#' # look at ??pm_checkAge
 #' 
 #'}
 
 pm_getmap <- function(interval, model, colland = "#66666660", 
                       colsea = "#00509010", 
                       do.plot = TRUE, ...) {
-  
   #check if requested map is available
   b <- .mapAvailable(interval, model)
-
   if(b){
-    #get shape file from external database
+    # if map is available, get shape file from external database
+    #get GPlates map
     if(model=="GPlates"){
       shape <- utils::data(list=base::paste(model,interval, sep="_"), package="paleogeoDB"
                            ,envir = base::environment())
       base::assign("shape",base::get(interval))
-      
     }else{
+      #get Smith or Golonka map
       shape <- utils::data(list=base::paste(model,interval, sep="_"), package="paleogeoDB"
                            ,envir = base::environment())
       base::assign("shape",base::get(base::paste(model,interval, sep="_")))
     }
   }else{
+    # throw error if map is not available
     stop(paste0("No map available for interval=\"",interval,"\", model=\"",
                 model,"\". Please use pm_checkAge() to see which maps are available."))
   }
-  
-  
-  
   #getting final parameter list for plot
+  #default parameter list for plotting
   int_args <- base::list(x=shape, col = "white", border = FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i")
+  #list of user defined graphical parameter
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
+  #remove default parameter if user specifies a different value
   for( i in names_params){
     if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
   }
- 
-  
+  #complete new list of plotting parameters, including default and user specified ones
   arglist <- c(int_args, params)
   # if user does not set plot=FALSE plot the shape file
   if (do.plot) {
+    #define the size of the margin of the plot and save the former definition
     def.mar <- graphics::par("mar")
-    # def.oma <- graphics::par("oma")
-    # graphics::par(oma=c(0,0,0,0))
     graphics::par(mar=c(2,2,2,2))
+    #do a first plot with the graphical parameters set by the user
     base::do.call(sp::plot, arglist)
+    #draw a rectangle showing the sea
     graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
          border = FALSE)
-
+    #add x-axis and x-axis label
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #add y-axis and y-axis label
     graphics::axis(side = 2, pos=-175, lwd = 0, yaxp=c(90,-90,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6, las=1)
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #get metadata from the SpatialPolygonsDataFrame
     shape.info <- .getShapeInfo(shape)
+    #add name, model and age info top right of the plot
     graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
     graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
-
+    #add the landmasses to the plot
     sp::plot(shape, col = colland, border = FALSE, add = TRUE)
-    
+    #restore the former graphical mar parameters
     graphics::par(mar=def.mar)
-    # graphics::par(oma=def.oma)
-    
   }
-
   # return the shape file
   return(shape)
 }
@@ -146,21 +146,21 @@ pm_getmap <- function(interval, model, colland = "#66666660",
 
 
 pm_getdata <- function(interval, base_name, limit="all") {
-  # get data from paleobioDB
-  # save data from paleobiodb as data frame
+  #create an empty data frame for storing the fossil data
   occ <- base::data.frame()
+  #try to get data from the Paleobiology Database with the given parameters, using R-package paleobioDB
   try(occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name=base_name, interval=interval, 
                                      show=c("paleoloc", "phylo"), 
                                      vocab="pbdb", limit=limit))
                         , silent=TRUE)
+  #if there were results, save them in a data frame called 'data' and remove entries which do not have a paleolatitude or paleolongitude
   if (base::nrow(occ) != 0) {
     data <- .checkPbdb(occ)
     data <- data[!is.na(data$paleolat),]
     data <- data[!is.na(data$paleolng),]
-    #return data frame
+    #return data frame with the fossil occurrences
     return(data)
   } else { #catching error when there are no occurences for the request
-      
       stop("There is no data that matches your query on the paleobioDB. 
           Check if the spelling, temporal intervals, etc. are correct")
     }
@@ -215,55 +215,60 @@ pm_plot <- function(interval, model, data,
                     colpoints = "#65432190", 
                     pch =16, cex = 1, ...) {
   
-  #check user input
+  #check if inut data has needed columns (paleolat/paleolng)
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
-  
-  #getting the shape file for the map and the data for plotting it on the map
+  #getting the shape file with pm_getmap
   shape <- paleoMap::pm_getmap(interval = interval, model = model, do.plot = FALSE)
+  #default parameter list for plotting
   int_args <- base::list(x=shape, col = "white", border = FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i")
+  #list of user defined graphical parameter
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
+  #remove default parameter from list if user specified the same parameter different
   for( i in names_params){
     if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
   }
+  #create arglist with default and user parameter for plotting
   arglist <- c(int_args, params)
-
   #plotting the map and the data
+  #input data needs to be a data frame
   if (base::class(data) == "data.frame") {
+    #save old mar settings and define plotting margins as we need
     def.mar <- graphics::par("mar")
-    # def.oma <- graphics::par("oma")
-    # graphics::par(oma=c(0,0,0,0))
     graphics::par(mar=c(1.5,1.5,2,1.5))
+    #plot with the parameter list which includes users graphical parameter
     #defines size and axes of the plot
     base::do.call(sp::plot, arglist)
+    #draw the rectangle showing the sea
     graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
          border = FALSE)
+    #plot the landmasses on the sea
     sp::plot(shape, col = colland, border = FALSE, add = TRUE)
-    
+    # add x-axis and x-axis labels
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    # add y-axis and y-axis labels
     graphics::axis(side = 2, pos=-175, lwd = 0, yaxp=c(90,-90,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6, las=1)
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #get metadata from the SpatialPolygonDataFrame
     shape.info <- .getShapeInfo(shape)
+    #add name, model and age at the top right of the plot
     graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
     graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
-    
+    #add the fossil occurrences to the plot
     graphics::points(data$paleolng, 
            data$paleolat, 
            pch = pch, col = colpoints, 
            cex = cex)
-    
+    #restore the old margin values
     graphics::par(mar=def.mar)
-    # graphics::par(oma=def.oma)
   }
 }
 
@@ -316,13 +321,16 @@ pm_occraster <- function(shape, data,
                          res = 10, 
                          colland = "#66666660",
                          colsea = "#00509010", col.grid = mycols(100), do.plot=TRUE, ...) {
-  
+  #check user input
+  #check if data has latitude and longitude columns
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
+  #check if the rank is allowed
   if(!.checkRank(rank)){
     stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep=""))
   }
+  #check if the needed column for the chosen rank is in the data frame
   if(!.checkDataRank(data,rank)){
     if(rank=="species"){
       stop(base::paste("There is no column matched_name in the data frame.", sep=""))
@@ -330,66 +338,70 @@ pm_occraster <- function(shape, data,
       stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
     }
   }
+  #check if the shape is a SpatialPolygonsDataFrame
   if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
-  
-  raster <- NULL
   #filter data for rank
   fdata <- .rfilter(data, rank)
   #creating a raster in the size of the shape
   ras <- raster::raster(shape, res = res)
-  #raster of the occurences (sampling effort)
+  #create a raster of the occurences (sampling effort)
   r <- raster::rasterize(fdata[, c("paleolng","paleolat")], ras , fun = "count")
+  #default graphical parameter list
   int_args <- base::list(x=shape, col = "white", border = FALSE, col.grid=col.grid
                          , xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i")
+  #list user given graphical parameter
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
+  #if user changes parameter defined with default values take users values
   for( i in names_params){
     if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
   }
+  #create a graphical parameter list including default and user parameter
   arglist <- c(int_args, params)
+  #if user changes grid color, save it in mycol and remove it from the list
   mycol <- arglist$col.grid
   arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
+  #if do.plot is true, create a plot
   if(do.plot){
+    #save old margin values and define needed margin values
     def.mar <- graphics::par("mar")
-    # def.oma <- graphics::par("oma")
-    # graphics::par(oma=c(0,0,0,2))
     graphics::par(mar=c(1.5,1.5,2,4))
+    #create a plot with the users parameters
     base::do.call(raster::plot, arglist)
-    #plotting the map and the raster on the map
-    # raster::plot (shape, col="white", border=FALSE
-    #               , xlim=c(-180,180), ylim=c(-90,90)
-    #               , xaxs="i", yaxs="i", bty='L')
+    #create a rectangle showing the sea
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE)
+    #plot the landmasses on the sea
     raster::plot (shape, col=colland, border=FALSE, add=T)
-    
+    #add x-axis and x-axis labels
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #add y-axis and y-axis labels
     graphics::axis(side = 2, pos=-175, lwd = 0, yaxp=c(90,-90,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6, las=1)
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #get metatdata from the SpatialPolygonsDataFrame
     shape.info <- .getShapeInfo(shape)
+    #add name, model, age at the top right of the plot
     graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
     graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
-    
+    #add the raster to the plot without legend
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
+    #allow the plot to expand the borders
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
+    #add the raster legend outside the plot
     raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='occurrences', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
     raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
     graphics::par(bty= "o")
-    
+    #restore default margin settings
     graphics::par(mar=def.mar)
-    # graphics::par(oma=def.oma)
   }
- 
-  #returning the raster
+  #return the raster
   return(r)
 }
 
@@ -442,13 +454,16 @@ pm_occraster <- function(shape, data,
 pm_richraster <- function (shape, data, rank, res = 10, 
                            colland = "#66666660",
                            colsea = "#00509010", col.grid=mycols(100), do.plot=TRUE, ...) {
-  
+  #check the users input data
+  #check if the lat/lng column is in the data frame
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
+  #check if the rank is allowed
   if(!.checkRank(rank)){
     stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep=""))
   }
+  #check if the columns according to the rank is inside the data frame
   if(!.checkDataRank(data,rank)){
     if(rank=="species"){
       stop(base::paste("There is no column matched_name in the data frame.", sep=""))
@@ -456,65 +471,66 @@ pm_richraster <- function (shape, data, rank, res = 10,
       stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
     }
   }
+  #check if the shape is a SpatialPolygonsDataFrame
   if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
-  
   #creating a raster in size of the shape file
   ras <- raster::raster(shape, res = res)
   #getting the raster of the species richness
   r <- .rank_filter(ras, data, res = res, rank)
-  
-  mycol <- mycols(100)
+  #default graphical parameters
   int_args <- base::list(x=shape, col="white", border=FALSE, col.grid=col.grid
                                        , xlim=c(-180,180), ylim=c(-90,90)
                                        , xaxs="i", yaxs="i")
+  #list of user defined graphical parameter
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
+  #if user defines default value different only keep users value
   for( i in names_params){
     if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
   }
+  #komplete parameter list
   arglist <- c(int_args, params)
+  #save the color of the grid/raster and remove it from the parameter list (only needed later)
   mycol <- arglist$col.grid
   arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
   if(do.plot){
+    #save current margin values and define it as needed
     def.mar <- graphics::par("mar")
-    # def.oma <- graphics::par("oma")
-    # graphics::par(oma=c(0,0,0,2))
     graphics::par(mar=c(1.5,1.5,2,4))
-    #plotting the map and the raster
+    #plot with the default and user defined graphical parameter
     base::do.call(raster::plot, arglist)
-    #adding axes
-    # raster::plot (shape, col="white", border=FALSE
-    #               , xlim=c(-180,180), ylim=c(-90,90)
-    #               , xaxs="i", yaxs="i", bty='L')
+    #add a rectangle as the sea
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE)
+    #add the landmasses to the plot
     raster::plot (shape, col=colland, border=FALSE, add=T, bty='L')
-    
+    #add x-axis and x-axis labels
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #add y-axis and y-axis labels
     graphics::axis(side = 2, pos=-175, lwd = 0, yaxp=c(90,-90,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6, las=1)
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #get metadata from the shape file
     shape.info <- .getShapeInfo(shape)
+    #add name, model and age at the top rigt of the plot
     graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
     graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
-    
+    #add the raster without legend
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
+    #allow to draw outside the plot
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
+    #add raster legend outside the plot
     raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='richness', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
     raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
     graphics::par(bty= "o")
-    
+    #restore prior margin values
     graphics::par(mar=def.mar)
-    # graphics::par(oma=def.oma)
   }
-  
   #return the raster
   return(r)
 }
@@ -547,13 +563,16 @@ pm_richraster <- function (shape, data, rank, res = 10,
 
 
 pm_occ <- function(data, rank = "genus") {
-  
+  #check users input data
+  #check if lat/lng columns are in the data frame
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
+  #check if the chosen rank is allowed
   if(!.checkRank(rank)){
     stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep=""))
   }
+  #check if the column belonging to the rank is in the data frame
   if(!.checkDataRank(data,rank)){
     if(rank=="species"){
       stop(base::paste("There is no column matched_name in the data frame.", sep=""))
@@ -561,16 +580,12 @@ pm_occ <- function(data, rank = "genus") {
       stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
     }
   }
-  
-  #only getting occurences with a known genus
+  #filter data for the rank
   genus_data <- .rfilter(data, rank)
-  
-  #getting locations
+  #create a data. frame with all the locations once
   loc <- base::data.frame(paleolat = genus_data$paleolat, 
                     paleolng = genus_data$paleolng)
-  #getting unique locations
   uloc <- base::unique(loc)
-  
   #getting list of unique taxa
   if(rank=="species"){
     ugenus <- base::as.vector(base::unique(genus_data[, "matched_name"]))
@@ -585,26 +600,27 @@ pm_occ <- function(data, rank = "genus") {
   }else if(rank=="phylum"){
     ugenus <- base::as.vector(base::unique(genus_data[, "phylum"]))
   }
-  
+  #save the unique locations in nsites
   nsites <- uloc
-  
-  #fill with default values -1
+  #fill matrix with default values -1 for each species/genus/.. and each locality
   blank <- base::matrix(-1, nrow = base::nrow(nsites), ncol = base::length(ugenus))
+  #add the unique localities to the matrix
   nsites <- base::cbind(nsites, blank)
+  #set lat, lng and species/genus/.. names as column names
   base::colnames(nsites) <- c(base::unlist(base::names(loc)), ugenus)
-  
-  #getting the number of occurrences of a genus for each locality
+  #getting the number of occurrences of a species/genus/... for each locality
   for (i in 1:base::nrow(nsites)) {
     #get lat & lng
     lat_i <- nsites[i, "paleolat"]
     lng_i <- nsites[i, "paleolng"]
+    #go through the list with unique species/genera/...
     for (j in 1:base::length(ugenus)) {
-      #get current genus
+      #get current species/genus/...
       genus_j <- ugenus[j]
-      #get all genus at locality
+      #get all fossil occurrences at current locality
       flat <- base::subset(genus_data, genus_data$paleolat == lat_i)
       flatlng <- base::subset(flat, flat$paleolng == lng_i)
-      #select only current genus
+      #select only current species/genus/...
       if(rank=="species"){
         fgen <- base::subset(flatlng, flatlng[,"matched_name"] == genus_j)
       }else if(rank=="genus"){
@@ -618,15 +634,14 @@ pm_occ <- function(data, rank = "genus") {
       }else if(rank=="phylum"){
         fgen <- base::subset(flatlng, flatlng[,"phylum"] == genus_j)
       }
-      
+      #count the number of species/geners/.. in this locality and save it in the matrix
       count<- base::nrow(fgen)
       nsites[i, j + 2] <- count
     }
   }
+  #return the matrix
   return(nsites)
 }
-
-
 
 
 
@@ -657,7 +672,7 @@ pm_occ <- function(data, rank = "genus") {
 
 
 pm_occ_cell <- function(data, rank = "genus", res = 10) {
-  
+  #check the user input data
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
@@ -671,7 +686,6 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
       stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
     }
   }
-  
   #only getting occurences with a known genus
   genus_data <-.rfilter(data, rank)
   #getting list of unique taxa
@@ -689,14 +703,14 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
   }else{
     ugenus <- base::as.vector(base::unique(genus_data[, "phylum"]))
   }
+  #define lat/lng sequence using the resolution
   lat <- base::seq(-90+(res/2) , 90-(res/2), res)
   long <- base::seq(-180+(res/2), 180-(res/2), res)
   nsites <- base::expand.grid (long, lat)
-  #fill with default values -1
+  #fill with default values -1 and add lat, lng and column names
   blank <- base::matrix(-1, nrow = base::nrow (nsites), ncol = base::length(ugenus))
   nsites <- base::cbind(nsites, blank)
   base::colnames(nsites) <- c ("paleolng", "paleolat", ugenus)
-  
   #getting the number of occurrences of a genus for each locality
   for (i in 1:base::nrow(nsites)) {
     #get lat & lng
@@ -705,12 +719,11 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
     for (j in 1:base::length(ugenus)) {
       #get current genus
       genus_j <- ugenus[j]
-      #get all genus at locality
+      #get all genus in the cell
       flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
       flat <- base::subset(flat , flat$paleolat < lat_i + (res / 2))
       flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
       flatlng <- base::subset(flatlng , flatlng$paleolng < lng_i + (res / 2))
-      
       #select only current genus
       if(rank=="species"){
         fgen <- base::subset(flatlng, flatlng[,"matched_name"] == genus_j)
@@ -725,10 +738,12 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
       }else if(rank=="phylum"){
         fgen <- base::subset(flatlng, flatlng[,"phylum"] == genus_j)
       }
+      #count the number of different taxa in current column and save in the matrix
       count<- base::nrow (fgen)
       nsites[i, j + 2] <- count
     }
   }
+  #return matrix as data frame
   return(base::as.data.frame(nsites))
 }
 
@@ -783,7 +798,7 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
 
 pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
                              colland="#66666660", colsea="#00509010", col.grid=mycols(100), do.plot=TRUE, ...) {
-  
+  #check the users input
   if(!.checkLatLng(occ_df)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
@@ -793,69 +808,73 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
   if(!.checkFun(fun, "pm_divraster_loc")){
     stop("Chosen value for fun is not a valid input.")
   }
-  
   #creating a raster in size of the shape file
   ras <- raster::raster(shape, res=res)
-  #getting only species data and no duplictaed in a raster field
+  #remove paleolat and paleolng from data
   drops <- c("paleolat","paleolng")
   drop_occ <- occ_df[, !(base::names(occ_df) %in% drops)]
+  #calculate the diversity from the fossil occurrences
   cordata1 <- vegan::diversity(drop_occ)
+  #save paleolat, paleolng and diversity in a data frame and define column names
   cordata <- base::data.frame(occ_df$paleolat, 
                         occ_df$paleolng, div= cordata1)
   base::colnames(cordata) <- c("paleolat", "paleolng", "div")
-  
-  #getting the raster of the species richness
+  #getting the raster of the diversity, using the function as defined in the input parameter
   r<-raster::rasterize(cordata[, c("paleolng", "paleolat")], ras, 
                        field= cordata$div, fun=fun)
-  #getting the raster of the species richness
+  #set all values that are 0 to NA (otherwise raster would fill the whole map)
   r[r==0]<- NA
- 
-  mycol <- mycols(100)
+  #set default graphical parameter
   int_args <- base::list(x=shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i", col.grid=col.grid)
+  #get graphical parameter from the users input
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
+  #keep users value if user defines same value as in default values
   for( i in names_params){
     if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
   }
+  #create graphical parameter list with default and user values
   arglist <- c(int_args, params)
+  #save the raster color and remove it from the parameter list
   mycol <- arglist$col.grid
   arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
-  
+  #if do.plot is true
   if(do.plot){
+    #save current margin settings and define needed
     def.mar <- graphics::par("mar")
-    # def.oma <- graphics::par("oma")
-    # graphics::par(oma=c(0,0,0,2))
     graphics::par(mar=c(1.5,1.5,2,4))
-    #plotting the map and the raster
+    #create a plot with the users graphical parameters
     base::do.call(raster::plot, arglist)
-    #adding axes
-    # raster::plot (shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
-    #               , xaxs="i", yaxs="i", bty='L')
+    #add a rectangle as the sea
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE,bty='L')
+    #plot the landmasses on the sea
     raster::plot (shape, col=colland, border=FALSE, add=T, bty='L')
+    #add x-axis and x-axis labels
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #add y-axis and y-axis labels
     graphics::axis(side = 2, pos=-175, lwd = 0, yaxp=c(90,-90,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6, las=1)
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #get metadata from the SpatialPolygonsDataFrame
     shape.info <- .getShapeInfo(shape)
+    #add name, model, age at the top right of the plot
     graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
     graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
-    
-    raster::plot (r, add=T,axes=F, box=F, col=mycols(100), legend=FALSE, bty='L')
+    #add the raster to the plot without a legend
+    raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
+    #allow to expand the plotting area
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
+    #add the legend of the raster next to the plot
     raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='diversity', line=1, side=3, adj=0.25, cex=0.6, col=mycol[length(mycol)/2]))
     raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=mycol[length(mycol)/2]))
     graphics::par(bty= "o")
-    
+    #restore prior margin settings
     graphics::par(mar=def.mar)
-    # graphics::par(oma=def.oma)
   }
   #return the raster
   return(r)
@@ -910,84 +929,82 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 pm_divraster_cell <- function(shape, occ_df_cell, res=10,
                               colland="#66666660", colsea="#00509010", col.grid=mycols(100), 
                               do.plot=TRUE, ...) {
-  
+  #check user input data
   if(!.checkLatLng(occ_df_cell)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
   if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
-  
-  
   #creating a raster in size of the shape file
   ras <- raster::raster(shape, res=res)
-  
-  #getting only species data and no duplictaed in a raster field
+  #remove lat and lng from data frame
   drops <- c("paleolat","paleolng")
   drop_occ <- occ_df_cell[, !(base::names(occ_df_cell) %in% drops)]
+  #calculate the diversity and save diversity, lat and lng in new data frame
   cordata1 <- vegan::diversity(drop_occ)
   cordata <- base::data.frame(occ_df_cell$paleolat, 
                         occ_df_cell$paleolng, div= cordata1)
   base::colnames(cordata) <- c("paleolat","paleolng","div")
-  
+  #create a raster with the diversity
   r<-raster::rasterize(cordata[, c("paleolng","paleolat")], ras, 
                field= cordata$div, fun=mean)
-  
-  #getting the raster of the species richness
+  #declare all cells where diversity=0 as NA (otherwise everything  is colored)
   r[r==0]<- NA
-  
-  mycol <- mycols(100)
+  #default graphical parameter list
   int_args <- base::list(x=shape, col="white", border=FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
                          , xlab="Longitude", ylab="Latitude"
                          , xaxs="i", yaxs="i", col.grid=col.grid)
+  #user defined grapical parameter
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
+  #only keep user defined graphical parameters if defined before as default
   for( i in names_params){
     if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
   }
+  #create default & user graphical parameters list
   arglist <- c(int_args, params)
+  #save color of the raster and remove it from parameter list
   mycol <- arglist$col.grid
   arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
-  
+  #if do.plot is true create a plot
   if(do.plot){
+    #save current margin settings and define margin as needed
     def.mar <- graphics::par("mar")
-    # def.oma <- graphics::par("oma")
-    # graphics::par(oma=c(0,0,0,2))
     graphics::par(mar=c(1.5,1.5,2,4))
-    #plotting the map and the raster
+    #plot with parameter list
     base::do.call(raster::plot, arglist)
-    #adding axes
-    # raster::plot (shape, col="white", border=FALSE
-    #               , xlim=c(-180,180), ylim=c(-90,90)
-    #               , xlab="Longitude", ylab="Latitude"
-    #               , xaxs="i", yaxs="i", bty='L')
+    #add a rectangle defining the sea
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE)
+    #add the landmasses
     raster::plot (shape, col=colland, border=FALSE, add=T, bty='L')
+    #add x-axis and x-axis labels
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #add y-axis and y-axis labels
     graphics::axis(side = 2, pos=-175, lwd = 0, yaxp=c(90,-90,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6, las=1)
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #get metadata from SpatialPolygonsDataFrame
     shape.info <- .getShapeInfo(shape)
+    #add name, model, age at the top right of the plot
     graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
     graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
-    
+    #add the raster without legend
     raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
+    #allow to expand the plot
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
+    #add legend outside the plot
     raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='diversity', line=1, side=3, adj=0.25, cex=0.6, col=mycol[length(mycol)/2]))
     raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=mycol[length(mycol)/2]))
     graphics::par(bty= "o")
-    
+    #restore prior margin settings
     graphics::par(mar=def.mar)
-    # graphics::par(oma=def.oma)
   }
-  
   #return the raster
   return(r)
 }
@@ -1046,7 +1063,7 @@ pm_latrich <- function(shape, data, rank = "genus",
                        colland="#66666680", colsea="#00509010", 
                        colpoints="#65432190",
                        rich.col="#654321", pch=21, do.plot=TRUE, ...) {
-  
+  #check the users input data
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
@@ -1063,18 +1080,21 @@ pm_latrich <- function(shape, data, rank = "genus",
   if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
-  
+  #define default graphical parameters
   int_args <- base::list(x=shape, col="white", border = FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i")
+  #get users input parameters
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
+  #if user defines sth. with default value only keep users value
   for( i in names_params){
     if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
   }
+  #create argument list with default and user values
   arglist <- c(int_args, params)
-  
+  #filter the data for the taxonomic rank
   data2 <-.rfilter(data, rank)
   #setting min and max value for lat
   lr <- base::data.frame(lat_min= base::seq(-90,90-res,res), 
@@ -1086,54 +1106,60 @@ pm_latrich <- function(shape, data, rank = "genus",
     sub1 <- base::subset(data2, data2$paleolat>=lat)
     sub2 <- base::subset(sub1, sub1$paleolat<(lat+res))
     sub3 <- base::unique(sub2[,3])
-    #count and save the number of different genus at each latitude
+    #count and save the number of different taxa at each latitude
     richn <- c(richn, base::length(sub3))
   }
-  
+  #define the magnitude of the richness graph
   magn <- 140/max(richn)
-  
-  #combine min,max lat and richness
+  #combine min,max lat and richness in a data frame
   lr <- base::cbind(lr, richn)
+  #calculate the center of each range
   centros<- (base::seq(-90,90-res,res)+(base::seq(-90,90-res,res) + res))/2
+  #save the richness, x and y value for plotting
   rich<- 180 + (lr$richn*magn)
   yy<- c(180, rich, 180)
   xx<- c(-90, centros, 90)
-  
+  #if do.plot is true create a plot
   if(do.plot){
+    #save current margin settings and define needed margin values 
     def.mar <- graphics::par("mar")
-    
     graphics::par(mar=c(1.5,1.5,2,10), xpd=NA)
+    #create a plot with the parameter list
     do.call(raster::plot, arglist)
+    #add a rectangle as the sea
     graphics::rect(xleft=-180, xright=180, 
                    ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE)
+    #add the landmasses to the plot
     raster::plot(shape, col=colland, border=FALSE, add=T)
+    #add the fossil occurrences to the plot
     graphics::points(data2$paleolng, data2$paleolat, 
                      pch=pch, col=NA, bg=colpoints)
+    #add x-axis and x-axis labels
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #add y-axis and y-axis labels
     graphics::axis(side = 2, pos=-175, lwd = 0, yaxp=c(90,-90,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6, las=1)
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #get metadata from the SpatialPolygonsDataFrame
     shape.info <- .getShapeInfo(shape)
+    #add name, model and age at the top right of the plot
     graphics::axis(side = 3, pos=94, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
     graphics::axis(side = 3, pos=86, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=78, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
-    
+    #add the richness curve at the right side of the plot
     graphics::polygon (yy, xx, col=rich.col, border=F, xpd=T)
-    
-    maxi <- base::max(lr$richn)
+    #get the parameters for the richness axis
     ax_seq <- base::seq(base::min(yy),base::max(yy), ((base::max(yy)-base::min(yy))/2))
     ax_lab <- base::round(ax_seq-180)
-    ax_lab <- round(ax_lab/magn)
+    ax_lab <- base::round(ax_lab/magn)
+    #add the richness axes
     graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = rich.col ,col.axis = rich.col , col= rich.col , cex.axis=0.6, tck=-0.01)
     graphics::axis(side=3, pos=80, lwd =0, xpd=TRUE, at=ax_seq, labels=ax_lab , col.ticks = rich.col ,col.axis = rich.col , col= rich.col , cex.axis=0.6, tck=-0.01)
     graphics::axis(side=3, pos=90, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="richness", col.ticks=rich.col, col.axis=rich.col, col=rich.col, cex.axis=0.8, tck=-0.01, cex.lab=0.8)
-  
+    #restore the prior margin settings
     graphics::par(mar=def.mar)
   }
-  
   #return latitudinal richness
   return(lr)
 }
@@ -1194,7 +1220,7 @@ pm_latdiv <- function(shape, occ_df, res=10,
                       colland="#66666680", colsea="#00509010", 
                       colpoints="#65432190",
                       div.col="#654321", pch=21, do.plot=TRUE, ...) {
-  
+  #check the users input data
   if(!.checkLatLng(occ_df)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
@@ -1204,27 +1230,29 @@ pm_latdiv <- function(shape, occ_df, res=10,
   if(!.checkFun(fun, "pm_latdiv")){
     stop(base::paste("\"", fun, "\" is not a valid input for parameter fun.", sep=""))
   }
-  
+  #default graphical parameter list
   int_args <- base::list(x=shape, col="white", border = FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i")
+  #list of user defined graphical parameter
   params <- base::list(...)
   names_params <- base::as.vector(base::names(params))
   names_intargs <- base::as.vector(base::names(int_args))
+  #is user changes default parameter keep users value
   for( i in names_params){
     if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
   }
+  #create a graphical parameter list with default and user defined values
   arglist <- c(int_args, params)
-  
-  
-  #calculate the shannon diversity
+  #remove lat and lng 
   drops <- c("paleolat","paleolng")
   drop_occ <- occ_df[, !(base::names(occ_df) %in% drops)]
+  #calculate the diversity
   H_data <- vegan::diversity(drop_occ)
-  
-  #get the localities
+  #save the localities and the diversity in a data frame
   locs <- base::cbind(occ_df[,"paleolat"],occ_df[,"paleolng"], H_data)
   base::colnames(locs) <- c("paleolat", "paleolng", "div")
+  #create a diversity list
   cornum <- NULL
   for(lat in base::seq(-90,80,res)) {
     slocs <- base::subset(locs, locs[,"paleolat"]>=lat)
@@ -1235,59 +1263,64 @@ pm_latdiv <- function(shape, occ_df, res=10,
       cornum <- c(cornum, fun (slocs[,"div"])) 
     }
   }
-  
+  #calculate the magnitude by taking the max of the diversity
   magn <- 140/max(cornum)
-  
+  #calculate the min and max values of the 
   latmin <- base::seq(-90,80,res)
   latmax <- base::seq(-80,90,res)
-  #create data frame withh latmin latmax and corrected richness
+  #create data frame withh latmin latmax and diversity
   lr <- base::data.frame(latmin, latmax, cornum)
   base::colnames(lr) <- c("maxlat", "minlat", "div")
-  
+  #define values for plotting the diversity
   centros<- (base::seq(-90,90-res,res)+(base::seq(-90,90-res,res) + res))/2
   rich<- 180 + (lr$div*magn)
   yy<- c(180, rich, 180)
   xx<- c(-90, centros, 90)
-  
+  #if do.plot create a plot
   if(do.plot){
+    #save current margin values and define needed ones
     def.mar <- graphics::par("mar")
-    
     graphics::par(mar=c(1.5,1.5,2,10), xpd=NA)
+    #create a plot with users and default graphical parameters
     base::do.call(raster::plot, arglist)
+    #create a rectangle as the sea
     graphics::rect(xleft=-180, xright=180, 
                    ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE)
+    #add the landmasses to the plot
     raster::plot(shape, col=colland, border=FALSE, 
                  add=T)
+    #add the fossil occurrences to the map
     graphics::points(occ_df[, "paleolng"], occ_df[, "paleolat"], 
                      pch=pch, col=NA, 
                      bg=colpoints)
+    #add x-axis and x-axis labels
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #add y-axis and y-axis labels
     graphics::axis(side = 2, pos=-175, lwd = 0, yaxp=c(90,-90,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6, las=1)
     graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    
+    #get metadata from the SpatialPolygonsDataFrame
     shape.info <- .getShapeInfo(shape)
+    #add name, model and age at the top right of the plot
     graphics::axis(side = 3, pos=94, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
     graphics::axis(side = 3, pos=86, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=78, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
-    
+    #add the diversity curve next to the plot
     graphics::polygon(yy, xx, col=div.col, 
                       border=F, xpd=T)
-    
-    maxi <- base::max(lr$div)
+    #get the values for the diversity axes
     ax_seq <- base::seq(base::min(yy),base::max(yy), ((base::max(yy)-base::min(yy))/2))
     ax_lab <- base::round(ax_seq-180)
     ax_lab <- round(ax_lab/magn)
+    #add the axes to the diversity graph
     graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
     graphics::axis(side=3, pos=80, lwd =0, xpd=TRUE, at=ax_seq, labels=ax_lab , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
     graphics::axis(side=3, pos=90, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="diversity", col.ticks=div.col, col.axis=div.col, col=div.col, cex.axis=0.8, tck=-0.01)
-
+    #restore prior margin settings
     graphics::par(mar=def.mar) 
   }
-  
-  #return latitudinal richness
+  #return latitudinal diversity
   return(lr)
 }
 
@@ -1313,16 +1346,18 @@ pm_latdiv <- function(shape, occ_df, res=10,
 #'}
 
 pm_checkAge <- function(age="all"){
+  #define data frame df_maps
   df_maps <- NULL
+  #load df_maps from the package
   utils::data(df_maps,envir = base::environment())
-  
+  #if age is a defined age get all maps including this age
   if(age!="all"){
     maps <- df_maps[as.numeric(df_maps$fromage) >= as.numeric(age),]
     maps <- maps[as.numeric(maps$toage) <= as.numeric(age),]
-    
   }else{
+    #else if age is "all" return complete list
     maps <- df_maps
   }
-  
+  #return the list with the maps
   maps
 }

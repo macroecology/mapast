@@ -50,7 +50,9 @@ pm_getmap(interval="112", model="Smith")
 #Golonka
 pm_getmap(interval="123", model="Golonka")
 
-#for checking which maps are available including a specific age look at ??pm_checkAge
+#for checking which maps are available including a specific age 
+# or the complete list of maps provided by this package
+# look at ??pm_checkAge
 
 }
 }
