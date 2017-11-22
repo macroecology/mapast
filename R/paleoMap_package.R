@@ -8,7 +8,7 @@
 #'data on the maps.
 #'
 #' @name paleoMap
-#' @title paleoMap: An R-package for getting and using paleontological maps.
+#' @title paleoMap: An R-package for getting and using paleogeographical maps.
 #' @aliases paleoMap-package
 #' @docType package
 #' @author Sonja Rothkugel \email{rothkugelsonja@@aol.de}

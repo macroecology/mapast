@@ -345,7 +345,8 @@ pm_occraster <- function(shape, data,
   #filter data for rank
   fdata <- .rfilter(data, rank)
   #creating a raster in the size of the shape
-  ras <- raster::raster(shape, res = res)
+  e <- raster::extent(c(-180, 180, -90, 90))
+  ras <- raster::raster(e, res=res)
   #create a raster of the occurences (sampling effort)
   r <- raster::rasterize(fdata[, c("paleolng","paleolat")], ras , fun = "count")
   #default graphical parameter list
@@ -476,7 +477,8 @@ pm_richraster <- function (shape, data, rank, res = 10,
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
   #creating a raster in size of the shape file
-  ras <- raster::raster(shape, res = res)
+  e <- raster::extent(c(-180, 180, -90, 90))
+  ras <- raster::raster(e, res=res)
   #getting the raster of the species richness
   r <- .rank_filter(ras, data, res = res, rank)
   #default graphical parameters
@@ -809,7 +811,8 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
     stop("Chosen value for fun is not a valid input.")
   }
   #creating a raster in size of the shape file
-  ras <- raster::raster(shape, res=res)
+  e <- raster::extent(c(-180, 180, -90, 90))
+  ras <- raster::raster(e, res=res)
   #remove paleolat and paleolng from data
   drops <- c("paleolat","paleolng")
   drop_occ <- occ_df[, !(base::names(occ_df) %in% drops)]
@@ -819,11 +822,27 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
   cordata <- base::data.frame(occ_df$paleolat, 
                         occ_df$paleolng, div= cordata1)
   base::colnames(cordata) <- c("paleolat", "paleolng", "div")
+
   #getting the raster of the diversity, using the function as defined in the input parameter
   r<-raster::rasterize(cordata[, c("paleolng", "paleolat")], ras, 
                        field= cordata$div, fun=fun)
+  
   #set all values that are 0 to NA (otherwise raster would fill the whole map)
   r[r==0]<- NA
+  #set the ones with a fossil occurrence but no diversity to 0
+  div <-cbind(cordata, rep(1, length(cordata[,1])))
+  colnames(div)[4] <- "genus"
+  div_cell <- pm_occ_cell(div)
+  #sort div_cell as r@data@values is sorted
+  xyras <- data.frame(raster::xyFromCell(r,1:length(r@data@values)))
+  div_cell <- div_cell[order(match(
+         paste(div_cell[,1],div_cell[,2]),
+         paste(xyras[,1],xyras[,2]))),]
+  for(i in 1:length(div_cell[,3])){
+    if(div_cell[i,3]>0 && is.na(r@data@values[i])){
+      r@data@values[i] <- 0
+    }
+  }
   #set default graphical parameter
   int_args <- base::list(x=shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i", col.grid=col.grid)
@@ -937,7 +956,8 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
   #creating a raster in size of the shape file
-  ras <- raster::raster(shape, res=res)
+  e <- raster::extent(c(-180, 180, -90, 90))
+  ras <- raster::raster(e, res=res)
   #remove lat and lng from data frame
   drops <- c("paleolat","paleolng")
   drop_occ <- occ_df_cell[, !(base::names(occ_df_cell) %in% drops)]
@@ -951,6 +971,22 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
                field= cordata$div, fun=mean)
   #declare all cells where diversity=0 as NA (otherwise everything  is colored)
   r[r==0]<- NA
+  #set the ones with a fossil occurrence but no diversity to 0
+  s <- base::rowSums(occ_df_cell[,3:length(occ_df_cell)])
+  s[s > 0] <- 1
+  div <- data.frame(paleolat=occ_df_cell$paleolat, paleolng=occ_df_cell$paleolng, genus=s)
+  div_cell <- pm_occ_cell(div)
+  div_cell <- div_cell[-c(3)]
+  #sort div_cell as r@data@values is sorted
+  xyras <- data.frame(raster::xyFromCell(r,1:length(r@data@values)))
+  div_cell <- div_cell[order(match(
+    paste(div_cell[,1],div_cell[,2]),
+    paste(xyras[,1],xyras[,2]))),]
+  for(i in 1:length(div_cell[,3])){
+    if(div_cell[i,3]>0 && is.na(r@data@values[i])){
+      r@data@values[i] <- 0
+    }
+  }
   #default graphical parameter list
   int_args <- base::list(x=shape, col="white", border=FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
