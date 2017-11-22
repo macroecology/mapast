@@ -1187,7 +1187,7 @@ pm_latrich <- function(shape, data, rank = "genus",
     graphics::polygon (yy, xx, col=rich.col, border=F, xpd=T)
     #get the parameters for the richness axis
     ax_seq <- base::seq(base::min(yy),base::max(yy), ((base::max(yy)-base::min(yy))/2))
-    ax_lab <- base::round(ax_seq-180)
+    ax_lab <- ax_seq-180
     ax_lab <- base::round(ax_lab/magn)
     #add the richness axes
     graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = rich.col ,col.axis = rich.col , col= rich.col , cex.axis=0.6, tck=-0.01)
@@ -1347,8 +1347,8 @@ pm_latdiv <- function(shape, occ_df, res=10,
                       border=F, xpd=T)
     #get the values for the diversity axes
     ax_seq <- base::seq(base::min(yy),base::max(yy), ((base::max(yy)-base::min(yy))/2))
-    ax_lab <- base::round(ax_seq-180)
-    ax_lab <- round(ax_lab/magn)
+    ax_lab <- ax_seq-180
+    ax_lab <- round(ax_lab/magn, 2)
     #add the axes to the diversity graph
     graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
     graphics::axis(side=3, pos=80, lwd =0, xpd=TRUE, at=ax_seq, labels=ax_lab , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
