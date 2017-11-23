@@ -113,3 +113,22 @@
     return(base::grep("mean", base::list(fun))==1 || base::identical(fun, mean) || base::identical(fun,max) || base::identical(fun,min) || base::identical(fun,"count"))
   }
 }
+
+
+######.checkRange#####
+#.checkRange
+#
+#checks if paleolat and paleolng are in range 
+#
+#@param df data frame including at leat paleolat and paleolng
+#@return boolean if lat and lng are in range
+#@examples
+#\dontrun{
+#.checkRange(df)
+#}
+
+.checkRange <- function(df){
+  lat <- df$paleolat
+  lng <- df$paleolng
+  return(min(lat)>=-90 && max(lat)<=90 && min(lng)>=-180 && max(lng)<=180)
+}

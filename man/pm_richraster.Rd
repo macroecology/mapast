@@ -4,7 +4,7 @@
 \alias{pm_richraster}
 \title{pm_richraster}
 \usage{
-pm_richraster(shape, data, rank, res = 10, 
+pm_richraster(shape, data, rank="genus", res = 10, 
                      colland = "#66666660", colsea = "#00509010", col.grid= mycols(100), 
                      do.plot=TRUE, ...)
 }
@@ -15,7 +15,7 @@ pm_richraster(shape, data, rank, res = 10,
 pm_getdata(interval, base_name)}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
-"species", "genus", "family", "order", "class" or "phylum".}
+"species", "genus", "family", "order", "class" or "phylum". By default rank="genus".}
 
 \item{res}{numeric. Defining the spatial resolution. Default res=10.}
 

@@ -219,6 +219,9 @@ pm_plot <- function(interval, model, data,
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
+  if(!.checkRange(data)){
+    stop("Range of Latitude and/or Longitude is not allowed.")
+  }
   #getting the shape file with pm_getmap
   shape <- paleoMap::pm_getmap(interval = interval, model = model, do.plot = FALSE)
   #default parameter list for plotting
@@ -326,6 +329,9 @@ pm_occraster <- function(shape, data,
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
+  if(!.checkRange(data)){
+    stop("Range of Latitude and/or Longitude is not allowed.")
+  }
   #check if the rank is allowed
   if(!.checkRank(rank)){
     stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep=""))
@@ -413,7 +419,7 @@ pm_occraster <- function(shape, data,
 #' Creates a raster of species richness
 #' and makes a plot of the map and raster.
 #' 
-#' @usage pm_richraster(shape, data, rank, res = 10, 
+#' @usage pm_richraster(shape, data, rank="genus", res = 10, 
 #'                      colland = "#66666660", colsea = "#00509010", col.grid= mycols(100), 
 #'                      do.plot=TRUE, ...)
 #' 
@@ -421,7 +427,7 @@ pm_occraster <- function(shape, data,
 #' @param data data.frame with fossil occurrences. Can be created with 
 #' pm_getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
-#' "species", "genus", "family", "order", "class" or "phylum".
+#' "species", "genus", "family", "order", "class" or "phylum". By default rank="genus".
 #' @param res numeric. Defining the spatial resolution. Default res=10. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
 #' @param colsea define the color of the sea. By default colsea = "#00509010".
@@ -452,13 +458,16 @@ pm_occraster <- function(shape, data,
 #'}
 #'
 
-pm_richraster <- function (shape, data, rank, res = 10, 
+pm_richraster <- function (shape, data, rank="genus", res = 10, 
                            colland = "#66666660",
                            colsea = "#00509010", col.grid=mycols(100), do.plot=TRUE, ...) {
   #check the users input data
   #check if the lat/lng column is in the data frame
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
+  }
+  if(!.checkRange(data)){
+    stop("Range of Latitude and/or Longitude is not allowed.")
   }
   #check if the rank is allowed
   if(!.checkRank(rank)){
@@ -570,6 +579,9 @@ pm_occ <- function(data, rank = "genus") {
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
+  if(!.checkRange(data)){
+    stop("Range of Latitude and/or Longitude is not allowed.")
+  }
   #check if the chosen rank is allowed
   if(!.checkRank(rank)){
     stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep=""))
@@ -677,6 +689,9 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
   #check the user input data
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
+  }
+  if(!.checkRange(data)){
+    stop("Range of Latitude and/or Longitude is not allowed.")
   }
   if(!.checkRank(rank)){
     stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep=""))
@@ -803,6 +818,9 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
   #check the users input
   if(!.checkLatLng(occ_df)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
+  }
+  if(!.checkRange(occ_df)){
+    stop("Range of Latitude and/or Longitude is not allowed.")
   }
   if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
@@ -951,6 +969,9 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
   #check user input data
   if(!.checkLatLng(occ_df_cell)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
+  }
+  if(!.checkRange(occ_df_cell)){
+    stop("Range of Latitude and/or Longitude is not allowed.")
   }
   if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
@@ -1102,6 +1123,9 @@ pm_latrich <- function(shape, data, rank = "genus",
   #check the users input data
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
+  }
+  if(!.checkRange(data)){
+    stop("Range of Latitude and/or Longitude is not allowed.")
   }
   if(!.checkRank(rank)){
     stop(base::paste("Rank: \"", rank, "\" is not a valid rank."))
@@ -1259,6 +1283,9 @@ pm_latdiv <- function(shape, occ_df, res=10,
   #check the users input data
   if(!.checkLatLng(occ_df)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
+  }
+  if(!.checkRange(occ_df)){
+    stop("Range of Latitude and/or Longitude is not allowed.")
   }
   if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
