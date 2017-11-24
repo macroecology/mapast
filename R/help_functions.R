@@ -40,7 +40,6 @@ mycols <- colorRampPalette(c("#F5DEB3",
       #split of the matched number
       S <- split(species, species$matched_no)
     }
-    
     R <- lapply(S, function(y) {
       #split off paleolat and paleolng
       s <- split(y, paste(y$paleolng, y$paleolat))
@@ -55,6 +54,7 @@ mycols <- colorRampPalette(c("#F5DEB3",
     values(all)[values(all)==0]<-NA
     all
   }
+  
   #if taxonomic rank is not species
   if (rank != "species") {
     ranks<-data.frame(rank=c("genus","family","order","class","phylum"),

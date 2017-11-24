@@ -737,10 +737,27 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
       #get current genus
       genus_j <- ugenus[j]
       #get all genus in the cell
-      flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
-      flat <- base::subset(flat , flat$paleolat < lat_i + (res / 2))
-      flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
-      flatlng <- base::subset(flatlng , flatlng$paleolng < lng_i + (res / 2))
+      if(lng_i==(180-(res/2)) && lat_i!=(90-(res/2))){
+        flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
+        flat <- base::subset(flat , flat$paleolat < lat_i + (res / 2))
+        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
+        flatlng <- base::subset(flatlng , flatlng$paleolng <= lng_i + (res / 2))
+      } else if(lng_i==(180-(res/2)) && lat_i==(90-(res/2))){
+        flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
+        flat <- base::subset(flat , flat$paleolat <= lat_i + (res / 2))
+        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
+        flatlng <- base::subset(flatlng , flatlng$paleolng <= lng_i + (res / 2))
+      }else if(lng_i!=(180-(res/2)) && lat_i==(90-(res/2))){
+        flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
+        flat <- base::subset(flat , flat$paleolat <= lat_i + (res / 2))
+        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
+        flatlng <- base::subset(flatlng , flatlng$paleolng < lng_i + (res / 2))
+      }else{
+        flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
+        flat <- base::subset(flat , flat$paleolat < lat_i + (res / 2))
+        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
+        flatlng <- base::subset(flatlng , flatlng$paleolng < lng_i + (res / 2))
+      }
       #select only current genus
       if(rank=="species"){
         fgen <- base::subset(flatlng, flatlng[,"matched_name"] == genus_j)
@@ -982,6 +999,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
   #remove lat and lng from data frame
   drops <- c("paleolat","paleolng")
   drop_occ <- occ_df_cell[, !(base::names(occ_df_cell) %in% drops)]
+  drop_occ <- data.frame(rep(0, length(occ_df_cell$paleolat)), drop_occ)
   #calculate the diversity and save diversity, lat and lng in new data frame
   cordata1 <- vegan::diversity(drop_occ)
   cordata <- base::data.frame(occ_df_cell$paleolat, 
@@ -993,12 +1011,22 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
   #declare all cells where diversity=0 as NA (otherwise everything  is colored)
   r[r==0]<- NA
   #set the ones with a fossil occurrence but no diversity to 0
-  s <- base::rowSums(occ_df_cell[,3:length(occ_df_cell)])
+  if(length(occ_df_cell)>3){
+    s <- base::rowSums(occ_df_cell[,3:length(occ_df_cell)])
+  }else{
+    s <- occ_df_cell[,3]
+  }
   s[s > 0] <- 1
   div <- data.frame(paleolat=occ_df_cell$paleolat, paleolng=occ_df_cell$paleolng, genus=s)
   div_cell <- pm_occ_cell(div)
-  div_cell <- div_cell[-c(3)]
+  print(div_cell)
+  if(length(div_cell)>3){
+    # div_cell <- div_cell[-c(3)]
+    div_cell$`0` <- NULL
+  }
   #sort div_cell as r@data@values is sorted
+  # print(r@data@values)
+  # print(div_cell)
   xyras <- data.frame(raster::xyFromCell(r,1:length(r@data@values)))
   div_cell <- div_cell[order(match(
     paste(div_cell[,1],div_cell[,2]),
@@ -1008,6 +1036,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
       r@data@values[i] <- 0
     }
   }
+  # print(r@data@values)
   #default graphical parameter list
   int_args <- base::list(x=shape, col="white", border=FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
@@ -1207,16 +1236,19 @@ pm_latrich <- function(shape, data, rank = "genus",
     graphics::axis(side = 3, pos=94, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
     graphics::axis(side = 3, pos=86, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=78, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
-    #add the richness curve at the right side of the plot
-    graphics::polygon (yy, xx, col=rich.col, border=F, xpd=T)
-    #get the parameters for the richness axis
-    ax_seq <- base::seq(base::min(yy),base::max(yy), ((base::max(yy)-base::min(yy))/2))
-    ax_lab <- ax_seq-180
-    ax_lab <- base::round(ax_lab/magn)
-    #add the richness axes
-    graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = rich.col ,col.axis = rich.col , col= rich.col , cex.axis=0.6, tck=-0.01)
-    graphics::axis(side=3, pos=80, lwd =0, xpd=TRUE, at=ax_seq, labels=ax_lab , col.ticks = rich.col ,col.axis = rich.col , col= rich.col , cex.axis=0.6, tck=-0.01)
-    graphics::axis(side=3, pos=90, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="richness", col.ticks=rich.col, col.axis=rich.col, col=rich.col, cex.axis=0.8, tck=-0.01, cex.lab=0.8)
+    if(!is.nan(base::min(yy))){
+      #add the richness curve at the right side of the plot
+      graphics::polygon (yy, xx, col=rich.col, border=F, xpd=T)
+      #get the parameters for the richness axis
+      ax_seq <- base::seq(base::min(yy),base::max(yy), ((base::max(yy)-base::min(yy))/2))
+      ax_lab <- ax_seq-180
+      ax_lab <- base::round(ax_lab/magn, 2)
+      #add the richness axes
+      graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = rich.col ,col.axis = rich.col , col= rich.col , cex.axis=0.6, tck=-0.01)
+      graphics::axis(side=3, pos=80, lwd =0, xpd=TRUE, at=ax_seq, labels=ax_lab , col.ticks = rich.col ,col.axis = rich.col , col= rich.col , cex.axis=0.6, tck=-0.01)
+      graphics::axis(side=3, pos=90, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="richness", col.ticks=rich.col, col.axis=rich.col, col=rich.col, cex.axis=0.8, tck=-0.01, cex.lab=0.8)  
+    }
+    
     #restore the prior margin settings
     graphics::par(mar=def.mar)
   }
@@ -1370,16 +1402,18 @@ pm_latdiv <- function(shape, occ_df, res=10,
     graphics::axis(side = 3, pos=86, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=78, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     #add the diversity curve next to the plot
-    graphics::polygon(yy, xx, col=div.col, 
-                      border=F, xpd=T)
-    #get the values for the diversity axes
-    ax_seq <- base::seq(base::min(yy),base::max(yy), ((base::max(yy)-base::min(yy))/2))
-    ax_lab <- ax_seq-180
-    ax_lab <- round(ax_lab/magn, 2)
-    #add the axes to the diversity graph
-    graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
-    graphics::axis(side=3, pos=80, lwd =0, xpd=TRUE, at=ax_seq, labels=ax_lab , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
-    graphics::axis(side=3, pos=90, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="diversity", col.ticks=div.col, col.axis=div.col, col=div.col, cex.axis=0.8, tck=-0.01)
+    if(!is.nan(base::min(yy))){
+      graphics::polygon(yy, xx, col=div.col, 
+                        border=F, xpd=T)
+      #get the values for the diversity axes
+      ax_seq <- base::seq(base::min(yy),base::max(yy), ((base::max(yy)-base::min(yy))/2))
+      ax_lab <- ax_seq-180
+      ax_lab <- round(ax_lab/magn, 2)
+      #add the axes to the diversity graph
+      graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
+      graphics::axis(side=3, pos=80, lwd =0, xpd=TRUE, at=ax_seq, labels=ax_lab , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
+      graphics::axis(side=3, pos=90, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="diversity", col.ticks=div.col, col.axis=div.col, col=div.col, cex.axis=0.8, tck=-0.01)
+    }
     #restore prior margin settings
     graphics::par(mar=def.mar) 
   }
