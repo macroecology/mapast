@@ -63,10 +63,15 @@ mycols <- colorRampPalette(c("#F5DEB3",
     
     if (length(data$matched_rank) != 0) {
       identified <- data[!is.na(data$matched_rank), ]
+      # print(identified)
       col <- paste(ranks$matched_rank[ranks$rank==rank])
+      # print(col)
       ident <- identified[!is.na(identified[,col]),]
+      # print(ident)
       f <- paste(ident[, col])
+      # print(f)
       S <- split(ident, f)
+      # print(S)
     }
     
     R<-lapply(S,function(y){
@@ -82,7 +87,7 @@ mycols <- colorRampPalette(c("#F5DEB3",
     values(all)[values(all)==0]<-NA
     all
   }
-  all 
+  all
 }
 
 ################.rfilter###################

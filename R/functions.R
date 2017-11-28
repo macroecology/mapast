@@ -156,8 +156,8 @@ pm_getdata <- function(interval, base_name, limit="all") {
   #if there were results, save them in a data frame called 'data' and remove entries which do not have a paleolatitude or paleolongitude
   if (base::nrow(occ) != 0) {
     data <- .checkPbdb(occ)
-    data <- data[!is.na(data$paleolat),]
-    data <- data[!is.na(data$paleolng),]
+    data <- data[!base::is.na(data$paleolat),]
+    data <- data[!base::is.na(data$paleolng),]
     #return data frame with the fossil occurrences
     return(data)
   } else { #catching error when there are no occurences for the request
@@ -354,7 +354,7 @@ pm_occraster <- function(shape, data,
   e <- raster::extent(c(-180, 180, -90, 90))
   ras <- raster::raster(e, res=res)
   #create a raster of the occurences (sampling effort)
-  r <- raster::rasterize(fdata[, c("paleolng","paleolat")], ras , fun = "count")
+  r <- raster::rasterize(fdata[, c("paleolng","paleolat")], ras, field=fdata[,rank], fun = "count")
   #default graphical parameter list
   int_args <- base::list(x=shape, col = "white", border = FALSE, col.grid=col.grid
                          , xlim=c(-180,180), ylim=c(-90,90)
@@ -484,6 +484,10 @@ pm_richraster <- function (shape, data, rank="genus", res = 10,
   #check if the shape is a SpatialPolygonsDataFrame
   if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
+  }
+  #check if taxon_no is in data frame
+  if(!.checkDataNo(data, rank)){
+    stop(base::paste0("Column ",rank, "_no is missing in the data frame"))
   }
   #creating a raster in size of the shape file
   e <- raster::extent(c(-180, 180, -90, 90))
@@ -736,25 +740,29 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
     for (j in 1:base::length(ugenus)) {
       #get current genus
       genus_j <- ugenus[j]
-      #get all genus in the cell
-      if(lng_i==(180-(res/2)) && lat_i!=(90-(res/2))){
-        flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
-        flat <- base::subset(flat , flat$paleolat < lat_i + (res / 2))
-        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
-        flatlng <- base::subset(flatlng , flatlng$paleolng <= lng_i + (res / 2))
-      } else if(lng_i==(180-(res/2)) && lat_i==(90-(res/2))){
-        flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
-        flat <- base::subset(flat , flat$paleolat <= lat_i + (res / 2))
-        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
-        flatlng <- base::subset(flatlng , flatlng$paleolng <= lng_i + (res / 2))
-      }else if(lng_i!=(180-(res/2)) && lat_i==(90-(res/2))){
+      #get all genus in the cell 
+      maxlng <- 180-(res/2)
+      minlng <- -180+(res/2)
+      maxlat <- 90-(res/2)
+      minlat <- -90+(res/2)
+      if((lng_i==minlng && lat_i==minlat) || (lat_i==minlat && lng_i!=minlng && lng_i!=maxlng )){
         flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
         flat <- base::subset(flat , flat$paleolat <= lat_i + (res / 2))
         flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
         flatlng <- base::subset(flatlng , flatlng$paleolng < lng_i + (res / 2))
-      }else{
+      } else if((lng_i==maxlng &&lat_i==maxlat) || (lng_i==maxlng && lat_i!=minlat && lat_i!=maxlat)){
+        flat <- base::subset(genus_data, genus_data$paleolat > lat_i - (res /2))
+        flat <- base::subset(flat , flat$paleolat <= lat_i + (res / 2))
+        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
+        flatlng <- base::subset(flatlng , flatlng$paleolng <= lng_i + (res / 2))
+      }else if(lng_i==maxlng && lat_i==minlat){
         flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
-        flat <- base::subset(flat , flat$paleolat < lat_i + (res / 2))
+        flat <- base::subset(flat , flat$paleolat <= lat_i + (res / 2))
+        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
+        flatlng <- base::subset(flatlng , flatlng$paleolng <= lng_i + (res / 2))
+      }else{
+        flat <- base::subset(genus_data, genus_data$paleolat > lat_i - (res /2))
+        flat <- base::subset(flat , flat$paleolat <= lat_i + (res / 2))
         flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
         flatlng <- base::subset(flatlng , flatlng$paleolng < lng_i + (res / 2))
       }
@@ -850,9 +858,16 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
   ras <- raster::raster(e, res=res)
   #remove paleolat and paleolng from data
   drops <- c("paleolat","paleolng")
-  drop_occ <- occ_df[, !(base::names(occ_df) %in% drops)]
+  drop_occ <- base::data.frame(occ_df[, !(base::names(occ_df) %in% drops)])
   #calculate the diversity from the fossil occurrences
-  cordata1 <- vegan::diversity(drop_occ)
+  cordata1 <-c()
+  if(nrow(drop_occ>1)){
+    for(i in 1:nrow(drop_occ)){
+      cordata1 <- c(cordata1, vegan::diversity(drop_occ[i,]))
+    }
+  }else{
+    cordata1 <- vegan::diversity(drop_occ)
+  }
   #save paleolat, paleolng and diversity in a data frame and define column names
   cordata <- base::data.frame(occ_df$paleolat, 
                         occ_df$paleolng, div= cordata1)
@@ -865,16 +880,16 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
   #set all values that are 0 to NA (otherwise raster would fill the whole map)
   r[r==0]<- NA
   #set the ones with a fossil occurrence but no diversity to 0
-  div <-cbind(cordata, rep(1, length(cordata[,1])))
-  colnames(div)[4] <- "genus"
+  div <-base::cbind(cordata, base::rep(1, base::length(cordata[,1])))
+  base::colnames(div)[4] <- "genus"
   div_cell <- pm_occ_cell(div)
   #sort div_cell as r@data@values is sorted
-  xyras <- data.frame(raster::xyFromCell(r,1:length(r@data@values)))
-  div_cell <- div_cell[order(match(
+  xyras <- base::data.frame(raster::xyFromCell(r,1:base::length(r@data@values)))
+  div_cell <- div_cell[base::order(base::match(
          paste(div_cell[,1],div_cell[,2]),
          paste(xyras[,1],xyras[,2]))),]
-  for(i in 1:length(div_cell[,3])){
-    if(div_cell[i,3]>0 && is.na(r@data@values[i])){
+  for(i in 1:base::length(div_cell[,3])){
+    if(div_cell[i,3]>0 && base::is.na(r@data@values[i])){
       r@data@values[i] <- 0
     }
   }
@@ -999,7 +1014,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
   #remove lat and lng from data frame
   drops <- c("paleolat","paleolng")
   drop_occ <- occ_df_cell[, !(base::names(occ_df_cell) %in% drops)]
-  drop_occ <- data.frame(rep(0, length(occ_df_cell$paleolat)), drop_occ)
+  drop_occ <- base::data.frame(base::rep(0, base::length(occ_df_cell$paleolat)), drop_occ)
   #calculate the diversity and save diversity, lat and lng in new data frame
   cordata1 <- vegan::diversity(drop_occ)
   cordata <- base::data.frame(occ_df_cell$paleolat, 
@@ -1011,32 +1026,27 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
   #declare all cells where diversity=0 as NA (otherwise everything  is colored)
   r[r==0]<- NA
   #set the ones with a fossil occurrence but no diversity to 0
-  if(length(occ_df_cell)>3){
-    s <- base::rowSums(occ_df_cell[,3:length(occ_df_cell)])
+  if(base::length(occ_df_cell)>3){
+    s <- base::rowSums(occ_df_cell[,3:base::length(occ_df_cell)])
   }else{
     s <- occ_df_cell[,3]
   }
   s[s > 0] <- 1
-  div <- data.frame(paleolat=occ_df_cell$paleolat, paleolng=occ_df_cell$paleolng, genus=s)
+  div <- base::data.frame(paleolat=occ_df_cell$paleolat, paleolng=occ_df_cell$paleolng, genus=s)
   div_cell <- pm_occ_cell(div)
-  print(div_cell)
-  if(length(div_cell)>3){
-    # div_cell <- div_cell[-c(3)]
+  if(base::length(div_cell)>3){
     div_cell$`0` <- NULL
   }
   #sort div_cell as r@data@values is sorted
-  # print(r@data@values)
-  # print(div_cell)
-  xyras <- data.frame(raster::xyFromCell(r,1:length(r@data@values)))
-  div_cell <- div_cell[order(match(
-    paste(div_cell[,1],div_cell[,2]),
-    paste(xyras[,1],xyras[,2]))),]
-  for(i in 1:length(div_cell[,3])){
-    if(div_cell[i,3]>0 && is.na(r@data@values[i])){
+  xyras <- base::data.frame(raster::xyFromCell(r,1:base::length(r@data@values)))
+  div_cell <- div_cell[base::order(base::match(
+    base::paste(div_cell[,1],div_cell[,2]),
+    base::paste(xyras[,1],xyras[,2]))),]
+  for(i in 1:base::length(div_cell[,3])){
+    if(div_cell[i,3]>0 && base::is.na(r@data@values[i])){
       r@data@values[i] <- 0
     }
   }
-  # print(r@data@values)
   #default graphical parameter list
   int_args <- base::list(x=shape, col="white", border=FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
@@ -1066,7 +1076,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE)
     #add the landmasses
-    raster::plot (shape, col=colland, border=FALSE, add=T, bty='L')
+    raster::plot (shape, col=colland, border=FALSE, add=T)
     #add x-axis and x-axis labels
     graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
@@ -1080,7 +1090,7 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
     graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     #add the raster without legend
-    raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
+    raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE)
     #allow to expand the plot
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
@@ -1192,14 +1202,20 @@ pm_latrich <- function(shape, data, rank = "genus",
   richn <- NULL
   #going through lats
   for(lat in base::seq(-90,90-res,res)) {
-    sub1 <- base::subset(data2, data2$paleolat>=lat)
-    sub2 <- base::subset(sub1, sub1$paleolat<(lat+res))
-    sub3 <- base::unique(sub2[,3])
+    if(lat==-90){
+      sub1 <- base::subset(data2, data2$paleolat>=lat)
+      sub2 <- base::subset(sub1, sub1$paleolat<=(lat+res))
+      sub3 <- base::unique(sub2[,3])
+    }else{
+      sub1 <- base::subset(data2, data2$paleolat>lat)
+      sub2 <- base::subset(sub1, sub1$paleolat<=(lat+res))
+      sub3 <- base::unique(sub2[,3])
+    }
     #count and save the number of different taxa at each latitude
     richn <- c(richn, base::length(sub3))
   }
   #define the magnitude of the richness graph
-  magn <- 140/max(richn)
+  magn <- 140/base::max(richn)
   #combine min,max lat and richness in a data frame
   lr <- base::cbind(lr, richn)
   #calculate the center of each range
@@ -1253,6 +1269,7 @@ pm_latrich <- function(shape, data, rank = "genus",
     graphics::par(mar=def.mar)
   }
   #return latitudinal richness
+  lr <- lr[base::length(lr$lat_max):1,]
   return(lr)
 }
 
@@ -1339,33 +1356,24 @@ pm_latdiv <- function(shape, occ_df, res=10,
   }
   #create a graphical parameter list with default and user defined values
   arglist <- c(int_args, params)
-  #remove lat and lng 
-  drops <- c("paleolat","paleolng")
-  drop_occ <- occ_df[, !(base::names(occ_df) %in% drops)]
-  #calculate the diversity
-  H_data <- vegan::diversity(drop_occ)
-  #save the localities and the diversity in a data frame
-  locs <- base::cbind(occ_df[,"paleolat"],occ_df[,"paleolng"], H_data)
-  base::colnames(locs) <- c("paleolat", "paleolng", "div")
-  #create a diversity list
-  cornum <- NULL
-  for(lat in base::seq(-90,80,res)) {
-    slocs <- base::subset(locs, locs[,"paleolat"]>=lat)
-    slocs <- base::subset(slocs, slocs[,"paleolat"]<lat+res)
-    if (base::nrow (slocs) == 0) {
-      cornum <- c(cornum, 0)  
-    } else {
-      cornum <- c(cornum, fun (slocs[,"div"])) 
+  # calculate diversity for each lat range
+  div <- c()
+  for(i in base::seq(-90, 90-res, res)){
+    if(i==-90){
+      sub <- base::subset(occ_df, occ_df$paleolat>=i)
+    }else{
+      sub <- base::subset(occ_df, occ_df$paleolat>i)
     }
+    sub <- base::subset(sub, sub$paleolat<=i+res)
+    drops <- c("paleolat","paleolng")
+    drop_occ <- base::data.frame(sub[, !(base::names(sub) %in% drops)])
+    sum_occ <- base::colSums(drop_occ)
+    div <- c(div , vegan::diversity(sum_occ))
   }
   #calculate the magnitude by taking the max of the diversity
-  magn <- 140/max(cornum)
-  #calculate the min and max values of the 
-  latmin <- base::seq(-90,80,res)
-  latmax <- base::seq(-80,90,res)
-  #create data frame withh latmin latmax and diversity
-  lr <- base::data.frame(latmin, latmax, cornum)
-  base::colnames(lr) <- c("maxlat", "minlat", "div")
+  magn <- 140/base::max(div)
+  #create data frame with paleolat and diversity
+  lr <- base::data.frame(paleolat = c(base::seq(-90+(res/2), 90-(res/2), res)), div=div)
   #define values for plotting the diversity
   centros<- (base::seq(-90,90-res,res)+(base::seq(-90,90-res,res) + res))/2
   rich<- 180 + (lr$div*magn)
@@ -1417,7 +1425,8 @@ pm_latdiv <- function(shape, occ_df, res=10,
     #restore prior margin settings
     graphics::par(mar=def.mar) 
   }
-  #return latitudinal diversity
+  #return latitudinal diversity in order like on plot
+  lr <- lr[base::length(lr$paleolat):1,]
   return(lr)
 }
 
@@ -1449,8 +1458,8 @@ pm_checkAge <- function(age="all"){
   utils::data(df_maps,envir = base::environment())
   #if age is a defined age get all maps including this age
   if(age!="all"){
-    maps <- df_maps[as.numeric(df_maps$fromage) >= as.numeric(age),]
-    maps <- maps[as.numeric(maps$toage) <= as.numeric(age),]
+    maps <- df_maps[base::as.numeric(df_maps$fromage) >= base::as.numeric(age),]
+    maps <- maps[base::as.numeric(maps$toage) <= base::as.numeric(age),]
   }else{
     #else if age is "all" return complete list
     maps <- df_maps

@@ -68,6 +68,32 @@
   }
 }
 
+######.checkDataNo#####
+#.checkDataNo
+#
+#checks if the column xy_no corresponding to the rank is inside the data frame
+#
+#
+#@param data a data frame with fossil occurences
+#@param rank a string defning the rank of interest
+#@return boolean of correct columns are inside the data frame
+#@examples 
+#\dontrun{
+#data <- pm_getdata(base_name="Canis", interval="Quaternary")
+#rank <- "species"
+#.checkDataNo(data, rank)
+#} 
+
+.checkDataNo <- function(data, rank){
+  coln <- base::colnames(data)
+  col <- paste0(rank, "_no")
+  if(rank=="species"){
+    return("matched_no" %in% coln)
+  }else{
+    return(col %in% coln)
+  }
+}
+
 ######.checkShape#####
 #.checkShape
 #

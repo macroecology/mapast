@@ -12,7 +12,7 @@ occ_cell_species <- paleoMap::pm_occ_cell(data, rank="species")
 testthat::context("pm_occraster")
 testthat::test_that("test on pm_occraster, if output is raster", {
   #create raster
-  ras <- paleoMap::pm_occraster(shape, data, rank="species")
+  ras <- paleoMap::pm_occraster(shape, data, rank="genus")
   #test if raster is a RasterLayer
   testthat::expect_that(ras@class[1], equals("RasterLayer"))
   rm(ras)
@@ -189,7 +189,7 @@ testthat::test_that("test that output is a RasterLayer", {
 rm(div_cell)
 
 #####pm_latrich#####
-context("pm_latrich")
+testthat::context("pm_latrich")
 latrich_species <- paleoMap::pm_latrich(shape, data, rank="species")
 names_species <- base::names(latrich_species)
 testthat::test_that("test that column names are correct", {
@@ -218,8 +218,7 @@ latdiv_mean <- pm_latdiv(shape, occ_species, fun=mean)
 names_max <- base::names(latdiv_max)
 names_mean <- base::names(latdiv_mean)
 testthat::test_that("test that output has columns minlat, maxlat, div", {
-  testthat::expect_true("minlat" %in% names_max && "minlat" %in% names_mean)
-  testthat::expect_true("maxlat" %in% names_max && "maxlat" %in% names_mean)
+  testthat::expect_true("paleolat" %in% names_max && "paleolat" %in% names_mean)
   testthat::expect_true("div" %in% names_max && "div" %in% names_mean)
 })
 
