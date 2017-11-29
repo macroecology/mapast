@@ -47,6 +47,7 @@ mycols <- colorRampPalette(c("#F5DEB3",
       X <- as.matrix(do.call(rbind,lapply(s,function(x)c(x$paleolng[1],
                                                        x$paleolat[1],1))))
       X <- rbind(X[1,], X)
+
       r2 <- rasterize(X[,1:2], r, X[,3])
     })
     

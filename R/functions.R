@@ -49,8 +49,8 @@ pm_getmap <- function(interval, model, colland = "#66666660",
                       colsea = "#00509010", 
                       do.plot = TRUE, ...) {
   #check if requested map is available
-  b <- .mapAvailable(interval, model)
-  if(b){
+  mapavailable <- .mapAvailable(interval, model)
+  if(mapavailable){
     # if map is available, get shape file from external database
     #get GPlates map
     if(model=="GPlates"){
@@ -354,7 +354,12 @@ pm_occraster <- function(shape, data,
   e <- raster::extent(c(-180, 180, -90, 90))
   ras <- raster::raster(e, res=res)
   #create a raster of the occurences (sampling effort)
-  r <- raster::rasterize(fdata[, c("paleolng","paleolat")], ras, field=fdata[,rank], fun = "count")
+  if(rank=="species"){
+    r <- raster::rasterize(fdata[, c("paleolng","paleolat")], ras, field=fdata[,"matched_name"], fun = "count")
+  }else{
+    r <- raster::rasterize(fdata[, c("paleolng","paleolat")], ras, field=fdata[,rank], fun = "count")
+  }
+  
   #default graphical parameter list
   int_args <- base::list(x=shape, col = "white", border = FALSE, col.grid=col.grid
                          , xlim=c(-180,180), ylim=c(-90,90)
