@@ -680,13 +680,14 @@ pm_occ <- function(data, rank = "genus", pa=FALSE) {
 #' Generates a diversity matrix, with the number occurrences of each species, 
 #' genus, family or order per cell.
 #' 
-#' @usage pm_occ_cell(data, rank = "genus", res = 10)
+#' @usage pm_occ_cell(data, rank = "genus", res = 10, pa=FALSE)
 #' 
 #' @param data data.frame with fossil occurrences. Can be created with 
 #' pm_getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
 #' @param res numeric. Defining the spatial resolution. By default res=10. 
+#' @param pa boolean. Defines if the user wants presence absence or counted data. By default pa=FALSE.
 #' @return Returns a data frame with number of species, genera, families or orders 
 #' per cell.
 #' @export 
@@ -700,7 +701,7 @@ pm_occ <- function(data, rank = "genus", pa=FALSE) {
 
 
 
-pm_occ_cell <- function(data, rank = "genus", res = 10) {
+pm_occ_cell <- function(data, rank = "genus", res = 10, pa=FALSE) {
   #check the user input data
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -719,85 +720,90 @@ pm_occ_cell <- function(data, rank = "genus", res = 10) {
     }
   }
   #only getting occurences with a known genus
-  genus_data <-.rfilter(data, rank)
+  rankdata <-.rfilter(data, rank)
   #getting list of unique taxa
   if(rank=="species"){
-    ugenus <- base::as.vector(base::unique(genus_data[, "matched_name"]))
+    urank <- base::as.vector(base::unique(rankdata[, "matched_name"]))
   }else if(rank=="genus"){
-    ugenus <- base::as.vector(base::unique(genus_data[, "genus"]))
+    urank <- base::as.vector(base::unique(rankdata[, "genus"]))
   }else if(rank=="family"){
-    ugenus <- base::as.vector(base::unique(genus_data[, "family"]))
+    urank <- base::as.vector(base::unique(rankdata[, "family"]))
   }else if (rank=="order"){
-    ugenus <- base::as.vector(base::unique(genus_data[, "order"]))
+    urank <- base::as.vector(base::unique(rankdata[, "order"]))
   }
   else if(rank=="class"){
-    ugenus <- base::as.vector(base::unique(genus_data[, "class"]))
+    urank <- base::as.vector(base::unique(rankdata[, "class"]))
   }else{
-    ugenus <- base::as.vector(base::unique(genus_data[, "phylum"]))
+    urank <- base::as.vector(base::unique(rankdata[, "phylum"]))
   }
   #define lat/lng sequence using the resolution
   lat <- base::seq(-90+(res/2) , 90-(res/2), res)
   long <- base::seq(-180+(res/2), 180-(res/2), res)
-  nsites <- base::expand.grid (long, lat)
+  occ <- base::expand.grid (long, lat)
   #fill with default values -1 and add lat, lng and column names
-  blank <- base::matrix(-1, nrow = base::nrow (nsites), ncol = base::length(ugenus))
-  nsites <- base::cbind(nsites, blank)
-  base::colnames(nsites) <- c ("paleolng", "paleolat", ugenus)
+  def.values <- base::matrix(-1, nrow = base::nrow (occ), ncol = base::length(urank))
+  occ <- base::cbind(occ, def.values)
+  base::colnames(occ) <- c ("paleolng", "paleolat", urank)
   #getting the number of occurrences of a genus for each locality
-  for (i in 1:base::nrow(nsites)) {
+  for (curloc in 1:base::nrow(occ)) {
     #get lat & lng
-    lng_i <- nsites[i, "paleolng"]
-    lat_i <- nsites[i, "paleolat"]
-    for (j in 1:base::length(ugenus)) {
+    lng_cur <- occ[curloc, "paleolng"]
+    lat_cur <- occ[curloc, "paleolat"]
+    for (curtaxon in 1:base::length(urank)) {
       #get current genus
-      genus_j <- ugenus[j]
+      taxon_cur <- urank[curtaxon]
       #get all genus in the cell 
       maxlng <- 180-(res/2)
       minlng <- -180+(res/2)
       maxlat <- 90-(res/2)
       minlat <- -90+(res/2)
-      if((lng_i==minlng && lat_i==minlat) || (lat_i==minlat && lng_i!=minlng && lng_i!=maxlng )){
-        flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
-        flat <- base::subset(flat , flat$paleolat <= lat_i + (res / 2))
-        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
-        flatlng <- base::subset(flatlng , flatlng$paleolng < lng_i + (res / 2))
-      } else if((lng_i==maxlng &&lat_i==maxlat) || (lng_i==maxlng && lat_i!=minlat && lat_i!=maxlat)){
-        flat <- base::subset(genus_data, genus_data$paleolat > lat_i - (res /2))
-        flat <- base::subset(flat , flat$paleolat <= lat_i + (res / 2))
-        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
-        flatlng <- base::subset(flatlng , flatlng$paleolng <= lng_i + (res / 2))
-      }else if(lng_i==maxlng && lat_i==minlat){
-        flat <- base::subset(genus_data, genus_data$paleolat >= lat_i - (res /2))
-        flat <- base::subset(flat , flat$paleolat <= lat_i + (res / 2))
-        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
-        flatlng <- base::subset(flatlng , flatlng$paleolng <= lng_i + (res / 2))
+      if((lng_cur==minlng && lat_cur==minlat) || (lat_cur==minlat && lng_cur!=minlng && lng_cur!=maxlng )){
+        curlatlng <- base::subset(rankdata, rankdata$paleolat >= lat_cur - (res /2))
+        curlatlng <- base::subset(curlatlng , curlatlng$paleolat <= lat_cur + (res / 2))
+        curlatlng <- base::subset(curlatlng, curlatlng$paleolng >= lng_cur - (res / 2))
+        curlatlng <- base::subset(curlatlng , curlatlng$paleolng < lng_cur + (res / 2))
+      } else if((lng_cur==maxlng &&lat_cur==maxlat) || (lng_cur==maxlng && lat_cur!=minlat && lat_cur!=maxlat)){
+        curlatlng <- base::subset(rankdata, rankdata$paleolat > lat_cur - (res /2))
+        curlatlng <- base::subset(curlatlng , curlatlng$paleolat <= lat_cur + (res / 2))
+        curlatlng <- base::subset(curlatlng, curlatlng$paleolng >= lng_cur - (res / 2))
+        curlatlng <- base::subset(curlatlng , curlatlng$paleolng <= lng_cur + (res / 2))
+      }else if(lng_cur==maxlng && lat_cur==minlat){
+        curlatlng <- base::subset(rankdata, rankdata$paleolat >= lat_cur - (res /2))
+        curlatlng <- base::subset(curlatlng , curlatlng$paleolat <= lat_cur + (res / 2))
+        curlatlng <- base::subset(curlatlng, curlatlng$paleolng >= lng_cur - (res / 2))
+        curlatlng <- base::subset(curlatlng , curlatlng$paleolng <= lng_cur + (res / 2))
       }else{
-        flat <- base::subset(genus_data, genus_data$paleolat > lat_i - (res /2))
-        flat <- base::subset(flat , flat$paleolat <= lat_i + (res / 2))
-        flatlng <- base::subset(flat, flat$paleolng >= lng_i - (res / 2))
-        flatlng <- base::subset(flatlng , flatlng$paleolng < lng_i + (res / 2))
+        curlatlng <- base::subset(rankdata, rankdata$paleolat > lat_cur - (res /2))
+        curlatlng <- base::subset(curlatlng , curlatlng$paleolat <= lat_cur + (res / 2))
+        curlatlng <- base::subset(curlatlng, curlatlng$paleolng >= lng_cur - (res / 2))
+        curlatlng <- base::subset(curlatlng , curlatlng$paleolng < lng_cur + (res / 2))
       }
       #select only current genus
       if(rank=="species"){
-        fgen <- base::subset(flatlng, flatlng[,"matched_name"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"matched_name"] == taxon_cur)
       }else if(rank=="genus"){
-        fgen <- base::subset(flatlng, flatlng[,"genus"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"genus"] == taxon_cur)
       }else if(rank=="family"){
-        fgen <- base::subset(flatlng, flatlng[,"family"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"family"] == taxon_cur)
       }else if(rank=="order"){
-        fgen <- base::subset(flatlng, flatlng[,"order"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"order"] == taxon_cur)
       }else if(rank=="class"){
-          fgen <- base::subset(flatlng, flatlng[,"class"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"class"] == taxon_cur)
       }else if(rank=="phylum"){
-        fgen <- base::subset(flatlng, flatlng[,"phylum"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"phylum"] == taxon_cur)
       }
       #count the number of different taxa in current column and save in the matrix
-      count<- base::nrow (fgen)
-      nsites[i, j + 2] <- count
+      count<- base::nrow (cur.taxon)
+      occ[curloc, curtaxon + 2] <- count
     }
   }
+  if(pa){
+    occnoloc <- occ[,3:length(occ)]
+    occnoloc[occnoloc>0]<-1
+    occ <- cbind(paleolat=occ$paleolat, paleolng=occ$paleolng, occnoloc)
+  }
   #return matrix as data frame
-  return(base::as.data.frame(nsites))
+  return(base::as.data.frame(occ))
 }
 
 

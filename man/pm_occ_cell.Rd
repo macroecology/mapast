@@ -4,7 +4,7 @@
 \alias{pm_occ_cell}
 \title{pm_occ_cell}
 \usage{
-pm_occ_cell(data, rank = "genus", res = 10)
+pm_occ_cell(data, rank = "genus", res = 10, pa=FALSE)
 }
 \arguments{
 \item{data}{data.frame with fossil occurrences. Can be created with 
@@ -14,6 +14,8 @@ pm_getdata(interval, base_name)}
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"}
 
 \item{res}{numeric. Defining the spatial resolution. By default res=10.}
+
+\item{pa}{boolean. Defines if the user wants presence absence or counted data. By default pa=FALSE.}
 }
 \value{
 Returns a data frame with number of species, genera, families or orders 
