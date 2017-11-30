@@ -370,7 +370,7 @@ pm_occraster <- function(shape, data,
   names_graphparams.def <- base::as.vector(base::names(graphparams.def))
   #if user changes parameter defined with default values take users values
   for( param in names_graphparams.user){
-    if(param %in% names_geaphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def)==param)] 
+    if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def)==param)] 
   }
   #create a graphical parameter list including default and user parameter
   graphparams <- c(graphparams.def, graphparams.user)
