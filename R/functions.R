@@ -341,7 +341,7 @@ pm_occraster <- function(shape, data,
     if(rank=="species"){
       stop(base::paste("There is no column matched_name in the data frame.", sep=""))
     }else{
-      stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
+      stop(base::paste("There is no column ", rank,  " in the data frame.", sep=""))
     }
   }
   #check if the shape is a SpatialPolygonsDataFrame
@@ -607,8 +607,7 @@ pm_occ <- function(data, rank = "genus", pa=FALSE) {
   #filter data for the rank
   rankdata <- .rfilter(data, rank)
   #create a data. frame with all the locations once
-  latlng <- base::data.frame(paleolat = rankdata$paleolat, 
-                    paleolng = rankdata$paleolng)
+  latlng <- base::data.frame(paleolng = rankdata$paleolng, paleolat = rankdata$paleolat)
   ulatlng <- base::unique(latlng)
   #getting list of unique taxa
   if(rank=="species"){
@@ -666,8 +665,9 @@ pm_occ <- function(data, rank = "genus", pa=FALSE) {
   if(pa){
     occnoloc <- occ[,3:length(occ)]
     occnoloc[occnoloc>0]<-1
-    occ <- cbind(paleolat=occ$paleolat, paleolng=occ$paleolng, occnoloc)
+    occ <- cbind(paleolng=occ$paleolng, paleolat=occ$paleolat, occnoloc)
   }
+  occ <- occ[with(occ, order(paleolng, -paleolat)), ]
   #return the data.frame
   return(occ)
 }
@@ -800,8 +800,9 @@ pm_occ_cell <- function(data, rank = "genus", res = 10, pa=FALSE) {
   if(pa){
     occnoloc <- occ[,3:length(occ)]
     occnoloc[occnoloc>0]<-1
-    occ <- cbind(paleolat=occ$paleolat, paleolng=occ$paleolng, occnoloc)
+    occ <- cbind(paleolng=occ$paleolng, paleolat=occ$paleolat, occnoloc)
   }
+  occ <- occ[with(occ, order(paleolng, -paleolat)), ]
   #return matrix as data frame
   return(base::as.data.frame(occ))
 }
@@ -1213,8 +1214,6 @@ pm_latrich <- function(shape, data, rank = "genus",
   #filter the data for the taxonomic rank
   data2 <-.rfilter(data, rank)
   #setting min and max value for lat
-  lr <- base::data.frame(lat_min= base::seq(-90,90-res,res), 
-                   lat_max=base::seq(-90+res, 90, res))
   #creating empty richness data frame
   richn <- NULL
   #going through lats
@@ -1234,11 +1233,11 @@ pm_latrich <- function(shape, data, rank = "genus",
   #define the magnitude of the richness graph
   magn <- 140/base::max(richn)
   #combine min,max lat and richness in a data frame
-  lr <- base::cbind(lr, richn)
+  lr <- base::data.frame(paleolat = c(base::seq(-90+(res/2), 90-(res/2), res)), richness=richn)
   #calculate the center of each range
   centros<- (base::seq(-90,90-res,res)+(base::seq(-90,90-res,res) + res))/2
   #save the richness, x and y value for plotting
-  rich<- 180 + (lr$richn*magn)
+  rich<- 180 + (lr$richness*magn)
   yy<- c(180, rich, 180)
   xx<- c(-90, centros, 90)
   #if do.plot is true create a plot
@@ -1286,7 +1285,7 @@ pm_latrich <- function(shape, data, rank = "genus",
     graphics::par(mar=def.mar)
   }
   #return latitudinal richness
-  lr <- lr[base::length(lr$lat_max):1,]
+  lr <- lr[base::length(lr$paleolat):1,]
   return(lr)
 }
 

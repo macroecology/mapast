@@ -193,9 +193,8 @@ testthat::context("pm_latrich")
 latrich_species <- paleoMap::pm_latrich(shape, data, rank="species")
 names_species <- base::names(latrich_species)
 testthat::test_that("test that column names are correct", {
-  testthat::expect_true("lat_min" %in% names_species)
-  testthat::expect_true("lat_max" %in% names_species)
-  testthat::expect_true("richn" %in% names_species)
+  testthat::expect_true("paleolat" %in% names_species)
+  testthat::expect_true("richness" %in% names_species)
 })
 
 testthat::test_that("test that first two rows habe only data from ", {
