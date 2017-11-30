@@ -70,26 +70,26 @@ pm_getmap <- function(interval, model, colland = "#66666660",
   }
   #getting final parameter list for plot
   #default parameter list for plotting
-  int_args <- base::list(x=shape, col = "white", border = FALSE
+  graphparams.def <- base::list(x=shape, col = "white", border = FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i")
   #list of user defined graphical parameter
-  params <- base::list(...)
-  names_params <- base::as.vector(base::names(params))
-  names_intargs <- base::as.vector(base::names(int_args))
+  graphparams.user <- base::list(...)
+  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
   #remove default parameter if user specifies a different value
-  for( i in names_params){
-    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  for( param in names_graphparams.user){
+    if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def)==param)] 
   }
   #complete new list of plotting parameters, including default and user specified ones
-  arglist <- c(int_args, params)
+  graphparams <- c(graphparams.def, graphparams.user)
   # if user does not set plot=FALSE plot the shape file
   if (do.plot) {
     #define the size of the margin of the plot and save the former definition
     def.mar <- graphics::par("mar")
     graphics::par(mar=c(2,2,2,2))
     #do a first plot with the graphical parameters set by the user
-    base::do.call(sp::plot, arglist)
+    base::do.call(sp::plot, graphparams)
     #draw a rectangle showing the sea
     graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
@@ -225,19 +225,19 @@ pm_plot <- function(interval, model, data,
   #getting the shape file with pm_getmap
   shape <- paleoMap::pm_getmap(interval = interval, model = model, do.plot = FALSE)
   #default parameter list for plotting
-  int_args <- base::list(x=shape, col = "white", border = FALSE
+  graphparams.def <- base::list(x=shape, col = "white", border = FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i")
   #list of user defined graphical parameter
-  params <- base::list(...)
-  names_params <- base::as.vector(base::names(params))
-  names_intargs <- base::as.vector(base::names(int_args))
+  graphparams.user <- base::list(...)
+  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
   #remove default parameter from list if user specified the same parameter different
-  for( i in names_params){
-    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  for( param in names_graphparams.user){
+    if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def)==param)] 
   }
   #create arglist with default and user parameter for plotting
-  arglist <- c(int_args, params)
+  graphparams <- c(graphparams.def, graphparams.user)
   #plotting the map and the data
   #input data needs to be a data frame
   if (base::class(data) == "data.frame") {
@@ -246,7 +246,7 @@ pm_plot <- function(interval, model, data,
     graphics::par(mar=c(1.5,1.5,2,1.5))
     #plot with the parameter list which includes users graphical parameter
     #defines size and axes of the plot
-    base::do.call(sp::plot, arglist)
+    base::do.call(sp::plot, graphparams)
     #draw the rectangle showing the sea
     graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
          ytop = 90, col = colsea, 
@@ -349,41 +349,41 @@ pm_occraster <- function(shape, data,
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
   #filter data for rank
-  fdata <- .rfilter(data, rank)
+  rankdata <- .rfilter(data, rank)
   #creating a raster in the size of the shape
-  e <- raster::extent(c(-180, 180, -90, 90))
-  ras <- raster::raster(e, res=res)
+  spatialext <- raster::extent(c(-180, 180, -90, 90))
+  ras <- raster::raster(spatialext, res=res)
   #create a raster of the occurences (sampling effort)
   if(rank=="species"){
-    r <- raster::rasterize(fdata[, c("paleolng","paleolat")], ras, field=fdata[,"matched_name"], fun = "count")
+    occraster <- raster::rasterize(rankdata[, c("paleolng","paleolat")], ras, field=rankdata[,"matched_name"], fun = "count")
   }else{
-    r <- raster::rasterize(fdata[, c("paleolng","paleolat")], ras, field=fdata[,rank], fun = "count")
+    occraster <- raster::rasterize(rankdata[, c("paleolng","paleolat")], ras, field=rankdata[,rank], fun = "count")
   }
   
   #default graphical parameter list
-  int_args <- base::list(x=shape, col = "white", border = FALSE, col.grid=col.grid
+  graphparams.def <- base::list(x=shape, col = "white", border = FALSE, col.grid=col.grid
                          , xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i")
   #list user given graphical parameter
-  params <- base::list(...)
-  names_params <- base::as.vector(base::names(params))
-  names_intargs <- base::as.vector(base::names(int_args))
+  graphparams.user <- base::list(...)
+  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
   #if user changes parameter defined with default values take users values
-  for( i in names_params){
-    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  for( param in names_graphparams.user){
+    if(param %in% names_geaphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def)==param)] 
   }
   #create a graphical parameter list including default and user parameter
-  arglist <- c(int_args, params)
+  graphparams <- c(graphparams.def, graphparams.user)
   #if user changes grid color, save it in mycol and remove it from the list
-  mycol <- arglist$col.grid
-  arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
+  gridcol <- graphparams$col.grid
+  graphparams <- graphparams[- base::which(base::names(graphparams)=="col.grid")]
   #if do.plot is true, create a plot
   if(do.plot){
     #save old margin values and define needed margin values
     def.mar <- graphics::par("mar")
     graphics::par(mar=c(1.5,1.5,2,4))
     #create a plot with the users parameters
-    base::do.call(raster::plot, arglist)
+    base::do.call(raster::plot, graphparams)
     #create a rectangle showing the sea
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE)
@@ -402,19 +402,19 @@ pm_occraster <- function(shape, data,
     graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     #add the raster to the plot without legend
-    raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
+    raster::plot (occraster, add=T,axes=F, box=F, col=gridcol, legend=FALSE, bty='L')
     #allow the plot to expand the borders
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
     #add the raster legend outside the plot
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='occurrences', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
+    raster::plot (occraster, legend.only=TRUE, col=gridcol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='occurrences', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
+    raster::plot (occraster, legend.only=TRUE, col=gridcol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
     graphics::par(bty= "o")
     #restore default margin settings
     graphics::par(mar=def.mar)
   }
   #return the raster
-  return(r)
+  return(occraster)
 }
 
 #####################pm_richraster####################
@@ -495,33 +495,33 @@ pm_richraster <- function (shape, data, rank="genus", res = 10,
     stop(base::paste0("Column ",rank, "_no is missing in the data frame"))
   }
   #creating a raster in size of the shape file
-  e <- raster::extent(c(-180, 180, -90, 90))
-  ras <- raster::raster(e, res=res)
+  spatialext <- raster::extent(c(-180, 180, -90, 90))
+  ras <- raster::raster(spatialext, res=res)
   #getting the raster of the species richness
-  r <- .rank_filter(ras, data, res = res, rank)
+  richraster <- .rank_filter(ras, data, res = res, rank)
   #default graphical parameters
-  int_args <- base::list(x=shape, col="white", border=FALSE, col.grid=col.grid
+  graphparams.def <- base::list(x=shape, col="white", border=FALSE, col.grid=col.grid
                                        , xlim=c(-180,180), ylim=c(-90,90)
                                        , xaxs="i", yaxs="i")
   #list of user defined graphical parameter
-  params <- base::list(...)
-  names_params <- base::as.vector(base::names(params))
-  names_intargs <- base::as.vector(base::names(int_args))
+  graphparams.user <- base::list(...)
+  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
   #if user defines default value different only keep users value
-  for( i in names_params){
-    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  for( param in names_graphparams.user){
+    if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def)==param)] 
   }
   #komplete parameter list
-  arglist <- c(int_args, params)
+  graphparams <- c(graphparams.def, graphparams.user)
   #save the color of the grid/raster and remove it from the parameter list (only needed later)
-  mycol <- arglist$col.grid
-  arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
+  gridcol <- graphparams$col.grid
+  graphparams <- graphparams[- base::which(base::names(graphparams)=="col.grid")]
   if(do.plot){
     #save current margin values and define it as needed
     def.mar <- graphics::par("mar")
     graphics::par(mar=c(1.5,1.5,2,4))
     #plot with the default and user defined graphical parameter
-    base::do.call(raster::plot, arglist)
+    base::do.call(raster::plot, graphparams)
     #add a rectangle as the sea
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE)
@@ -540,19 +540,19 @@ pm_richraster <- function (shape, data, rank="genus", res = 10,
     graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     #add the raster without legend
-    raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
+    raster::plot (richraster, add=T,axes=F, box=F, col=gridcol, legend=FALSE, bty='L')
     #allow to draw outside the plot
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
     #add raster legend outside the plot
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='richness', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
+    raster::plot (richraster, legend.only=TRUE, col=gridcol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='richness', line=1, side=3, adj=0.25, cex=0.6, col=col.grid[length(col.grid)/2]))
+    raster::plot (richraster, legend.only=TRUE, col=gridcol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=col.grid[length(col.grid)/2]))
     graphics::par(bty= "o")
     #restore prior margin values
     graphics::par(mar=def.mar)
   }
   #return the raster
-  return(r)
+  return(richraster)
 }
 
 
@@ -564,13 +564,14 @@ pm_richraster <- function (shape, data, rank="genus", res = 10,
 #' Generates a diversity matrix, with the number occurrences of each species, 
 #' genus, family or order per locality.
 #' 
-#' @usage pm_occ(data, rank = "genus")
+#' @usage pm_occ(data, rank = "genus", pa=FALSE)
 #' 
 #' @param data data.frame with fossil occurrences. Can be created with 
 #' pm_getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
-#' @return Returns a data frame with number of species, genera, families or orders 
+#' @param pa boolean. Defines if the user wants presence absence or counted data. By default pa=FALSE.
+#' @return Returns a matrix with number of species, genera, families or orders 
 #' per locality.
 #' @export 
 #' @examples 
@@ -582,7 +583,7 @@ pm_richraster <- function (shape, data, rank="genus", res = 10,
 #'}
 
 
-pm_occ <- function(data, rank = "genus") {
+pm_occ <- function(data, rank = "genus", pa=FALSE) {
   #check users input data
   #check if lat/lng columns are in the data frame
   if(!.checkLatLng(data)){
@@ -604,66 +605,71 @@ pm_occ <- function(data, rank = "genus") {
     }
   }
   #filter data for the rank
-  genus_data <- .rfilter(data, rank)
+  rankdata <- .rfilter(data, rank)
   #create a data. frame with all the locations once
-  loc <- base::data.frame(paleolat = genus_data$paleolat, 
-                    paleolng = genus_data$paleolng)
-  uloc <- base::unique(loc)
+  latlng <- base::data.frame(paleolat = rankdata$paleolat, 
+                    paleolng = rankdata$paleolng)
+  ulatlng <- base::unique(latlng)
   #getting list of unique taxa
   if(rank=="species"){
-    ugenus <- base::as.vector(base::unique(genus_data[, "matched_name"]))
+    urank <- base::as.vector(base::unique(rankdata[, "matched_name"]))
   }else if(rank=="genus"){
-    ugenus <- base::as.vector(base::unique(genus_data[, "genus"]))
+    urank <- base::as.vector(base::unique(rankdata[, "genus"]))
   }else if(rank=="family"){
-    ugenus <- base::as.vector(base::unique(genus_data[, "family"]))
+    urank <- base::as.vector(base::unique(rankdata[, "family"]))
   }else if(rank=="order"){
-    ugenus <- base::as.vector(base::unique(genus_data[, "order"]))
+    urank <- base::as.vector(base::unique(rankdata[, "order"]))
   }else if(rank=="class"){
-    ugenus <- base::as.vector(base::unique(genus_data[, "class"]))
+    urank <- base::as.vector(base::unique(rankdata[, "class"]))
   }else if(rank=="phylum"){
-    ugenus <- base::as.vector(base::unique(genus_data[, "phylum"]))
+    urank <- base::as.vector(base::unique(rankdata[, "phylum"]))
   }
   #save the unique locations in nsites
-  nsites <- uloc
+  occ <- ulatlng
   #fill matrix with default values -1 for each species/genus/.. and each locality
-  blank <- base::matrix(-1, nrow = base::nrow(nsites), ncol = base::length(ugenus))
+  def.values <- base::matrix(-1, nrow = base::nrow(occ), ncol = base::length(urank))
   #add the unique localities to the matrix
-  nsites <- base::cbind(nsites, blank)
+  occ <- base::cbind(occ, def.values)
   #set lat, lng and species/genus/.. names as column names
-  base::colnames(nsites) <- c(base::unlist(base::names(loc)), ugenus)
+  base::colnames(occ) <- c(base::unlist(base::names(latlng)), urank)
   #getting the number of occurrences of a species/genus/... for each locality
-  for (i in 1:base::nrow(nsites)) {
+  for (curloc in 1:base::nrow(occ)) {
     #get lat & lng
-    lat_i <- nsites[i, "paleolat"]
-    lng_i <- nsites[i, "paleolng"]
+    lat_cur <- occ[curloc, "paleolat"]
+    lng_cur <- occ[curloc, "paleolng"]
     #go through the list with unique species/genera/...
-    for (j in 1:base::length(ugenus)) {
+    for (curtaxon in 1:base::length(urank)) {
       #get current species/genus/...
-      genus_j <- ugenus[j]
+      taxon_cur <- urank[curtaxon]
       #get all fossil occurrences at current locality
-      flat <- base::subset(genus_data, genus_data$paleolat == lat_i)
-      flatlng <- base::subset(flat, flat$paleolng == lng_i)
+      curlatlng <- base::subset(rankdata, rankdata$paleolat == lat_cur)
+      curlatlng <- base::subset(curlatlng, curlatlng$paleolng == lng_cur)
       #select only current species/genus/...
       if(rank=="species"){
-        fgen <- base::subset(flatlng, flatlng[,"matched_name"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"matched_name"] == taxon_cur)
       }else if(rank=="genus"){
-        fgen <- base::subset(flatlng, flatlng[,"genus"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"genus"] == taxon_cur)
       }else if(rank=="family"){
-        fgen <- base::subset(flatlng, flatlng[,"family"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"family"] == taxon_cur)
       }else if(rank=="order"){
-        fgen <- base::subset(flatlng, flatlng[,"order"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"order"] == taxon_cur)
       }else if(rank=="class"){
-        fgen <- base::subset(flatlng, flatlng[,"class"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"class"] == taxon_cur)
       }else if(rank=="phylum"){
-        fgen <- base::subset(flatlng, flatlng[,"phylum"] == genus_j)
+        cur.taxon <- base::subset(curlatlng, curlatlng[,"phylum"] == taxon_cur)
       }
       #count the number of species/geners/.. in this locality and save it in the matrix
-      count<- base::nrow(fgen)
-      nsites[i, j + 2] <- count
+      count<- base::nrow(cur.taxon)
+      occ[curloc, curtaxon + 2] <- count
     }
   }
-  #return the matrix
-  return(nsites)
+  if(pa){
+    occnoloc <- occ[,3:length(occ)]
+    occnoloc[occnoloc>0]<-1
+    occ <- cbind(paleolat=occ$paleolat, paleolng=occ$paleolng, occnoloc)
+  }
+  #return the data.frame
+  return(occ)
 }
 
 

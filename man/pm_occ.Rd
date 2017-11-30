@@ -4,7 +4,7 @@
 \alias{pm_occ}
 \title{pm_occ}
 \usage{
-pm_occ(data, rank = "genus")
+pm_occ(data, rank = "genus", pa=FALSE)
 }
 \arguments{
 \item{data}{data.frame with fossil occurrences. Can be created with 
@@ -12,9 +12,11 @@ pm_getdata(interval, base_name)}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"}
+
+\item{pa}{boolean. Defines if the user wants presence absence or counted data. By default pa=FALSE.}
 }
 \value{
-Returns a data frame with number of species, genera, families or orders 
+Returns a matrix with number of species, genera, families or orders 
 per locality.
 }
 \description{
