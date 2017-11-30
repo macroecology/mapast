@@ -871,68 +871,68 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
     stop("Chosen value for fun is not a valid input.")
   }
   #creating a raster in size of the shape file
-  e <- raster::extent(c(-180, 180, -90, 90))
-  ras <- raster::raster(e, res=res)
+  spatialext <- raster::extent(c(-180, 180, -90, 90))
+  ras <- raster::raster(spatialext, res=res)
   #remove paleolat and paleolng from data
   drops <- c("paleolat","paleolng")
-  drop_occ <- base::data.frame(occ_df[, !(base::names(occ_df) %in% drops)])
+  rawocc <- base::data.frame(occ_df[, !(base::names(occ_df) %in% drops)])
   #calculate the diversity from the fossil occurrences
-  cordata1 <-c()
-  if(nrow(drop_occ>1)){
-    for(i in 1:nrow(drop_occ)){
-      cordata1 <- c(cordata1, vegan::diversity(drop_occ[i,]))
+  div <-c()
+  if(nrow(rawocc>1)){
+    for(i in 1:nrow(rawocc)){
+      div <- c(div, vegan::diversity(rawocc[i,]))
     }
   }else{
-    cordata1 <- vegan::diversity(drop_occ)
+    div <- vegan::diversity(rawocc)
   }
   #save paleolat, paleolng and diversity in a data frame and define column names
-  cordata <- base::data.frame(occ_df$paleolat, 
-                        occ_df$paleolng, div= cordata1)
-  base::colnames(cordata) <- c("paleolat", "paleolng", "div")
+  divlatlng <- base::data.frame(occ_df$paleolat, 
+                        occ_df$paleolng, div= div)
+  base::colnames(divlatlng) <- c("paleolat", "paleolng", "div")
 
   #getting the raster of the diversity, using the function as defined in the input parameter
-  r<-raster::rasterize(cordata[, c("paleolng", "paleolat")], ras, 
-                       field= cordata$div, fun=fun)
+  divraster<-raster::rasterize(divlatlng[, c("paleolng", "paleolat")], ras, 
+                       field= divlatlng$div, fun=fun)
   
   #set all values that are 0 to NA (otherwise raster would fill the whole map)
-  r[r==0]<- NA
+  divraster[divraster==0]<- NA
   #set the ones with a fossil occurrence but no diversity to 0
-  div <-base::cbind(cordata, base::rep(1, base::length(cordata[,1])))
-  base::colnames(div)[4] <- "genus"
-  div_cell <- pm_occ_cell(div)
+  div.df <-base::cbind(divlatlng, base::rep(1, base::length(divlatlng[,1])))
+  base::colnames(div.df)[4] <- "genus"
+  div_cell <- pm_occ_cell(div.df)
   #sort div_cell as r@data@values is sorted
-  xyras <- base::data.frame(raster::xyFromCell(r,1:base::length(r@data@values)))
+  xyras <- base::data.frame(raster::xyFromCell(divraster,1:base::length(divraster@data@values)))
   div_cell <- div_cell[base::order(base::match(
          paste(div_cell[,1],div_cell[,2]),
          paste(xyras[,1],xyras[,2]))),]
   for(i in 1:base::length(div_cell[,3])){
-    if(div_cell[i,3]>0 && base::is.na(r@data@values[i])){
-      r@data@values[i] <- 0
+    if(div_cell[i,3]>0 && base::is.na(divraster@data@values[i])){
+      divraster@data@values[i] <- 0
     }
   }
   #set default graphical parameter
-  int_args <- base::list(x=shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
+  graphparams.def <- base::list(x=shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
                          , xaxs="i", yaxs="i", col.grid=col.grid)
   #get graphical parameter from the users input
-  params <- base::list(...)
-  names_params <- base::as.vector(base::names(params))
-  names_intargs <- base::as.vector(base::names(int_args))
+  graphparams.user <- base::list(...)
+  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
   #keep users value if user defines same value as in default values
-  for( i in names_params){
-    if(i %in% names_intargs) int_args <- int_args[ - base::which(base::names(int_args)==i)] 
+  for( param in names_graphparams.user){
+    if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def)==param)] 
   }
   #create graphical parameter list with default and user values
-  arglist <- c(int_args, params)
+  graphparams <- c(graphparams.def, graphparams.user)
   #save the raster color and remove it from the parameter list
-  mycol <- arglist$col.grid
-  arglist <- arglist[- base::which(base::names(arglist)=="col.grid")]
+  gridcol <- graphparams$col.grid
+  graphparams <- graphparams[- base::which(base::names(graphparams)=="col.grid")]
   #if do.plot is true
   if(do.plot){
     #save current margin settings and define needed
     def.mar <- graphics::par("mar")
     graphics::par(mar=c(1.5,1.5,2,4))
     #create a plot with the users graphical parameters
-    base::do.call(raster::plot, arglist)
+    base::do.call(raster::plot, graphparams)
     #add a rectangle as the sea
     graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
                    border=FALSE,bty='L')
@@ -951,19 +951,19 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
     graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
     graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
     #add the raster to the plot without a legend
-    raster::plot (r, add=T,axes=F, box=F, col=mycol, legend=FALSE, bty='L')
+    raster::plot (divraster, add=T,axes=F, box=F, col=gridcol, legend=FALSE, bty='L')
     #allow to expand the plotting area
     graphics::par(xpd = TRUE)
     graphics::par(bty= "n")
     #add the legend of the raster next to the plot
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='diversity', line=1, side=3, adj=0.25, cex=0.6, col=mycol[length(mycol)/2]))
-    raster::plot (r, legend.only=TRUE, col=mycol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=mycol[length(mycol)/2]))
+    raster::plot (divraster, legend.only=TRUE, col=gridcol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='diversity', line=1, side=3, adj=0.25, cex=0.6, col=gridcol[length(gridcol)/2]))
+    raster::plot (divraster, legend.only=TRUE, col=gridcol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=gridcol[length(gridcol)/2]))
     graphics::par(bty= "o")
     #restore prior margin settings
     graphics::par(mar=def.mar)
   }
   #return the raster
-  return(r)
+  return(divraster)
 }
 
 
