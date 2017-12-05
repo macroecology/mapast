@@ -7,9 +7,10 @@
 ## mycols <- colorRampPalette(c("goldenrod1","orangered",
 ##                              "darkred"))
 mycols <- colorRampPalette(c("#F5DEB3",
-                             "#8c714e",
+                             "#A99071",
                              "#654321"))
 
+##"#8c714e"
 #################.rank_filter#######################
 # .rank_filter
 # 
@@ -32,63 +33,38 @@ mycols <- colorRampPalette(c("#F5DEB3",
 .rank_filter <- function(r, data, res, rank) {
   #get species data
   if (rank == "species") {
-    if (length(data$matched_rank) != 0) {
+    if (base::length(data$matched_rank) != 0) {
       #only extract data where a matched rank exists
-      identified <- data[!is.na(data$matched_rank), ]
+      rank.df <- data[!base::is.na(data$matched_rank), ]
       #extract only species data
-      species <- identified[identified$matched_rank == rank, ]
+      rank.df <- rank.df[rank.df$matched_rank == rank, ]
       #split of the matched number
-      S <- split(species, species$matched_no)
+      rank.df <- base::split(rank.df, rank.df$matched_no)
     }
-    R <- lapply(S, function(y) {
-      #split off paleolat and paleolng
-      s <- split(y, paste(y$paleolng, y$paleolat))
-      
-      X <- as.matrix(do.call(rbind,lapply(s,function(x)c(x$paleolng[1],
-                                                       x$paleolat[1],1))))
-      X <- rbind(X[1,], X)
-
-      r2 <- rasterize(X[,1:2], r, X[,3])
-    })
-    
-    all<-calc(stack(R), function(x) sum(x,na.rm=TRUE))
-    values(all)[values(all)==0]<-NA
-    all
-  }
-  
-  #if taxonomic rank is not species
-  if (rank != "species") {
-    ranks<-data.frame(rank=c("genus","family","order","class","phylum"),
+  }else{
+    ranks <- base::data.frame(rank=c("genus","family","order","class","phylum"),
                       matched_rank=c("genus_no","family_no","order_no",
                                      "class_no","phylum_no"))
     
-    if (length(data$matched_rank) != 0) {
-      identified <- data[!is.na(data$matched_rank), ]
-      # print(identified)
-      col <- paste(ranks$matched_rank[ranks$rank==rank])
-      # print(col)
-      ident <- identified[!is.na(identified[,col]),]
-      # print(ident)
-      f <- paste(ident[, col])
-      # print(f)
-      S <- split(ident, f)
-      # print(S)
+    if (base::length(data$matched_rank) != 0) {
+      rank.df <- data[!base::is.na(data$matched_rank), ]
+      rankcolumn <- base::paste(ranks$matched_rank[ranks$rank==rank])
+      rank.df <- rank.df[!base::is.na(rank.df[,rankcolumn]),]
+      split_no <- base::paste(rank.df[, rankcolumn])
+      rank.df <- base::split(rank.df, split_no)
     }
-    
-    R<-lapply(S,function(y){
-      s<-split(y,paste(y$paleolng,y$paleolat))
-      X<-as.matrix(do.call(rbind,lapply(s,function(x)c(x$paleolng[1],
-                                                       x$paleolat[1],1))))
-      X<-rbind(X[1,],X)
-      r2<-rasterize(X[,1:2],r,X[,3])
-      }
-    )
-    names(R)=NULL
-    all<-calc(stack(R), function(x) sum(x,na.rm=TRUE))
-    values(all)[values(all)==0]<-NA
-    all
   }
-  all
+  rankraster <- base::lapply(rank.df, function(y) {
+    #split off paleolat and paleolng
+    latlng <- base::split(y, base::paste(y$paleolng, y$paleolat))
+    latlngmatrix <- base::as.matrix(base::do.call(base::rbind,base::lapply(latlng,function(x)c(x$paleolng[1],
+                                                     x$paleolat[1],1))))
+    latlngmatrix <- base::rbind(latlngmatrix[1,], latlngmatrix)
+    latlngras <- raster::rasterize(latlngmatrix[,1:2], r, latlngmatrix[,3])
+  })
+  rankraster <- raster::calc(raster::stack(rankraster), function(x) base::sum(x,na.rm=TRUE))
+  raster::values(rankraster)[raster::values(rankraster)==0]<-NA
+  return(rankraster)
 }
 
 ################.rfilter###################
@@ -113,36 +89,36 @@ mycols <- colorRampPalette(c("#F5DEB3",
     matched_rank <- NULL
     genus <- NULL
     #save all fossil occurrences where the rank is species
-    data <- subset(data, data$matched_rank=="species")
-    data<- data[, c("paleolat", "paleolng", "matched_name")]
+    rankdata <- base::subset(data, data$matched_rank=="species")
+    rankdata<- rankdata[, c("paleolat", "paleolng", "matched_name")]
   }
   if (rank=="genus") {
     #save all fossil occurrences where there is a known genus
-    data <- subset(data, data$genus!="NA")
-    data<- data[, c("paleolat", "paleolng", "genus")]
+    rankdata <- base::subset(data, data$genus!="NA")
+    rankdata<- rankdata[, c("paleolat", "paleolng", "genus")]
   }
   if (rank=="family") {
     #save all fossil occurrences where there is a known family
-    data <- subset(data, data$family!="NA")
-    data<- data[, c("paleolat", "paleolng", "family")]
+    rankdata <- base::subset(data, data$family!="NA")
+    rankdata<- rankdata[, c("paleolat", "paleolng", "family")]
   }
   if (rank=="order") {
     #save all fossil occurrences where there is a known order
-    data <- subset(data, data$order!="NA")
-    data<- data[, c("paleolat", "paleolng", "order")]
+    rankdata <- base::subset(data, data$order!="NA")
+    rankdata<- rankdata[, c("paleolat", "paleolng", "order")]
   }
   if (rank=="class") {
     #save all fossil occurrences where there is a known class
-    data <- subset(data, data$order!="NA")
-    data<- data[, c("paleolat", "paleolng", "class")]
+    rankdata <- base::subset(data, data$order!="NA")
+    rankdata<- rankdata[, c("paleolat", "paleolng", "class")]
   }
   if (rank=="phylum") {
     #save all fossil occurrences where there is a known phylum
-    data <- subset(data, data$order!="NA")
-    data<- data[, c("paleolat", "paleolng", "phylum")]
+    rankdata <- base::subset(data, data$order!="NA")
+    rankdata<- rankdata[, c("paleolat", "paleolng", "phylum")]
   }
-  #return the data filtered for the taxonomic rank
-  return(data)
+  #return the rankdata filtered for the taxonomic rank
+  return(rankdata)
 }
 
 
@@ -170,20 +146,20 @@ mycols <- colorRampPalette(c("#F5DEB3",
             "genus_no","family_no","order_no",
             "class_no","phylum_no", "early_age", "late_age")
   # create a data frame with all wanted columns
-  new <- data.frame(matrix(0, ncol=length(cols), nrow=nrow(occ)))
-  colnames(new) <- cols
+  complete.df <- base::data.frame(base::matrix(0, ncol=length(cols), nrow=nrow(occ)))
+  base::colnames(complete.df) <- cols
   #go hrough columns
   for( i in cols){
     #if column in original df exists, save in new df
     if(i %in% names(occ)){
-      new[[i]] <- occ[[i]]
+      complete.df[[i]] <- occ[[i]]
     }else{
       #if it is not existing fill the new df with NA's
-      v <- rep(NA, nrow(occ))
-      new[[i]] <- v
+      missingcol <- base::rep(NA, base::nrow(occ))
+      complete.df[[i]] <- missingcol
     }
   }
-  return(new)
+  return(complete.df)
 }
 
 
@@ -204,19 +180,19 @@ mycols <- colorRampPalette(c("#F5DEB3",
   fromage <- shape$FROMAGE[1]
   toage <- shape$TOAGE[1]
   shape.name <- shape$NAME[1]
-  if(length(grep("Smith", shape.name))!=0){
+  if(base::length(base::grep("Smith", shape.name))!=0){
     model <- "Smith"
-    name <- paste0("fromage ", shape$FROMAGE, " mya")
-  }else if(length(grep("Golonka", shape.name))!=0){
+    name <- base::paste0("fromage ", shape$FROMAGE, " mya")
+  }else if(base::length(base::grep("Golonka", shape.name))!=0){
     model <- "Golonka"
-    name <- paste0("fromage ", shape$FROMAGE, " mya")
+    name <- base::paste0("fromage ", shape$FROMAGE, " mya")
   }else{
     model <- "GPlates"
     name <- shape.name
   }
   info <- c(name, model, fromage, toage)
   
-  info
+  return(info)
 }
 
 
@@ -235,8 +211,8 @@ mycols <- colorRampPalette(c("#F5DEB3",
   maps <- df_maps[df_maps$interval==interval,]
   maps <- maps[maps$model==model,]
   
-  b <- length(maps$model)>=1
+  available <- base::length(maps$model)>=1
   
-  return(b)
+  return(available)
   
 }
