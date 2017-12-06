@@ -4,7 +4,7 @@
 \alias{pm_divraster_cell}
 \title{pm_divraster_cell}
 \usage{
-pm_divraster_cell  (shape, occ_df_cell, res=10,
+pm_divraster_cell  (shape, occ_df_cell, res=1,
                            colland="#66666660", colsea="#00509010", col.grid=mycols(100), 
                            do.plot=TRUE, ...)
 }
@@ -13,7 +13,7 @@ pm_divraster_cell  (shape, occ_df_cell, res=10,
 
 \item{occ_df_cell}{data.frame with fossil occurrences. Can be created with pm_occ_cell (data)}
 
-\item{res}{numeric. Defining the spatial resolution. Default res=10.}
+\item{res}{numeric. Defining the spatial resolution. Default res=1.}
 
 \item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
@@ -38,19 +38,19 @@ whithin the cell).
 \examples{
 \dontrun{
 
-shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-data<- pm_getdata (base_name="Canis", interval="Quaternary")
+shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
+data<- getdata (base_name="Canis", interval="Quaternary")
 occ_df_cell <- pm_occ_cell (data, rank = "genus")
-div_cell <- pm_divraster_cell (shape, occ_df_cell, res=10)
+div_cell <- pm_divraster_cell (shape, occ_df_cell, res=1)
 
 #save as pdf file
 pdf("pm_divraster_loc-GPlates_Quaternary-Canis.pdf")
-pm_divraster_cell (shape, occ_df_cell, res=10)
+pm_divraster_cell (shape, occ_df_cell, res=1)
 dev.off()
 #save as tiff image
 tiff("pm_divraster_loc-GPlates_Quaternary-Canis.tiff", 
       height = 10.5, width = 19, units = 'cm', res=300)
-pm_divraster_cell (shape, occ_df_cell, res=10)
+pm_divraster_cell (shape, occ_df_cell, res=1)
 dev.off()
 
 }

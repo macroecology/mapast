@@ -4,16 +4,16 @@
 \alias{pm_occ_cell}
 \title{pm_occ_cell}
 \usage{
-pm_occ_cell(data, rank = "genus", res = 10, pa=FALSE)
+pm_occ_cell(data, rank = "genus", res=1, pa=FALSE)
 }
 \arguments{
 \item{data}{data.frame with fossil occurrences. Can be created with 
-pm_getdata(interval, base_name)}
+getdata(interval, base_name)}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"}
 
-\item{res}{numeric. Defining the spatial resolution. By default res=10.}
+\item{res}{numeric. Defining the spatial resolution. By default res=1.}
 
 \item{pa}{boolean. Defines if the user wants presence absence or counted data. By default pa=FALSE.}
 }
@@ -28,8 +28,8 @@ genus, family or order per cell.
 \examples{
 \dontrun{
 
-data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
-result <- pm_occ_cell(data, rank = "genus", res = 10)
+data <- getdata(base_name = "Canis", interval = "Quaternary")
+result <- pm_occ_cell(data, rank = "genus", res=1)
 
 }
 }

@@ -1,11 +1,11 @@
-###########################pm_getmap#############################
+###########################getmap#############################
 
-#' pm_getmap
+#' getmap
 #' 
 #' Generates a shapefile with the paleomap of the chosen 
 #' time interval (e.g. "Cretaceous") and a plot.
 #' 
-#' @usage pm_getmap(interval, model, colland = "#66666660"
+#' @usage getmap(interval, model, colland = "#66666660"
 #'                           , colsea = "#00509010", do.plot = TRUE, ...)
 #' 
 #' @param interval character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
@@ -20,32 +20,32 @@
 #' \dontrun{
 #' 
 #' #GPlates
-#' pm_getmap(interval="Cretaceous", model="GPlates")
+#' getmap(interval="Cretaceous", model="GPlates")
 #' #save map as pdf file
-#' pdf("pm_getmap-GPlates_Cretaceous.pdf")
-#' pm_getmap(interval="Cretaceous", model="GPlates")
+#' pdf("getmap-GPlates_Cretaceous.pdf")
+#' getmap(interval="Cretaceous", model="GPlates")
 #' dev.off()
 #'#save map as tiff image
-#' tiff("pm_getmap-GPlates_Cretaceous.tiff", 
+#' tiff("getmap-GPlates_Cretaceous.tiff", 
 #'       height = 10, width = 17, units = 'cm', res=300)
-#' pm_getmap(interval="Cretaceous", model="GPlates")
+#' getmap(interval="Cretaceous", model="GPlates")
 #' dev.off()
 #' 
 #' 
 #' #Smith
-#' pm_getmap(interval="112", model="Smith")
+#' getmap(interval="112", model="Smith")
 #' 
 #' 
 #' #Golonka
-#' pm_getmap(interval="123", model="Golonka")
+#' getmap(interval="123", model="Golonka")
 #' 
 #' #for checking which maps are available including a specific age 
 #' # or the complete list of maps provided by this package
-#' # look at ??pm_checkAge
+#' # look at ??checkage
 #' 
 #'}
 
-pm_getmap <- function(interval, model, colland = "#66666660", 
+getmap <- function(interval, model, colland = "#66666660", 
                       colsea = "#00509010", 
                       do.plot = TRUE, ...) {
   #check if requested map is available
@@ -66,7 +66,7 @@ pm_getmap <- function(interval, model, colland = "#66666660",
   }else{
     # throw error if map is not available
     stop(paste0("No map available for interval=\"",interval,"\", model=\"",
-                model,"\". Please use pm_checkAge() to see which maps are available."))
+                model,"\". Please use checkage() to see which maps are available."))
   }
   #getting final parameter list for plot
   #default parameter list for plotting
@@ -117,14 +117,14 @@ pm_getmap <- function(interval, model, colland = "#66666660",
 
 
 
-################pm_getdata##############################
+################getdata##############################
 
-#' pm_getdata
+#' getdata
 #' 
 #' Uses the paleobioDB R package to extract data used in for other functions of this package
 #' from the Paleobiology Database.
 #'  
-#' @usage pm_getdata(interval, base_name, limit="all")
+#' @usage getdata(interval, base_name, limit="all")
 #' 
 #' @param interval character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
 #' @param base_name character. The name of the taxon of interest. (e.g. "Canis" or "reptilia")
@@ -134,7 +134,7 @@ pm_getmap <- function(interval, model, colland = "#66666660",
 #' @examples 
 #' \dontrun{
 #' 
-#' pm_getdata(interval="Quaternary",base_name="Canis")
+#' getdata(interval="Quaternary",base_name="Canis")
 #' 
 #' #if you want to use FROMAGE and TOAGE to define the interval you can use the paleobioDB package
 #' myocc <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="mammalia", 
@@ -145,7 +145,7 @@ pm_getmap <- function(interval, model, colland = "#66666660",
 #'}
 
 
-pm_getdata <- function(interval, base_name, limit="all") {
+getdata <- function(interval, base_name, limit="all") {
   #create an empty data frame for storing the fossil data
   occ <- base::data.frame()
   #try to get data from the Paleobiology Database with the given parameters, using R-package paleobioDB
@@ -168,20 +168,20 @@ pm_getdata <- function(interval, base_name, limit="all") {
 
 
 
-####################pm_plot#################################
+####################paleoplot#################################
 
-#' pm_plot
+#' paleoplot
 #' 
 #' Plots your query from the paleobioDB onto the map of the selected time interval.
 #' 
 #' 
-#' @usage pm_plot(interval, model, data, colland = "#66666660",
+#' @usage paleoplot(interval, model, data, colland = "#66666660",
 #'                 colsea = "#00509010",colpoints = "#65432190", 
 #'                 pch =16, cex = 1, ...)
 #' 
 #' @param interval character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
 #' @param model character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka"
-#' @param data data.frame with fossil occurrences. Can be created with pm_getdata(interval, base_name)
+#' @param data data.frame with fossil occurrences. Can be created with getdata(interval, base_name)
 #' @param colland define the color of the land masses. By default colland = "#66666660".
 #' @param colsea define the color of the sea. By default colsea = "#00509010".
 #' @param colpoints define the color of the occurrence-points. By default colpoints = "#65432190".
@@ -194,22 +194,22 @@ pm_getdata <- function(interval, base_name, limit="all") {
 #' @examples 
 #' \dontrun{
 #' 
-#' data  <-  pm_getdata (interval="Cretaceous", base_name="Mammalia")
-#' pm_plot(interval="Cretaceous", model="GPlates", data)
+#' data  <-  getdata (interval="Cretaceous", base_name="Mammalia")
+#' paleoplot(interval="Cretaceous", model="GPlates", data)
 #' 
 #' #save as pdf file
-#' pdf("pm_plot-GPlates_Cretaceous-Mammalia.pdf")
-#' pm_plot(interval="Cretaceous", model="GPlates", data)
+#' pdf("paleoplot-GPlates_Cretaceous-Mammalia.pdf")
+#' paleoplot(interval="Cretaceous", model="GPlates", data)
 #' dev.off()
 #' #save as tiff image
-#' tiff("pm_plot-GPlates_Cretaceous-Mammalia.tiff", 
+#' tiff("paleoplot-GPlates_Cretaceous-Mammalia.tiff", 
 #'       height = 10.5, width = 17, units = 'cm', res=300)
-#' pm_plot(interval="Cretaceous", model="GPlates", data)
+#' paleoplot(interval="Cretaceous", model="GPlates", data)
 #' dev.off()
 #' 
 #'}
 
-pm_plot <- function(interval, model, data,
+paleoplot <- function(interval, model, data,
                     colland = "#66666660",
                     colsea = "#00509010", 
                     colpoints = "#65432190", 
@@ -222,8 +222,8 @@ pm_plot <- function(interval, model, data,
   if(!.checkRange(data)){
     stop("Range of Latitude and/or Longitude is not allowed.")
   }
-  #getting the shape file with pm_getmap
-  shape <- paleoMap::pm_getmap(interval = interval, model = model, do.plot = FALSE)
+  #getting the shape file with getmap
+  shape <- paleoMap::getmap(interval = interval, model = model, do.plot = FALSE)
   #default parameter list for plotting
   graphparams.def <- base::list(x=shape, col = "white", border = FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
@@ -275,23 +275,23 @@ pm_plot <- function(interval, model, data,
   }
 }
 
-#####################pm_occraster##############################
+#####################mapocc##############################
 
-#' pm_occraster
+#' mapocc
 #' 
 #' Creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
 #' (a proxy for the sampling effort).
 #' 
-#' @usage pm_occraster(shape, data, rank = "genus", res = 10,
+#' @usage mapocc(shape, data, rank = "genus", res=1,
 #'                     colland = "#66666660", colsea = "#00509010", col.grid=mycols(100), 
 #'                     do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param data data.frame with fossil occurrences. Can be created with 
-#' pm_getdata(interval, base_name)
+#' getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum".
-#' @param res numeric. Defining the spatial resolution. Default res=10. 
+#' @param res numeric. Defining the spatial resolution. Default res=1. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
 #' @param colsea define the color of the sea. By default colsea = "#00509010".
 #' @param col.grid define the color of the raster.
@@ -303,25 +303,25 @@ pm_plot <- function(interval, model, data,
 #' @examples 
 #' \dontrun{
 #' 
-#' shape <- pm_getmap(interval="Quaternary", model="GPlates", do.plot = FALSE)
-#' data <- pm_getdata(base_name="Canis", interval="Quaternary")
-#' pm_occraster(shape, data)
+#' shape <- getmap(interval="Quaternary", model="GPlates", do.plot = FALSE)
+#' data <- getdata(base_name="Canis", interval="Quaternary")
+#' mapocc(shape, data)
 #' 
 #' #save as pdf file
-#' pdf("pm_occraster-GPlates_Quaternary-Canis.pdf")
-#' occras <- pm_occraster(shape, data)
+#' pdf("mapocc-GPlates_Quaternary-Canis.pdf")
+#' occras <- mapocc(shape, data)
 #' dev.off()
 #' save as tiff image
-#' tiff("pm_occraster-GPlates_Quaternary-Canis.tiff", 
+#' tiff("mapocc-GPlates_Quaternary-Canis.tiff", 
 #'       height = 10.5, width = 19, units = 'cm', res=300)
-#' pm_occraster(shape, data)
+#' mapocc(shape, data)
 #' dev.off()
 #' 
 #'}
 
-pm_occraster <- function(shape, data, 
+mapocc <- function(shape, data, 
                          rank = "genus", 
-                         res = 10, 
+                         res=1, 
                          colland = "#66666660",
                          colsea = "#00509010", col.grid = mycols(100), do.plot=TRUE, ...) {
   #check user input
@@ -424,16 +424,16 @@ pm_occraster <- function(shape, data,
 #' Creates a raster of species richness
 #' and makes a plot of the map and raster.
 #' 
-#' @usage pm_richraster(shape, data, rank="genus", res = 10, 
+#' @usage pm_richraster(shape, data, rank="genus", res=1, 
 #'                      colland = "#66666660", colsea = "#00509010", col.grid= mycols(100), 
 #'                      do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param data data.frame with fossil occurrences. Can be created with 
-#' pm_getdata(interval, base_name)
+#' getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank="genus".
-#' @param res numeric. Defining the spatial resolution. Default res=10. 
+#' @param res numeric. Defining the spatial resolution. Default res=1. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
 #' @param colsea define the color of the sea. By default colsea = "#00509010".
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
@@ -446,8 +446,8 @@ pm_occraster <- function(shape, data,
 #' @examples 
 #' \dontrun{
 #' 
-#' shape<- pm_getmap(interval="Paleocene", model="GPlates")
-#' data<- pm_getdata(base_name="Testudines", interval="Paleocene")
+#' shape<- getmap(interval="Paleocene", model="GPlates")
+#' data<- getdata(base_name="Testudines", interval="Paleocene")
 #' richness<- pm_richraster(shape, data, rank="genus")
 #' 
 #' #save as pdf file
@@ -463,7 +463,7 @@ pm_occraster <- function(shape, data,
 #'}
 #'
 
-pm_richraster <- function (shape, data, rank="genus", res = 10, 
+pm_richraster <- function (shape, data, rank="genus", res=1, 
                            colland = "#66666660",
                            colsea = "#00509010", col.grid=mycols(100), do.plot=TRUE, ...) {
   #check the users input data
@@ -567,7 +567,7 @@ pm_richraster <- function (shape, data, rank="genus", res = 10,
 #' @usage pm_occ(data, rank = "genus", pa=FALSE)
 #' 
 #' @param data data.frame with fossil occurrences. Can be created with 
-#' pm_getdata(interval, base_name)
+#' getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
 #' @param pa boolean. Defines if the user wants presence absence or counted data. By default pa=FALSE.
@@ -577,7 +577,7 @@ pm_richraster <- function (shape, data, rank="genus", res = 10,
 #' @examples 
 #' \dontrun{
 #' 
-#' data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
+#' data <- getdata(base_name = "Canis", interval = "Quaternary")
 #' result <- pm_occ(data, rank = "genus")
 #' 
 #'}
@@ -680,13 +680,13 @@ pm_occ <- function(data, rank = "genus", pa=FALSE) {
 #' Generates a diversity matrix, with the number occurrences of each species, 
 #' genus, family or order per cell.
 #' 
-#' @usage pm_occ_cell(data, rank = "genus", res = 10, pa=FALSE)
+#' @usage pm_occ_cell(data, rank = "genus", res=1, pa=FALSE)
 #' 
 #' @param data data.frame with fossil occurrences. Can be created with 
-#' pm_getdata(interval, base_name)
+#' getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
-#' @param res numeric. Defining the spatial resolution. By default res=10. 
+#' @param res numeric. Defining the spatial resolution. By default res=1. 
 #' @param pa boolean. Defines if the user wants presence absence or counted data. By default pa=FALSE.
 #' @return Returns a data frame with number of species, genera, families or orders 
 #' per cell.
@@ -694,14 +694,14 @@ pm_occ <- function(data, rank = "genus", pa=FALSE) {
 #' @examples 
 #' \dontrun{
 #' 
-#' data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
-#' result <- pm_occ_cell(data, rank = "genus", res = 10)
+#' data <- getdata(base_name = "Canis", interval = "Quaternary")
+#' result <- pm_occ_cell(data, rank = "genus", res=1)
 #' 
 #'}
 
 
 
-pm_occ_cell <- function(data, rank = "genus", res = 10, pa=FALSE) {
+pm_occ_cell <- function(data, rank = "genus", res=1, pa=FALSE) {
   #check the user input data
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -719,6 +719,13 @@ pm_occ_cell <- function(data, rank = "genus", res = 10, pa=FALSE) {
       stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
     }
   }
+  #remove NA columns that don't have the chosen rank
+  if(rank=="species"){
+    rankcol <- "matched_name"
+  }else{
+    rankcol <- rank
+  }
+  data <- data[!is.na(data[[rankcol]]),]
   #only getting occurences with a known genus
   rankdata <-.rfilter(data, rank)
   #getting list of unique taxa
@@ -740,69 +747,72 @@ pm_occ_cell <- function(data, rank = "genus", res = 10, pa=FALSE) {
   lat <- base::seq(-90+(res/2) , 90-(res/2), res)
   long <- base::seq(-180+(res/2), 180-(res/2), res)
   occ <- base::expand.grid (long, lat)
-  #fill with default values -1 and add lat, lng and column names
-  def.values <- base::matrix(-1, nrow = base::nrow (occ), ncol = base::length(urank))
+  base::colnames(occ) <- c ("paleolng", "paleolat")
+  occ <- occ[with(occ, order(paleolng, -paleolat)), ]
+  #fill with default values 0 and add lat, lng and column names
+  def.values <- base::matrix(0, nrow = base::nrow (occ), ncol = base::length(urank))
   occ <- base::cbind(occ, def.values)
   base::colnames(occ) <- c ("paleolng", "paleolat", urank)
-  #getting the number of occurrences of a genus for each locality
-  for (curloc in 1:base::nrow(occ)) {
-    #get lat & lng
-    lng_cur <- occ[curloc, "paleolng"]
-    lat_cur <- occ[curloc, "paleolat"]
-    for (curtaxon in 1:base::length(urank)) {
-      #get current genus
-      taxon_cur <- urank[curtaxon]
-      #get all genus in the cell 
-      maxlng <- 180-(res/2)
-      minlng <- -180+(res/2)
-      maxlat <- 90-(res/2)
-      minlat <- -90+(res/2)
-      if((lng_cur==minlng && lat_cur==minlat) || (lat_cur==minlat && lng_cur!=minlng && lng_cur!=maxlng )){
-        curlatlng <- base::subset(rankdata, rankdata$paleolat >= lat_cur - (res /2))
-        curlatlng <- base::subset(curlatlng , curlatlng$paleolat <= lat_cur + (res / 2))
-        curlatlng <- base::subset(curlatlng, curlatlng$paleolng >= lng_cur - (res / 2))
-        curlatlng <- base::subset(curlatlng , curlatlng$paleolng < lng_cur + (res / 2))
-      } else if((lng_cur==maxlng &&lat_cur==maxlat) || (lng_cur==maxlng && lat_cur!=minlat && lat_cur!=maxlat)){
-        curlatlng <- base::subset(rankdata, rankdata$paleolat > lat_cur - (res /2))
-        curlatlng <- base::subset(curlatlng , curlatlng$paleolat <= lat_cur + (res / 2))
-        curlatlng <- base::subset(curlatlng, curlatlng$paleolng >= lng_cur - (res / 2))
-        curlatlng <- base::subset(curlatlng , curlatlng$paleolng <= lng_cur + (res / 2))
-      }else if(lng_cur==maxlng && lat_cur==minlat){
-        curlatlng <- base::subset(rankdata, rankdata$paleolat >= lat_cur - (res /2))
-        curlatlng <- base::subset(curlatlng , curlatlng$paleolat <= lat_cur + (res / 2))
-        curlatlng <- base::subset(curlatlng, curlatlng$paleolng >= lng_cur - (res / 2))
-        curlatlng <- base::subset(curlatlng , curlatlng$paleolng <= lng_cur + (res / 2))
+  #getting the number of occurrences of a taxa for each locality
+  latbord <- seq(90,-90, -res)
+  for(curocc in 1:length(data$paleolng)){
+    curtaxon <- as.character(data[[rankcol]][curocc])
+    print(curtaxon)
+    curlat <- data$paleolat[curocc]
+    curlng <- data$paleolng[curocc]
+    if(!(curlat %in% latbord)){
+      if(curlng ==180){
+        if(curlat>=90-(res/2)){
+          row <- abs(ceiling((curlat - 90)/res)+1)+abs(floor((curlng+180)/res)-1)*(180/res)
+        }else{
+          row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res)-1)*(180/res)
+        }
+        
+      }else if(curlng==-180){
+        if(curlat>=90-(res/2)){
+          row <- abs(ceiling((curlat - 90)/res)+1)+abs(floor((curlng+180)/res))*(180/res)
+        }else{
+          row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res))*(180/res)
+        }
+        
       }else{
-        curlatlng <- base::subset(rankdata, rankdata$paleolat > lat_cur - (res /2))
-        curlatlng <- base::subset(curlatlng , curlatlng$paleolat <= lat_cur + (res / 2))
-        curlatlng <- base::subset(curlatlng, curlatlng$paleolng >= lng_cur - (res / 2))
-        curlatlng <- base::subset(curlatlng , curlatlng$paleolng < lng_cur + (res / 2))
+        row <- abs(ceiling((curlat - 90)/res))+1+abs(floor((curlng+180)/res))*(180/res)
       }
-      #select only current genus
-      if(rank=="species"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"matched_name"] == taxon_cur)
-      }else if(rank=="genus"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"genus"] == taxon_cur)
-      }else if(rank=="family"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"family"] == taxon_cur)
-      }else if(rank=="order"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"order"] == taxon_cur)
-      }else if(rank=="class"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"class"] == taxon_cur)
-      }else if(rank=="phylum"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"phylum"] == taxon_cur)
+    }else{
+      if(curlng ==180){
+        row <- abs(ceiling((curlat - 90)/res))+1+abs(floor((curlng+180)/res)-1)*(180/res)
+      }else if(curlng==-180){
+        if(curlat>=90-(res/2)){
+          row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res)-1)*(180/res)
+        }else{
+          row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res)-1)*(180/res)
+        }
+      }else{
+        if(curlat<=-90+(res/2)){
+          if(curlng <= -180+(res/2)){
+            row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res))*(180/res)
+          }else{
+            row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res))*(180/res)
+          }
+        }else if (curlat >= 90-(res/2)){
+          row <- abs(ceiling((curlat - 90)/res))+1+abs(floor((curlng+180)/res))*(180/res)
+        }else{
+          row <- abs(ceiling((curlat - 90)/res))+1+abs(floor((curlng+180)/res))*(180/res)
+        }
       }
-      #count the number of different taxa in current column and save in the matrix
-      count<- base::nrow (cur.taxon)
-      occ[curloc, curtaxon + 2] <- count
     }
+    
+    
+    if(row==0){
+      row <- 1
+    }
+    occ[row, curtaxon] <- (occ[row, curtaxon] +1)
   }
   if(pa){
-    occnoloc <- occ[,3:length(occ)]
+    occnoloc <- occ[,3:base::length(occ)]
     occnoloc[occnoloc>0]<-1
-    occ <- cbind(paleolng=occ$paleolng, paleolat=occ$paleolat, occnoloc)
+    occ <- base::cbind(paleolng=occ$paleolng, paleolat=occ$paleolat, occnoloc)
   }
-  occ <- occ[with(occ, order(paleolng, -paleolat)), ]
   #return matrix as data frame
   return(base::as.data.frame(occ))
 }
@@ -816,12 +826,12 @@ pm_occ_cell <- function(data, rank = "genus", res = 10, pa=FALSE) {
 #' its coordinates), makes a RasterLayer and a plot showing mean, 
 #' max, min diversity per cell, or number of unique localities per cell.
 #' 
-#' @usage pm_divraster_loc  (shape, occ_df, res=10, fun=mean, colland = "#66666660"
+#' @usage pm_divraster_loc  (shape, occ_df, res=1, fun=mean, colland = "#66666660"
 #'                           , colsea = "#00509010", col.grid=mycols(100), do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param occ_df data.frame with fossil occurrences. Can be created with pm_occ(data).
-#' @param res numeric. Defining the spatial resolution. Default res=10. 
+#' @param res numeric. Defining the spatial resolution. Default res=1. 
 #' @param fun function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
 #' You can use functions such as min, max, or mean, or the character value: 'count'. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
@@ -836,8 +846,8 @@ pm_occ_cell <- function(data, rank = "genus", res = 10, pa=FALSE) {
 #' @examples 
 #' \dontrun{
 #' 
-#' shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
+#' data<- getdata (base_name="Canis", interval="Quaternary")
 #' occ_df <- pm_occ (data, rank = "genus")
 #' pm_divraster_loc (shape, occ_df, fun=mean)
 #' pm_divraster_loc (shape, occ_df, fun=max)
@@ -856,7 +866,7 @@ pm_occ_cell <- function(data, rank = "genus", res = 10, pa=FALSE) {
 #' 
 #'}
 
-pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
+pm_divraster_loc <- function(shape, occ_df, res=1, fun = mean,
                              colland="#66666660", colsea="#00509010", col.grid=mycols(100), do.plot=TRUE, ...) {
   #check the users input
   if(!.checkLatLng(occ_df)){
@@ -977,13 +987,13 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #' (taking into account relative abundances of all the fossil records 
 #' whithin the cell).
 #' 
-#' @usage pm_divraster_cell  (shape, occ_df_cell, res=10,
+#' @usage pm_divraster_cell  (shape, occ_df_cell, res=1,
 #'                            colland="#66666660", colsea="#00509010", col.grid=mycols(100), 
 #'                            do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param occ_df_cell data.frame with fossil occurrences. Can be created with pm_occ_cell (data)
-#' @param res numeric. Defining the spatial resolution. Default res=10. 
+#' @param res numeric. Defining the spatial resolution. Default res=1. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
 #' @param colsea define the color of the sea. By default colsea = "#00509010".
 #' @param col.grid define the color of the raster.
@@ -996,24 +1006,24 @@ pm_divraster_loc <- function(shape, occ_df, res=10, fun = mean,
 #' @examples 
 #' \dontrun{
 #' 
-#'shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-#'data<- pm_getdata (base_name="Canis", interval="Quaternary")
+#'shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
+#'data<- getdata (base_name="Canis", interval="Quaternary")
 #'occ_df_cell <- pm_occ_cell (data, rank = "genus")
-#'div_cell <- pm_divraster_cell (shape, occ_df_cell, res=10)
+#'div_cell <- pm_divraster_cell (shape, occ_df_cell, res=1)
 #' 
 #' #save as pdf file
 #' pdf("pm_divraster_loc-GPlates_Quaternary-Canis.pdf")
-#' pm_divraster_cell (shape, occ_df_cell, res=10)
+#' pm_divraster_cell (shape, occ_df_cell, res=1)
 #' dev.off()
 #' #save as tiff image
 #' tiff("pm_divraster_loc-GPlates_Quaternary-Canis.tiff", 
 #'       height = 10.5, width = 19, units = 'cm', res=300)
-#' pm_divraster_cell (shape, occ_df_cell, res=10)
+#' pm_divraster_cell (shape, occ_df_cell, res=1)
 #' dev.off()
 #' 
 #' }
 
-pm_divraster_cell <- function(shape, occ_df_cell, res=10,
+pm_divraster_cell <- function(shape, occ_df_cell, res=1,
                               colland="#66666660", colsea="#00509010", col.grid=mycols(100), 
                               do.plot=TRUE, ...) {
   #check user input data
@@ -1130,17 +1140,17 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 #' 
 #' Calculates latitudinal diversity of taxa (species, genera, families, orders).
 #' 
-#' @usage pm_latrich (shape, data, rank = "genus", res=10,
+#' @usage pm_latrich (shape, data, rank = "genus", res=1,
 #'                    colland="#66666680", colsea="#00509010", 
 #'                    colpoints="#65432190", 
 #'                    rich.col="#654321", pch=21, do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param data data.frame with fossil occurrences. Can be created with
-#'  pm_getdata(interval, base_name)
+#'  getdata(interval, base_name)
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".
-#' @param res numeric. Defining the spatial resolution. Default res=10. 
+#' @param res numeric. Defining the spatial resolution. Default res=1. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
 #' @param colsea define the color of the sea. By default colsea = "#00509010".
 #' @param colpoints define the color of the occurrence-points. By default colpoints="#65432190". 
@@ -1155,25 +1165,25 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=10,
 #' @examples 
 #' \dontrun{
 #' 
-#' shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
-#' pm_latrich (shape, data, rank = "genus", res=10)
+#' shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
+#' data<- getdata (base_name="Canis", interval="Quaternary")
+#' pm_latrich (shape, data, rank = "genus", res=1)
 #' 
 #' #save as pdf file
 #' pdf("pm_latrich-GPlates_Quaternary-Canis.pdf")
-#' pm_latrich (shape, data, rank = "genus", res=10)
+#' pm_latrich (shape, data, rank = "genus", res=1)
 #' dev.off()
 #' #save as tiff image
 #' tiff("pm_latrich-GPlates_Quaternary-Canis.tiff", 
 #'       height = 9, width = 17.5, units = 'cm', res=300)
-#' pm_latrich (shape, data, rank = "genus", res=10)
+#' pm_latrich (shape, data, rank = "genus", res=1)
 #' dev.off()
 #' 
 #'}
 
 
 pm_latrich <- function(shape, data, rank = "genus",
-                       res=10, 
+                       res=1, 
                        colland="#66666680", colsea="#00509010", 
                        colpoints="#65432190",
                        rich.col="#654321", pch=21, do.plot=TRUE, ...) {
@@ -1297,14 +1307,14 @@ pm_latrich <- function(shape, data, rank = "genus",
 #' The function returns the mean or max values of diversity of the sampled 
 #' localities along the latitudinal gradient.
 #' 
-#' @usage pm_latdiv (shape, occ_df, res=10, fun= max,
+#' @usage pm_latdiv (shape, occ_df, res=1, fun= max,
 #'                   colland="#66666680", colsea="#00509010",  
 #'                   colpoints="#65432190",
 #'                   div.col="#654321", pch=21, do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param occ_df data.frame with fossil occurrences. Can be created with pm_occ(data)
-#' @param res numeric. Defining the spatial resolution. By default res=10. 
+#' @param res numeric. Defining the spatial resolution. By default res=1. 
 #' @param fun function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
 #' You can use functions such as min, max, or mean, or the character value: 'count'. 
 #' @param colland define the color of the land masses. By default colland = "#66666660".
@@ -1322,8 +1332,8 @@ pm_latrich <- function(shape, data, rank = "genus",
 #' @examples 
 #' \dontrun{
 #' 
-#' shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-#' data<- pm_getdata (base_name="Canis", interval="Quaternary")
+#' shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
+#' data<- getdata (base_name="Canis", interval="Quaternary")
 #' occ_df <- pm_occ (data)
 #' pm_latdiv (shape, occ_df, fun=mean)
 #' pm_latdiv (shape, occ_df, fun=max)
@@ -1340,7 +1350,7 @@ pm_latrich <- function(shape, data, rank = "genus",
 #' 
 #'}
 
-pm_latdiv <- function(shape, occ_df, res=10, 
+pm_latdiv <- function(shape, occ_df, res=1, 
                       fun= max,
                       colland="#66666680", colsea="#00509010", 
                       colpoints="#65432190",
@@ -1447,12 +1457,12 @@ pm_latdiv <- function(shape, occ_df, res=10,
 }
 
 
-###########################pm_checkAge#############################
-#' pm_checkAge
+###########################checkage#############################
+#' checkage
 #' 
 #' Creates a data frame with all maps that contain the age requested.
 #' 
-#' @usage pm_checkAge(age="all")
+#' @usage checkage(age="all")
 #' 
 #' @param age character. defining the age of interest. By default age="all", which gives complete list.
 #' @return Returns a data.frame which maps are available
@@ -1460,14 +1470,14 @@ pm_latdiv <- function(shape, occ_df, res=10,
 #' @examples
 #' \dontrun{
 #' 
-#' pm_checkAge(age="112")
+#' checkage(age="112")
 #' 
 #' #get complete list with all available maps
-#' pm_checkAge()
+#' checkage()
 #' 
 #'}
 
-pm_checkAge <- function(age="all"){
+checkage <- function(age="all"){
   #define data frame df_maps
   df_maps <- NULL
   #load df_maps from the package

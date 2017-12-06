@@ -8,7 +8,7 @@ pm_occ(data, rank = "genus", pa=FALSE)
 }
 \arguments{
 \item{data}{data.frame with fossil occurrences. Can be created with 
-pm_getdata(interval, base_name)}
+getdata(interval, base_name)}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"}
@@ -26,7 +26,7 @@ genus, family or order per locality.
 \examples{
 \dontrun{
 
-data <- pm_getdata(base_name = "Canis", interval = "Quaternary")
+data <- getdata(base_name = "Canis", interval = "Quaternary")
 result <- pm_occ(data, rank = "genus")
 
 }

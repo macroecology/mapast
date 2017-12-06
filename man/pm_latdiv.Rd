@@ -4,7 +4,7 @@
 \alias{pm_latdiv}
 \title{pm_latdiv}
 \usage{
-pm_latdiv (shape, occ_df, res=10, fun= max,
+pm_latdiv (shape, occ_df, res=1, fun= max,
                   colland="#66666680", colsea="#00509010",  
                   colpoints="#65432190",
                   div.col="#654321", pch=21, do.plot=TRUE, ...)
@@ -14,7 +14,7 @@ pm_latdiv (shape, occ_df, res=10, fun= max,
 
 \item{occ_df}{data.frame with fossil occurrences. Can be created with pm_occ(data)}
 
-\item{res}{numeric. Defining the spatial resolution. By default res=10.}
+\item{res}{numeric. Defining the spatial resolution. By default res=1.}
 
 \item{fun}{function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
 You can use functions such as min, max, or mean, or the character value: 'count'.}
@@ -47,8 +47,8 @@ localities along the latitudinal gradient.
 \examples{
 \dontrun{
 
-shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-data<- pm_getdata (base_name="Canis", interval="Quaternary")
+shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
+data<- getdata (base_name="Canis", interval="Quaternary")
 occ_df <- pm_occ (data)
 pm_latdiv (shape, occ_df, fun=mean)
 pm_latdiv (shape, occ_df, fun=max)

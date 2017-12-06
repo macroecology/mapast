@@ -33,7 +33,7 @@
 #@return boolean if paleolat and paleolng are columns of the data frame
 #@examples
 #\dontrun{
-#data <- pm_getdata(base_name="Canis", interval="Quaternary")
+#data <- getdata(base_name="Canis", interval="Quaternary")
 #.checkLatLng(data)
 #}
 
@@ -54,7 +54,7 @@
 #@return boolean of correct columns are inside the data frame
 #@examples 
 #\dontrun{
-#data <- pm_getdata(base_name="Canis", interval="Quaternary")
+#data <- getdata(base_name="Canis", interval="Quaternary")
 #rank <- "species"
 #.checkDataRank(data, rank)
 #} 
@@ -79,14 +79,14 @@
 #@return boolean of correct columns are inside the data frame
 #@examples 
 #\dontrun{
-#data <- pm_getdata(base_name="Canis", interval="Quaternary")
+#data <- getdata(base_name="Canis", interval="Quaternary")
 #rank <- "species"
 #.checkDataNo(data, rank)
 #} 
 
 .checkDataNo <- function(data, rank){
   coln <- base::colnames(data)
-  col <- paste0(rank, "_no")
+  col <- base::paste0(rank, "_no")
   if(rank=="species"){
     return("matched_no" %in% coln)
   }else{
@@ -104,12 +104,12 @@
 #@return a boolean if the shape is a SpatialPolygonsDataFrame
 #@examples
 #\dontrun{
-#shape <- pm_getmap(interval="Quaternary", model="GPlates")
+#shape <- getmap(interval="Quaternary", model="GPlates")
 #.checkShape(shape)
 #}
 
 .checkShape <- function(shape){
-  return(class(shape)=="SpatialPolygonsDataFrame")
+  return(base::class(shape)=="SpatialPolygonsDataFrame")
 }
 
 ######.checkFun#####
@@ -156,5 +156,5 @@
 .checkRange <- function(df){
   lat <- df$paleolat
   lng <- df$paleolng
-  return(min(lat)>=-90 && max(lat)<=90 && min(lng)>=-180 && max(lng)<=180)
+  return(base::min(lat)>=-90 && base::max(lat)<=90 && base::min(lng)>=-180 && base::max(lng)<=180)
 }

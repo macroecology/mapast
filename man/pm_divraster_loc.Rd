@@ -4,7 +4,7 @@
 \alias{pm_divraster_loc}
 \title{pm_divraster_loc}
 \usage{
-pm_divraster_loc  (shape, occ_df, res=10, fun=mean, colland = "#66666660"
+pm_divraster_loc  (shape, occ_df, res=1, fun=mean, colland = "#66666660"
                           , colsea = "#00509010", col.grid=mycols(100), do.plot=TRUE, ...)
 }
 \arguments{
@@ -12,7 +12,7 @@ pm_divraster_loc  (shape, occ_df, res=10, fun=mean, colland = "#66666660"
 
 \item{occ_df}{data.frame with fossil occurrences. Can be created with pm_occ(data).}
 
-\item{res}{numeric. Defining the spatial resolution. Default res=10.}
+\item{res}{numeric. Defining the spatial resolution. Default res=1.}
 
 \item{fun}{function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
 You can use functions such as min, max, or mean, or the character value: 'count'.}
@@ -40,8 +40,8 @@ max, min diversity per cell, or number of unique localities per cell.
 \examples{
 \dontrun{
 
-shape<- pm_getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-data<- pm_getdata (base_name="Canis", interval="Quaternary")
+shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
+data<- getdata (base_name="Canis", interval="Quaternary")
 occ_df <- pm_occ (data, rank = "genus")
 pm_divraster_loc (shape, occ_df, fun=mean)
 pm_divraster_loc (shape, occ_df, fun=max)

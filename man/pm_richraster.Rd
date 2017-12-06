@@ -4,7 +4,7 @@
 \alias{pm_richraster}
 \title{pm_richraster}
 \usage{
-pm_richraster(shape, data, rank="genus", res = 10, 
+pm_richraster(shape, data, rank="genus", res=1, 
                      colland = "#66666660", colsea = "#00509010", col.grid= mycols(100), 
                      do.plot=TRUE, ...)
 }
@@ -12,12 +12,12 @@ pm_richraster(shape, data, rank="genus", res = 10,
 \item{shape}{SpatialPolygonsDataFrame object containing a map.}
 
 \item{data}{data.frame with fossil occurrences. Can be created with 
-pm_getdata(interval, base_name)}
+getdata(interval, base_name)}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank="genus".}
 
-\item{res}{numeric. Defining the spatial resolution. Default res=10.}
+\item{res}{numeric. Defining the spatial resolution. Default res=1.}
 
 \item{colland}{define the color of the land masses. By default colland = "#66666660".}
 
@@ -41,8 +41,8 @@ and makes a plot of the map and raster.
 \examples{
 \dontrun{
 
-shape<- pm_getmap(interval="Paleocene", model="GPlates")
-data<- pm_getdata(base_name="Testudines", interval="Paleocene")
+shape<- getmap(interval="Paleocene", model="GPlates")
+data<- getdata(base_name="Testudines", interval="Paleocene")
 richness<- pm_richraster(shape, data, rank="genus")
 
 #save as pdf file
