@@ -1,43 +1,43 @@
-[![Build Status](https://travis-ci.org/macroecology/paleoMap.svg)](https://travis-ci.org/macroecology/paleoMap)
+[![Build Status](https://travis-ci.org/macroecology/pasta.svg)](https://travis-ci.org/macroecology/pasta)
 
-paleoMap
+pasta
 =======
 
 ### About
 
-`paleoMap` is a package that combines paleomaps from [GPlates](http://www.gplates.org/), Smith and Golonka with fossil records from [Paleobiology Database](http://paleobiodb.org/). It can be used to download shapefiles with reconstructions of the past configuration of the continents, and to generate paleodiversity maps.
+`pasta` is a package that combines paleomaps from [GPlates](http://www.gplates.org/), Smith and Golonka with fossil records from [Paleobiology Database](http://paleobiodb.org/). It can be used to download shapefiles with reconstructions of the past configuration of the continents, and to generate paleodiversity maps.
 
 ### Quick start
 
 **Install**
 
-Install paleoMap from CRAN
+Install pasta from CRAN
 
 ```coffee
-install.packages("paleoMap")
-library(paleoMap)
+install.packages("pasta")
+library(pasta)
 ```
 
-Install paleoMap developing version from github
+Install pasta developing version from github
 
 ```coffee
 install.packages("devtools")
 library(devtools)
-install_github("macroecology/paleoMap")
-library(paleoMap)
+install_github("macroecology/pasta")
+library(pasta)
 ```
 
 **General overview**
 
-`paleoMap` version 0.1 has 3 functions for getting and visualising paleogeographical maps and fossil data, 4 functions for constructing diversity rasters (paleorichness and Shannon paleodiversity) and 2 functions for creating diversity matrix (based on localities or cells) and 2 functions for getting latitudinal paleodiversity gradients.
+`pasta` version 0.1 has 3 functions for getting and visualising paleogeographical maps and fossil data, 4 functions for constructing diversity rasters (paleorichness and Shannon paleodiversity) and 2 functions for creating diversity matrix (based on localities or cells) and 2 functions for getting latitudinal paleodiversity gradients.
 
 ## Get and visualise paleogeograhical maps and fossil data
 
-**pm_getmap** 
+**getmap** 
 returns the shapefile of a choosen paleogeographical time interval and a plot
 
 ```coffee
-> shape  <-  pm_getmap(interval="Cretaceous", model="GPlates")
+> shape  <-  getmap(interval="Cretaceous", model="GPlates")
 > shape
 ```
 
@@ -54,12 +54,12 @@ max values  :     145,    66, Cretaceous
 ![plot of chunk map](figure/cretaceous.png)
 
 
-**pm_getdata**
+**getdata**
 returns a dataframe with the selected fossil occurrences, downloaded from the [Paleobiology Database](http://paleobiodb.org/)
 
 ```coffee
 
-> data  <-  pm_getdata (base_name="Testudines", interval="Paleocene")
+> data  <-  getdata (base_name="Testudines", interval="Paleocene")
 > head(data)
 
 ```
@@ -89,15 +89,15 @@ returns a dataframe with the selected fossil occurrences, downloaded from the [P
 
 ```
 
-**pm_plot**
+**pastplot**
 
 Returns a plot with the paleomap and the fossil occurrences.
 
 ```coffee
 
-data  <-  pm_getdata (base_name="Testudines", 
+data  <-  getdata (base_name="Testudines", 
                       interval="Paleocene")
-pm_plot (interval="Paleocene", model="GPlates", data)
+pastplot (interval="Paleocene", model="GPlates", data)
 
 ```
 
@@ -105,14 +105,14 @@ pm_plot (interval="Paleocene", model="GPlates", data)
 
 ## Functions for paleogeographical analyses
 
-**pm_occraster**
+**mapocc**
 Returns a RasterLayer of the sampling effort and a map with the raster on it.
 
 ```coffee
-> shape <- pm_getmap(interval="Paleocene", model="GPlates") 
-> data <- pm_getdata (base_name="Testudines", 
+> shape <- getmap(interval="Paleocene", model="GPlates") 
+> data <- getdata (base_name="Testudines", 
                     interval="Paleocene")
-> pm_occraster (shape, data, rank="species")
+> mapocc (shape, data, rank="species")
 
 ``` 
 
@@ -130,12 +130,12 @@ values      : 1, 58  (min, max)
 
 ![plot of chunk map](figure/raster_test.png) 
 
-**pm_richraster**
+**maprich**
 Returns a RasterLayer of richness and a map with the raster on it.
 
 ```coffee
 
-> pm_richraster (shape, data, rank="species")
+> maprich (shape, data, rank="species")
 
 ``` 
 
@@ -480,25 +480,25 @@ calculates the Shannon diversity along the latitudinal gradient based on the ind
 
 ## Meta
 
-Please report any [issues or  bugs](https://github.com/macroecology/paleoMap/issues).
+Please report any [issues or  bugs](https://github.com/macroecology/pasta/issues).
 
 License: GPL-2
 
-To cite package `paleoMap` in publications use:
+To cite package `pasta` in publications use:
 
 ```coffee
-To cite package `paleoMap` in publications use:
+To cite package `pasta` in publications use:
 
-Sara Varela, K. Sonja Rothkugel (2017). paleoMap:  combine paleogeography and paleobiodiversity. R package version 0.1. https://github.com/macroecology/paleoMap
+Sara Varela, K. Sonja Rothkugel (2017). pasta:  combine paleogeography and paleobiodiversity. R package version 0.1. https://github.com/macroecology/pasta
 
 A BibTeX entry for LaTeX users is
 
   @Manual{,
-    title = {paleoMap:  combine paleogeography and paleobiodiversity},
+    title = {pasta:  combine paleogeography and paleobiodiversity},
     author = {Sara Varela} and {Sonja Rothkugel},
     year = {2016},
     note = {R package version 0.1},
-    base = {https://github.com/macroecology/paleoMap},
+    base = {https://github.com/macroecology/pasta},
   }
 ```
 

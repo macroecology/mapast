@@ -1,5 +1,5 @@
 
-#'We have developed paleoMap, an R-package designed to make paleontolgical maps available to
+#'We have developed pasta (PAST mAps), an R-package designed to make paleontolgical maps available to
 #'plot the fossil occurences from Paleobiology Database onto the maps of the past.
 #'
 #'
@@ -7,9 +7,9 @@
 #'functions to get fossil data from the paleobilogy database and plotting this 
 #'data on the maps.
 #'
-#' @name paleoMap
-#' @title paleoMap: An R-package for getting and using paleogeographical maps.
-#' @aliases paleoMap-package
+#' @name pasta
+#' @title pasta (PAST mAps):  An R-package for getting and using paleogeographical maps.
+#' @aliases pasta-package
 #' @docType package
 #' @author Sonja Rothkugel \email{rothkugelsonja@@aol.de}
 #' @author Sara Varela \email{svarela@@paleobiogeography.org}
@@ -17,7 +17,7 @@
 #' @keywords package
 #' 
 #' @details \tabular{ll}{
-#' Package: \tab paleoMap\cr
+#' Package: \tab pasta\cr
 #' Type: \tab Package\cr
 #' Version: \tab 0.1\cr
 #' Date: \tab 2017-12-12\cr

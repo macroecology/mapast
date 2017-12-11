@@ -19,14 +19,14 @@ mycols <- colorRampPalette(c("#F5DEB3",
 # @usage .rank_filter(r, data, res, rank)
 # @param r blank raster
 # @param data a data frame which needs to have a column called paleolat and
-# a column called paleolng, can be created with pm_getdata
+# a column called paleolng, can be created with getdata
 # @param res resolution of the raster file
 # @param rank rank of interest
 # @return a raster with the taxa richness
 # @keywords internal
 # @examples
 # \dontrun{
-# data<- pm_getdata(base_name = "Canis", interval = "Quaternary")
+# data<- getdata(base_name = "Canis", interval = "Quaternary")
 # .rank_filter(r, data, res = 10, rank = "genus")
 # }
 
@@ -79,7 +79,7 @@ mycols <- colorRampPalette(c("#F5DEB3",
 ##@return filtered data frame with only species
 ##examples 
 ##\dontrun{
-##data<- pm_getdata (base_name="Canis", interval="Quaternary")
+##data<- getdata (base_name="Canis", interval="Quaternary")
 ##filtered_data <- .rfilter (data, rank="genus")
 ##show(filtered_data)
 ##}

@@ -1,28 +1,28 @@
 #get the data
-base::load(base::system.file("testdata", "testdata.rda", package = "paleoMap"))
+base::load(base::system.file("testdata", "testdata.rda", package = "pasta"))
 
 
 data <- data[1:100,]
-# data <- paleoMap::pm_getdata("Oligocene", "mammalia", limit=100)
-# shape <- paleoMap::pm_getmap("Oligocene", "GPlates")
-occ_species <- paleoMap::pm_occ(data, rank="species") 
-occ_cell_species <- paleoMap::pm_occ_cell(data, rank="species") 
+# data <- pasta::getdata("Oligocene", "mammalia", limit=100)
+# shape <- pasta::getmap("Oligocene", "GPlates")
+occ_species <- pasta::pm_occ(data, rank="species") 
+occ_cell_species <- pasta::pm_occ_cell(data, rank="species") 
 
-#####pm_occraster#####
-testthat::context("pm_occraster")
-testthat::test_that("test on pm_occraster, if output is raster", {
+#####mapocc#####
+testthat::context("mapocc")
+testthat::test_that("test on mapocc, if output is raster", {
   #create raster
-  ras <- paleoMap::pm_occraster(shape, data, rank="genus")
+  ras <- pasta::mapocc(shape, data, rank="genus")
   #test if raster is a RasterLayer
   testthat::expect_that(ras@class[1], equals("RasterLayer"))
   rm(ras)
 })
  
-#####pm_richraster#####
-testthat::context("pm_richraster")
-testthat::test_that("test on pm_richraster, if output is raster",{
+#####maprich#####
+testthat::context("maprich")
+testthat::test_that("test on maprich, if output is raster",{
   #create species richness raster
-  spras <- paleoMap::pm_richraster(shape, data, rank="species")
+  spras <- pasta::maprich(shape, data, rank="species")
   #test if class of raster is RasterLayer
   testthat::expect_that(spras@class[1], equals("RasterLayer"))
   rm(spras)
@@ -31,12 +31,12 @@ testthat::test_that("test on pm_richraster, if output is raster",{
 ######pm_occ#####
 testthat::context("pm_occ")
   #create ocurrence matrices
-  occ_species <- paleoMap::pm_occ(data, rank="species")
-  occ_genus <- paleoMap::pm_occ(data, rank="genus")
-  occ_family <- paleoMap::pm_occ(data, rank="family")
-  occ_order <- paleoMap::pm_occ(data, rank="order")
-  occ_class <- paleoMap::pm_occ(data, rank="class")
-  occ_phylum <-paleoMap::pm_occ(data, rank="phylum")
+  occ_species <- pasta::pm_occ(data, rank="species")
+  occ_genus <- pasta::pm_occ(data, rank="genus")
+  occ_family <- pasta::pm_occ(data, rank="family")
+  occ_order <- pasta::pm_occ(data, rank="order")
+  occ_class <- pasta::pm_occ(data, rank="class")
+  occ_phylum <-pasta::pm_occ(data, rank="phylum")
   #test if paleolat and paleolng are inside and correct
 testthat::test_that("test that pm_occ gives correct output for species", {
   coln_species <- base::colnames(occ_species)
@@ -96,12 +96,12 @@ rm(nums_species, nums_genus, nums_family, nums_order, nums_class, nums_phylum)
 ######pm_occ_cell######   
 testthat::context("pm_occ_cell")
 #get output of function
-occ_cell_species <- paleoMap::pm_occ_cell(data, rank="species")
-occ_cell_genus <- paleoMap::pm_occ_cell(data, rank="genus")
-occ_cell_family <- paleoMap::pm_occ_cell(data, rank="family")
-occ_cell_order <- paleoMap::pm_occ_cell(data, rank="order")
-occ_cell_class <- paleoMap::pm_occ_cell(data, rank="class")
-occ_cell_phylum <-paleoMap::pm_occ_cell(data, rank="phylum")
+occ_cell_species <- pasta::pm_occ_cell(data, rank="species")
+occ_cell_genus <- pasta::pm_occ_cell(data, rank="genus")
+occ_cell_family <- pasta::pm_occ_cell(data, rank="family")
+occ_cell_order <- pasta::pm_occ_cell(data, rank="order")
+occ_cell_class <- pasta::pm_occ_cell(data, rank="class")
+occ_cell_phylum <-pasta::pm_occ_cell(data, rank="phylum")
 #test if paleolat and paleolng are inside and correct
 testthat::test_that("test that pm_occ_cell gives correct output for species", {
   coln_cell_species <- base::colnames(occ_cell_species)
@@ -165,10 +165,10 @@ rm(nums_cell_species, nums_cell_genus, nums_cell_family, nums_cell_order, nums_c
 #####pm_divraster_loc######
 testthat::context("pm_divraster_loc")
 #get diversity raster
-div_mean <- paleoMap::pm_divraster_loc (shape, occ_species, fun=mean)
-div_max <- paleoMap::pm_divraster_loc (shape, occ_species, fun=max)
-div_min <- paleoMap::pm_divraster_loc (shape, occ_species, fun=min)
-div_count <- paleoMap::pm_divraster_loc (shape, occ_species, fun="count")
+div_mean <- pasta::pm_divraster_loc (shape, occ_species, fun=mean)
+div_max <- pasta::pm_divraster_loc (shape, occ_species, fun=max)
+div_min <- pasta::pm_divraster_loc (shape, occ_species, fun=min)
+div_count <- pasta::pm_divraster_loc (shape, occ_species, fun="count")
 testthat::test_that("test that output is a RasterLayer", {
   testthat::expect_that(div_mean@class[1], equals("RasterLayer"))
   testthat::expect_that(div_max@class[1], equals("RasterLayer"))
@@ -181,7 +181,7 @@ rm(div_mean, div_max, div_min, div_count)
 #####pm_divraster_cell######
 testthat::context("pm_divraster_cell")
 #get divraster cell
-div_cell <- paleoMap::pm_divraster_cell(shape, occ_cell_species)
+div_cell <- pasta::pm_divraster_cell(shape, occ_cell_species)
 testthat::test_that("test that output is a RasterLayer", {
   testthat::expect_that(div_cell@class[1], equals("RasterLayer"))
 })
@@ -190,7 +190,7 @@ rm(div_cell)
 
 #####pm_latrich#####
 testthat::context("pm_latrich")
-latrich_species <- paleoMap::pm_latrich(shape, data, rank="species")
+latrich_species <- pasta::pm_latrich(shape, data, rank="species")
 names_species <- base::names(latrich_species)
 testthat::test_that("test that column names are correct", {
   testthat::expect_true("paleolat" %in% names_species)

@@ -2,7 +2,7 @@
 
 #' getmap
 #' 
-#' Generates a shapefile with the paleomap of the chosen 
+#' Generates a shapefile with the paleogeographical map of the chosen 
 #' time interval (e.g. "Cretaceous") and a plot.
 #' 
 #' @usage getmap(interval, model, colland = "#66666660"
@@ -168,14 +168,14 @@ getdata <- function(interval, base_name, limit="all") {
 
 
 
-####################paleoplot#################################
+####################pastplot#################################
 
-#' paleoplot
+#' pastplot
 #' 
 #' Plots your query from the paleobioDB onto the map of the selected time interval.
 #' 
 #' 
-#' @usage paleoplot(interval, model, data, colland = "#66666660",
+#' @usage pastplot(interval, model, data, colland = "#66666660",
 #'                 colsea = "#00509010",colpoints = "#65432190", 
 #'                 pch =16, cex = 1, ...)
 #' 
@@ -195,21 +195,21 @@ getdata <- function(interval, base_name, limit="all") {
 #' \dontrun{
 #' 
 #' data  <-  getdata (interval="Cretaceous", base_name="Mammalia")
-#' paleoplot(interval="Cretaceous", model="GPlates", data)
+#' pastplot(interval="Cretaceous", model="GPlates", data)
 #' 
 #' #save as pdf file
-#' pdf("paleoplot-GPlates_Cretaceous-Mammalia.pdf")
-#' paleoplot(interval="Cretaceous", model="GPlates", data)
+#' pdf("pastplot-GPlates_Cretaceous-Mammalia.pdf")
+#' pastplot(interval="Cretaceous", model="GPlates", data)
 #' dev.off()
 #' #save as tiff image
-#' tiff("paleoplot-GPlates_Cretaceous-Mammalia.tiff", 
+#' tiff("pastplot-GPlates_Cretaceous-Mammalia.tiff", 
 #'       height = 10.5, width = 17, units = 'cm', res=300)
-#' paleoplot(interval="Cretaceous", model="GPlates", data)
+#' pastplot(interval="Cretaceous", model="GPlates", data)
 #' dev.off()
 #' 
 #'}
 
-paleoplot <- function(interval, model, data,
+pastplot <- function(interval, model, data,
                     colland = "#66666660",
                     colsea = "#00509010", 
                     colpoints = "#65432190", 
@@ -223,7 +223,7 @@ paleoplot <- function(interval, model, data,
     stop("Range of Latitude and/or Longitude is not allowed.")
   }
   #getting the shape file with getmap
-  shape <- paleoMap::getmap(interval = interval, model = model, do.plot = FALSE)
+  shape <- pasta::getmap(interval = interval, model = model, do.plot = FALSE)
   #default parameter list for plotting
   graphparams.def <- base::list(x=shape, col = "white", border = FALSE
                          , xlim=c(-180,180), ylim=c(-90,90)
@@ -417,14 +417,14 @@ mapocc <- function(shape, data,
   return(occraster)
 }
 
-#####################pm_richraster####################
+#####################maprich####################
 
-#' pm_richraster
+#' maprich
 #' 
 #' Creates a raster of species richness
 #' and makes a plot of the map and raster.
 #' 
-#' @usage pm_richraster(shape, data, rank="genus", res=1, 
+#' @usage maprich(shape, data, rank="genus", res=1, 
 #'                      colland = "#66666660", colsea = "#00509010", col.grid= mycols(100), 
 #'                      do.plot=TRUE, ...)
 #' 
@@ -448,22 +448,22 @@ mapocc <- function(shape, data,
 #' 
 #' shape<- getmap(interval="Paleocene", model="GPlates")
 #' data<- getdata(base_name="Testudines", interval="Paleocene")
-#' richness<- pm_richraster(shape, data, rank="genus")
+#' richness<- maprich(shape, data, rank="genus")
 #' 
 #' #save as pdf file
-#' pdf("pm_richraster-GPlates_Paleocene-Testudines.pdf")
-#' richness<- pm_richraster(shape, data, rank="genus")
+#' pdf("maprich-GPlates_Paleocene-Testudines.pdf")
+#' richness<- maprich(shape, data, rank="genus")
 #' dev.off()
 #' #save as tiff image
-#' tiff("pm_richraster-GPlates_Paleocene-Testudines.tiff", 
+#' tiff("maprich-GPlates_Paleocene-Testudines.tiff", 
 #'       height = 10.5, width = 19, units = 'cm', res=300)
-#' richness<- pm_richraster(shape, data, rank="genus")
+#' richness<- maprich(shape, data, rank="genus")
 #' dev.off()
 #' 
 #'}
 #'
 
-pm_richraster <- function (shape, data, rank="genus", res=1, 
+maprich <- function (shape, data, rank="genus", res=1, 
                            colland = "#66666660",
                            colsea = "#00509010", col.grid=mycols(100), do.plot=TRUE, ...) {
   #check the users input data

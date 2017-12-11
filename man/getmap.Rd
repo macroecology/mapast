@@ -24,7 +24,7 @@ getmap(interval, model, colland = "#66666660"
 Returns a SpatialPolygonsDataFrame and creates a plot (if do.plot=TRUE).
 }
 \description{
-Generates a shapefile with the paleomap of the chosen 
+Generates a shapefile with the paleogeographical map of the chosen 
 time interval (e.g. "Cretaceous") and a plot.
 }
 \examples{
