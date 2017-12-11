@@ -719,6 +719,20 @@ pm_occ_cell <- function(data, rank = "genus", res=1, pa=FALSE) {
       stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
     }
   }
+  if(rank=="species"){
+    data <- data[which(data$matched_rank=="species"),]
+  }else if(rank=="genus"){
+    data <- data[which(!is.na(data$genus)),]
+  }else if(rank=="order"){
+    data <- data[which(!is.na(data$order)),]
+  }else if(rank=="family"){
+    data <- data[which(!is.na(data$family)),]
+  }else if(rank=="class"){
+    data <- data[which(!is.na(data$class)),]
+  }else{
+    data <- data[which(!is.na(data$phylum)),]
+  }
+
   #remove NA columns that don't have the chosen rank
   if(rank=="species"){
     rankcol <- "matched_name"
@@ -757,7 +771,6 @@ pm_occ_cell <- function(data, rank = "genus", res=1, pa=FALSE) {
   latbord <- seq(90,-90, -res)
   for(curocc in 1:length(data$paleolng)){
     curtaxon <- as.character(data[[rankcol]][curocc])
-    print(curtaxon)
     curlat <- data$paleolat[curocc]
     curlng <- data$paleolng[curocc]
     if(!(curlat %in% latbord)){
@@ -817,20 +830,22 @@ pm_occ_cell <- function(data, rank = "genus", res=1, pa=FALSE) {
   return(base::as.data.frame(occ))
 }
 
+#####################mapdiv####################
 
-#####################pm_divraster_loc####################
-
-#' pm_divraster_loc
+#' mapdiv
 #' 
-#' Calculates the Shannon diversity per unique locality (based on 
-#' its coordinates), makes a RasterLayer and a plot showing mean, 
-#' max, min diversity per cell, or number of unique localities per cell.
+#' Calculates the Shannon diversity per cell or locality 
+#' (taking into account relative abundances of all the fossil records 
+#' whithin the cell).
 #' 
-#' @usage pm_divraster_loc  (shape, occ_df, res=1, fun=mean, colland = "#66666660"
-#'                           , colsea = "#00509010", col.grid=mycols(100), do.plot=TRUE, ...)
+#' @usage mapdiv  (shape, data, unity, rank="genus", res=1, fun=mean,
+#'                            colland="#66666660", colsea="#00509010", col.grid=mycols(100), 
+#'                            do.plot=TRUE, ...)
 #' 
 #' @param shape SpatialPolygonsDataFrame object containing a map.
-#' @param occ_df data.frame with fossil occurrences. Can be created with pm_occ(data).
+#' @param data data.frame with fossil occurrences
+#' @param unity either "fossilsite" or "cell"
+#' @param rank taxnomic rank. By default rank="genus"
 #' @param res numeric. Defining the spatial resolution. Default res=1. 
 #' @param fun function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
 #' You can use functions such as min, max, or mean, or the character value: 'count'. 
@@ -846,240 +861,121 @@ pm_occ_cell <- function(data, rank = "genus", res=1, pa=FALSE) {
 #' @examples 
 #' \dontrun{
 #' 
-#' shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-#' data<- getdata (base_name="Canis", interval="Quaternary")
-#' occ_df <- pm_occ (data, rank = "genus")
-#' pm_divraster_loc (shape, occ_df, fun=mean)
-#' pm_divraster_loc (shape, occ_df, fun=max)
-#' pm_divraster_loc (shape, occ_df, fun=min)
-#' pm_divraster_loc (shape, occ_df, fun="count")
-#' 
-#' #save as pdf file
-#' pdf("pm_divraster_loc-GPlates_Quaternary-Canis.pdf")
-#' pm_divraster_loc (shape, occ_df, fun=mean)
-#' dev.off()
-#' #save as tiff image
-#' tiff("pm_divraster_loc-GPlates_Quaternary-Canis.tiff", 
-#'       height = 10.5, width = 19, units = 'cm', res=300)
-#' pm_divraster_loc (shape, occ_df, fun=mean)
-#' dev.off()
-#' 
-#'}
-
-pm_divraster_loc <- function(shape, occ_df, res=1, fun = mean,
-                             colland="#66666660", colsea="#00509010", col.grid=mycols(100), do.plot=TRUE, ...) {
-  #check the users input
-  if(!.checkLatLng(occ_df)){
-    stop("Column/s paleolat and/or paleolng are missing in the input data.")
-  }
-  if(!.checkRange(occ_df)){
-    stop("Range of Latitude and/or Longitude is not allowed.")
-  }
-  if(!.checkShape(shape)){
-    stop("Shape is not a SpatialPolygonsDataFrame.")
-  }
-  if(!.checkFun(fun, "pm_divraster_loc")){
-    stop("Chosen value for fun is not a valid input.")
-  }
-  #creating a raster in size of the shape file
-  spatialext <- raster::extent(c(-180, 180, -90, 90))
-  ras <- raster::raster(spatialext, res=res)
-  #remove paleolat and paleolng from data
-  drops <- c("paleolat","paleolng")
-  rawocc <- base::data.frame(occ_df[, !(base::names(occ_df) %in% drops)])
-  #calculate the diversity from the fossil occurrences
-  div <-c()
-  if(nrow(rawocc>1)){
-    for(i in 1:nrow(rawocc)){
-      div <- c(div, vegan::diversity(rawocc[i,]))
-    }
-  }else{
-    div <- vegan::diversity(rawocc)
-  }
-  #save paleolat, paleolng and diversity in a data frame and define column names
-  divlatlng <- base::data.frame(occ_df$paleolat, 
-                        occ_df$paleolng, div= div)
-  base::colnames(divlatlng) <- c("paleolat", "paleolng", "div")
-
-  #getting the raster of the diversity, using the function as defined in the input parameter
-  divraster<-raster::rasterize(divlatlng[, c("paleolng", "paleolat")], ras, 
-                       field= divlatlng$div, fun=fun)
-  
-  #set all values that are 0 to NA (otherwise raster would fill the whole map)
-  divraster[divraster==0]<- NA
-  #set the ones with a fossil occurrence but no diversity to 0
-  div.df <-base::cbind(divlatlng, base::rep(1, base::length(divlatlng[,1])))
-  base::colnames(div.df)[4] <- "genus"
-  div_cell <- pm_occ_cell(div.df)
-  #sort div_cell as r@data@values is sorted
-  xyras <- base::data.frame(raster::xyFromCell(divraster,1:base::length(divraster@data@values)))
-  div_cell <- div_cell[base::order(base::match(
-         paste(div_cell[,1],div_cell[,2]),
-         paste(xyras[,1],xyras[,2]))),]
-  for(i in 1:base::length(div_cell[,3])){
-    if(div_cell[i,3]>0 && base::is.na(divraster@data@values[i])){
-      divraster@data@values[i] <- 0
-    }
-  }
-  #set default graphical parameter
-  graphparams.def <- base::list(x=shape, col="white", border=FALSE,  xlim=c(-180,180), ylim=c(-90,90)
-                         , xaxs="i", yaxs="i", col.grid=col.grid)
-  #get graphical parameter from the users input
-  graphparams.user <- base::list(...)
-  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
-  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
-  #keep users value if user defines same value as in default values
-  for( param in names_graphparams.user){
-    if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def)==param)] 
-  }
-  #create graphical parameter list with default and user values
-  graphparams <- c(graphparams.def, graphparams.user)
-  #save the raster color and remove it from the parameter list
-  gridcol <- graphparams$col.grid
-  graphparams <- graphparams[- base::which(base::names(graphparams)=="col.grid")]
-  #if do.plot is true
-  if(do.plot){
-    #save current margin settings and define needed
-    def.mar <- graphics::par("mar")
-    graphics::par(mar=c(1.5,1.5,2,4))
-    #create a plot with the users graphical parameters
-    base::do.call(raster::plot, graphparams)
-    #add a rectangle as the sea
-    graphics::rect(xleft=-180, xright=180, ybottom=-90, ytop=90, col=colsea, 
-                   border=FALSE,bty='L')
-    #plot the landmasses on the sea
-    raster::plot (shape, col=colland, border=FALSE, add=T, bty='L')
-    #add x-axis and x-axis labels
-    graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    #add y-axis and y-axis labels
-    graphics::axis(side = 2, pos=-175, lwd = 0, yaxp=c(90,-90,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6, las=1)
-    graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    #get metadata from the SpatialPolygonsDataFrame
-    shape.info <- .getShapeInfo(shape)
-    #add name, model, age at the top right of the plot
-    graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
-    graphics::axis(side = 3, pos=89, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
-    graphics::axis(side = 3, pos=81, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
-    #add the raster to the plot without a legend
-    raster::plot (divraster, add=T,axes=F, box=F, col=gridcol, legend=FALSE, bty='L')
-    #allow to expand the plotting area
-    graphics::par(xpd = TRUE)
-    graphics::par(bty= "n")
-    #add the legend of the raster next to the plot
-    raster::plot (divraster, legend.only=TRUE, col=gridcol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(tck=-0.2, col=NA, col.ticks="darkgrey", col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=NA), legend.args=list(text='diversity', line=1, side=3, adj=0.25, cex=0.6, col=gridcol[length(gridcol)/2]))
-    raster::plot (divraster, legend.only=TRUE, col=gridcol, smallplot=c(0.92,0.96, 0.3,0.7), axis.args=list(line=-0.5, col=NA, col.ticks=NA, col.lab=NA, cex=0.5, cex.lab=0.5, cex.axis=0.5, col.axis=gridcol[length(gridcol)/2]))
-    graphics::par(bty= "o")
-    #restore prior margin settings
-    graphics::par(mar=def.mar)
-  }
-  #return the raster
-  return(divraster)
-}
-
-
-
-#####################pm_divraster_cell####################
-
-#' pm_divraster_cell
-#' 
-#' Calculates the Shannon diversity per cell 
-#' (taking into account relative abundances of all the fossil records 
-#' whithin the cell).
-#' 
-#' @usage pm_divraster_cell  (shape, occ_df_cell, res=1,
-#'                            colland="#66666660", colsea="#00509010", col.grid=mycols(100), 
-#'                            do.plot=TRUE, ...)
-#' 
-#' @param shape SpatialPolygonsDataFrame object containing a map.
-#' @param occ_df_cell data.frame with fossil occurrences. Can be created with pm_occ_cell (data)
-#' @param res numeric. Defining the spatial resolution. Default res=1. 
-#' @param colland define the color of the land masses. By default colland = "#66666660".
-#' @param colsea define the color of the sea. By default colsea = "#00509010".
-#' @param col.grid define the color of the raster.
-#' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
-#' plot, such as main="my own title", main.col="red".
-#' @return Creates a plot with map of the time intervall, the fossil occurences and the 
-#' RasterLayer. And returns the RasterLayer itself.
-#' @export 
-#' @examples 
-#' \dontrun{
-#' 
 #'shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 #'data<- getdata (base_name="Canis", interval="Quaternary")
-#'occ_df_cell <- pm_occ_cell (data, rank = "genus")
-#'div_cell <- pm_divraster_cell (shape, occ_df_cell, res=1)
+#'div_site <- mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
+#'div_cell <- mapdiv (shape, data, unity="cell", rank="genus", res=1)
 #' 
 #' #save as pdf file
 #' pdf("pm_divraster_loc-GPlates_Quaternary-Canis.pdf")
-#' pm_divraster_cell (shape, occ_df_cell, res=1)
+#' mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
 #' dev.off()
 #' #save as tiff image
 #' tiff("pm_divraster_loc-GPlates_Quaternary-Canis.tiff", 
 #'       height = 10.5, width = 19, units = 'cm', res=300)
-#' pm_divraster_cell (shape, occ_df_cell, res=1)
+#' mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
 #' dev.off()
 #' 
 #' }
 
-pm_divraster_cell <- function(shape, occ_df_cell, res=1,
-                              colland="#66666660", colsea="#00509010", col.grid=mycols(100), 
-                              do.plot=TRUE, ...) {
+mapdiv <- function(shape, data, unity, rank="genus", res=1, fun=mean,
+                   colland="#66666660", colsea="#00509010", col.grid=mycols(100), 
+                   do.plot=TRUE, ...) {
   #check user input data
-  if(!.checkLatLng(occ_df_cell)){
-    stop("Column/s paleolat and/or paleolng are missing in the input data.")
-  }
-  if(!.checkRange(occ_df_cell)){
-    stop("Range of Latitude and/or Longitude is not allowed.")
-  }
   if(!.checkShape(shape)){
     stop("Shape is not a SpatialPolygonsDataFrame.")
   }
   #creating a raster in size of the shape file
   spatialext <- raster::extent(c(-180, 180, -90, 90))
   ras <- raster::raster(spatialext, res=res)
-  #remove lat and lng from data frame
-  drops <- c("paleolat","paleolng")
-  rawocc <- occ_df_cell[, !(base::names(occ_df_cell) %in% drops)]
-  rawocc <- base::data.frame(base::rep(0, base::length(occ_df_cell$paleolat)), rawocc)
-  #calculate the diversity and save diversity, lat and lng in new data frame
-  div <- vegan::diversity(rawocc)
-  divlatlng <- base::data.frame(occ_df_cell$paleolat, 
-                        occ_df_cell$paleolng, div= div)
-  base::colnames(divlatlng) <- c("paleolat","paleolng","div")
-  #create a raster with the diversity
-  divraster <- raster::rasterize(divlatlng[, c("paleolng","paleolat")], ras, 
-               field= divlatlng$div, fun=mean)
-  #declare all cells where diversity=0 as NA (otherwise everything  is colored)
-  divraster[divraster==0]<- NA
-  #set the ones with a fossil occurrence but no diversity to 0
-  if(base::length(occ_df_cell)>3){
-    occurrences <- base::rowSums(occ_df_cell[,3:base::length(occ_df_cell)])
-  }else{
-    occurrences <- occ_df_cell[,3]
-  }
-  occurrences[occurrences > 0] <- 1
-  div.df <- base::data.frame(paleolat=occ_df_cell$paleolat, paleolng=occ_df_cell$paleolng, genus=occurrences)
-  div_cell <- pm_occ_cell(div.df)
-  if(base::length(div_cell)>3){
-    div_cell$`0` <- NULL
-  }
-  #sort div_cell as r@data@values is sorted
-  xyras <- base::data.frame(raster::xyFromCell(divraster,1:base::length(divraster@data@values)))
-  div_cell <- div_cell[base::order(base::match(
-    base::paste(div_cell[,1],div_cell[,2]),
-    base::paste(xyras[,1],xyras[,2]))),]
-  for(i in 1:base::length(div_cell[,3])){
-    if(div_cell[i,3]>0 && base::is.na(divraster@data@values[i])){
-      divraster@data@values[i] <- 0
+ 
+  if(unity=="cell"){
+    occ_df_cell <- pasta::pm_occ_cell(data, rank=rank)
+    
+    #remove lat and lng from data frame
+    drops <- c("paleolat","paleolng")
+    rawocc <- occ_df_cell[, !(base::names(occ_df_cell) %in% drops)]
+    rawocc <- base::data.frame(base::rep(0, base::length(occ_df_cell$paleolat)), rawocc)
+    #calculate the diversity and save diversity, lat and lng in new data frame
+    div <- vegan::diversity(rawocc)
+    divlatlng <- base::data.frame(occ_df_cell$paleolat, 
+                                  occ_df_cell$paleolng, div= div)
+    base::colnames(divlatlng) <- c("paleolat","paleolng","div")
+    #create a raster with the diversity
+    divraster <- raster::rasterize(divlatlng[, c("paleolng","paleolat")], ras, 
+                                   field= divlatlng$div, fun=fun)
+    #declare all cells where diversity=0 as NA (otherwise everything  is colored)
+    divraster[divraster==0]<- NA
+    #set the ones with a fossil occurrence but no diversity to 0
+    if(base::length(occ_df_cell)>3){
+      occurrences <- base::rowSums(occ_df_cell[,3:base::length(occ_df_cell)])
+    }else{
+      occurrences <- occ_df_cell[,3]
+    }
+    occurrences[occurrences > 0] <- 1
+    div.df <- base::data.frame(paleolat=occ_df_cell$paleolat, paleolng=occ_df_cell$paleolng, genus=occurrences)
+    div_cell <- pm_occ_cell(div.df)
+    if(base::length(div_cell)>3){
+      div_cell$`0` <- NULL
+    }
+    #sort div_cell as r@data@values is sorted
+    xyras <- base::data.frame(raster::xyFromCell(divraster,1:base::length(divraster@data@values)))
+    div_cell <- div_cell[base::order(base::match(
+      base::paste(div_cell[,1],div_cell[,2]),
+      base::paste(xyras[,1],xyras[,2]))),]
+    for(i in 1:base::length(div_cell[,3])){
+      if(div_cell[i,3]>0 && base::is.na(divraster@data@values[i])){
+        divraster@data@values[i] <- 0
+      }
     }
   }
+  if(unity=="fossilsite"){
+    occ_df <- pasta::pm_occ(data, rank=rank) 
+    
+    drops <- c("paleolat","paleolng")
+    rawocc <- base::data.frame(occ_df[, !(base::names(occ_df) %in% drops)])
+    #calculate the diversity from the fossil occurrences
+    div <-c()
+    if(nrow(rawocc>1)){
+      for(i in 1:nrow(rawocc)){
+        div <- c(div, vegan::diversity(rawocc[i,]))
+      }
+    }else{
+      div <- vegan::diversity(rawocc)
+    }
+    #save paleolat, paleolng and diversity in a data frame and define column names
+    divlatlng <- base::data.frame(occ_df$paleolat, 
+                                  occ_df$paleolng, div= div)
+    base::colnames(divlatlng) <- c("paleolat", "paleolng", "div")
+    
+    #getting the raster of the diversity, using the function as defined in the input parameter
+    divraster<-raster::rasterize(divlatlng[, c("paleolng", "paleolat")], ras, 
+                                 field= divlatlng$div, fun=fun)
+    
+    #set all values that are 0 to NA (otherwise raster would fill the whole map)
+    divraster[divraster==0]<- NA
+    #set the ones with a fossil occurrence but no diversity to 0
+    div.df <-base::cbind(divlatlng, base::rep(1, base::length(divlatlng[,1])))
+    base::colnames(div.df)[4] <- "genus"
+    div_cell <- pm_occ_cell(div.df)
+    #sort div_cell as r@data@values is sorted
+    xyras <- base::data.frame(raster::xyFromCell(divraster,1:base::length(divraster@data@values)))
+    div_cell <- div_cell[base::order(base::match(
+      paste(div_cell[,1],div_cell[,2]),
+      paste(xyras[,1],xyras[,2]))),]
+    for(i in 1:base::length(div_cell[,3])){
+      if(div_cell[i,3]>0 && base::is.na(divraster@data@values[i])){
+        divraster@data@values[i] <- 0
+      }
+    }
+  }
+  
+  
   #default graphical parameter list
   graphparams.def <- base::list(x=shape, col="white", border=FALSE
-                         , xlim=c(-180,180), ylim=c(-90,90)
-                         , xlab="Longitude", ylab="Latitude"
-                         , xaxs="i", yaxs="i", col.grid=col.grid)
+                                , xlim=c(-180,180), ylim=c(-90,90)
+                                , xlab="Longitude", ylab="Latitude"
+                                , xaxs="i", yaxs="i", col.grid=col.grid)
   #user defined grapical parameter
   graphparams.user <- base::list(...)
   names_graphparams.user <- base::as.vector(base::names(graphparams.user))
@@ -1132,7 +1028,6 @@ pm_divraster_cell <- function(shape, occ_df_cell, res=1,
   #return the raster
   return(divraster)
 }
-
 
 
 ###################################pm_latrich###################
