@@ -555,19 +555,19 @@ maprich <- function (shape, data, rank="genus", res=1,
   return(richraster)
 }
 
-
-
-
-########pm_occ###################
-#' pm_occ
+########spsite###################
+#' spsite
 #' 
 #' Generates a diversity matrix, with the number occurrences of each species, 
 #' genus, family or order per locality.
 #' 
-#' @usage pm_occ(data, rank = "genus", pa=FALSE)
+#' @usage spsite(data, unity, res=1, rank = "genus", pa=FALSE)
 #' 
 #' @param data data.frame with fossil occurrences. Can be created with 
 #' getdata(interval, base_name)
+#' @param unity character. unity="fossilsite" or unity="cell" defining if the user wants the occurrences per 
+#' cell or per fossilsite.
+#' @param res numeric. Defining the spatial resolution. By default res=1. Only used if unity="cell".
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
 #' @param pa boolean. Defines if the user wants presence absence or counted data. By default pa=FALSE.
@@ -578,12 +578,11 @@ maprich <- function (shape, data, rank="genus", res=1,
 #' \dontrun{
 #' 
 #' data <- getdata(base_name = "Canis", interval = "Quaternary")
-#' result <- pm_occ(data, rank = "genus")
+#' result <- spsite(data, rank = "genus")
 #' 
 #'}
 
-
-pm_occ <- function(data, rank = "genus", pa=FALSE) {
+spsite <- function(data, unity, res=1, rank = "genus", pa=FALSE) {
   #check users input data
   #check if lat/lng columns are in the data frame
   if(!.checkLatLng(data)){
@@ -604,231 +603,188 @@ pm_occ <- function(data, rank = "genus", pa=FALSE) {
       stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
     }
   }
-  #filter data for the rank
-  rankdata <- .rfilter(data, rank)
-  #create a data. frame with all the locations once
-  latlng <- base::data.frame(paleolng = rankdata$paleolng, paleolat = rankdata$paleolat)
-  ulatlng <- base::unique(latlng)
-  #getting list of unique taxa
-  if(rank=="species"){
-    urank <- base::as.vector(base::unique(rankdata[, "matched_name"]))
-  }else if(rank=="genus"){
-    urank <- base::as.vector(base::unique(rankdata[, "genus"]))
-  }else if(rank=="family"){
-    urank <- base::as.vector(base::unique(rankdata[, "family"]))
-  }else if(rank=="order"){
-    urank <- base::as.vector(base::unique(rankdata[, "order"]))
-  }else if(rank=="class"){
-    urank <- base::as.vector(base::unique(rankdata[, "class"]))
-  }else if(rank=="phylum"){
-    urank <- base::as.vector(base::unique(rankdata[, "phylum"]))
-  }
-  #save the unique locations in nsites
-  occ <- ulatlng
-  #fill matrix with default values -1 for each species/genus/.. and each locality
-  def.values <- base::matrix(-1, nrow = base::nrow(occ), ncol = base::length(urank))
-  #add the unique localities to the matrix
-  occ <- base::cbind(occ, def.values)
-  #set lat, lng and species/genus/.. names as column names
-  base::colnames(occ) <- c(base::unlist(base::names(latlng)), urank)
-  #getting the number of occurrences of a species/genus/... for each locality
-  for (curloc in 1:base::nrow(occ)) {
-    #get lat & lng
-    lat_cur <- occ[curloc, "paleolat"]
-    lng_cur <- occ[curloc, "paleolng"]
-    #go through the list with unique species/genera/...
-    for (curtaxon in 1:base::length(urank)) {
-      #get current species/genus/...
-      taxon_cur <- urank[curtaxon]
-      #get all fossil occurrences at current locality
-      curlatlng <- base::subset(rankdata, rankdata$paleolat == lat_cur)
-      curlatlng <- base::subset(curlatlng, curlatlng$paleolng == lng_cur)
-      #select only current species/genus/...
-      if(rank=="species"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"matched_name"] == taxon_cur)
-      }else if(rank=="genus"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"genus"] == taxon_cur)
-      }else if(rank=="family"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"family"] == taxon_cur)
-      }else if(rank=="order"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"order"] == taxon_cur)
-      }else if(rank=="class"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"class"] == taxon_cur)
-      }else if(rank=="phylum"){
-        cur.taxon <- base::subset(curlatlng, curlatlng[,"phylum"] == taxon_cur)
-      }
-      #count the number of species/geners/.. in this locality and save it in the matrix
-      count<- base::nrow(cur.taxon)
-      occ[curloc, curtaxon + 2] <- count
-    }
-  }
-  if(pa){
-    occnoloc <- occ[,3:length(occ)]
-    occnoloc[occnoloc>0]<-1
-    occ <- base::cbind(paleolng=occ$paleolng, paleolat=occ$paleolat, occnoloc)
-  }
-  occ <- occ[with(occ, order(paleolng, -paleolat)), ]
-  #return the data.frame
-  return(occ)
-}
-
-
-
-########pm_occ_cell###################
-#' pm_occ_cell
-#' 
-#' Generates a diversity matrix, with the number occurrences of each species, 
-#' genus, family or order per cell.
-#' 
-#' @usage pm_occ_cell(data, rank = "genus", res=1, pa=FALSE)
-#' 
-#' @param data data.frame with fossil occurrences. Can be created with 
-#' getdata(interval, base_name)
-#' @param rank character. Defining the taxonomic rank of interest. 
-#' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
-#' @param res numeric. Defining the spatial resolution. By default res=1. 
-#' @param pa boolean. Defines if the user wants presence absence or counted data. By default pa=FALSE.
-#' @return Returns a data frame with number of species, genera, families or orders 
-#' per cell.
-#' @export 
-#' @examples 
-#' \dontrun{
-#' 
-#' data <- getdata(base_name = "Canis", interval = "Quaternary")
-#' result <- pm_occ_cell(data, rank = "genus", res=1)
-#' 
-#'}
-
-
-
-pm_occ_cell <- function(data, rank = "genus", res=1, pa=FALSE) {
-  #check the user input data
-  if(!.checkLatLng(data)){
-    stop("Column/s paleolat and/or paleolng are missing in the input data.")
-  }
-  if(!.checkRange(data)){
-    stop("Range of Latitude and/or Longitude is not allowed.")
-  }
-  if(!.checkRank(rank)){
-    stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep=""))
-  }
-  if(!.checkDataRank(data,rank)){
+  
+  if(unity=="fossilsite"){
+    #filter data for the rank
+    rankdata <- .rfilter(data, rank)
+    #create a data. frame with all the locations once
+    latlng <- base::data.frame(paleolng = rankdata$paleolng, paleolat = rankdata$paleolat)
+    ulatlng <- base::unique(latlng)
+    #getting list of unique taxa
     if(rank=="species"){
-      stop(base::paste("There is no column matched_name in the data frame.", sep=""))
-    }else{
-      stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
+      urank <- base::as.vector(base::unique(rankdata[, "matched_name"]))
+    }else if(rank=="genus"){
+      urank <- base::as.vector(base::unique(rankdata[, "genus"]))
+    }else if(rank=="family"){
+      urank <- base::as.vector(base::unique(rankdata[, "family"]))
+    }else if(rank=="order"){
+      urank <- base::as.vector(base::unique(rankdata[, "order"]))
+    }else if(rank=="class"){
+      urank <- base::as.vector(base::unique(rankdata[, "class"]))
+    }else if(rank=="phylum"){
+      urank <- base::as.vector(base::unique(rankdata[, "phylum"]))
     }
-  }
-  if(rank=="species"){
-    data <- data[which(data$matched_rank=="species"),]
-  }else if(rank=="genus"){
-    data <- data[which(!is.na(data$genus)),]
-  }else if(rank=="order"){
-    data <- data[which(!is.na(data$order)),]
-  }else if(rank=="family"){
-    data <- data[which(!is.na(data$family)),]
-  }else if(rank=="class"){
-    data <- data[which(!is.na(data$class)),]
-  }else{
-    data <- data[which(!is.na(data$phylum)),]
-  }
-
-  #remove NA columns that don't have the chosen rank
-  if(rank=="species"){
-    rankcol <- "matched_name"
-  }else{
-    rankcol <- rank
-  }
-  data <- data[!is.na(data[[rankcol]]),]
-  #only getting occurences with a known genus
-  rankdata <-.rfilter(data, rank)
-  #getting list of unique taxa
-  if(rank=="species"){
-    urank <- base::as.vector(base::unique(rankdata[, "matched_name"]))
-  }else if(rank=="genus"){
-    urank <- base::as.vector(base::unique(rankdata[, "genus"]))
-  }else if(rank=="family"){
-    urank <- base::as.vector(base::unique(rankdata[, "family"]))
-  }else if (rank=="order"){
-    urank <- base::as.vector(base::unique(rankdata[, "order"]))
-  }
-  else if(rank=="class"){
-    urank <- base::as.vector(base::unique(rankdata[, "class"]))
-  }else{
-    urank <- base::as.vector(base::unique(rankdata[, "phylum"]))
-  }
-  #define lat/lng sequence using the resolution
-  lat <- base::seq(-90+(res/2) , 90-(res/2), res)
-  long <- base::seq(-180+(res/2), 180-(res/2), res)
-  occ <- base::expand.grid (long, lat)
-  base::colnames(occ) <- c ("paleolng", "paleolat")
-  occ <- occ[with(occ, order(paleolng, -paleolat)), ]
-  #fill with default values 0 and add lat, lng and column names
-  def.values <- base::matrix(0, nrow = base::nrow (occ), ncol = base::length(urank))
-  occ <- base::cbind(occ, def.values)
-  base::colnames(occ) <- c ("paleolng", "paleolat", urank)
-  #getting the number of occurrences of a taxa for each locality
-  latbord <- seq(90,-90, -res)
-  for(curocc in 1:length(data$paleolng)){
-    curtaxon <- as.character(data[[rankcol]][curocc])
-    curlat <- data$paleolat[curocc]
-    curlng <- data$paleolng[curocc]
-    if(!(curlat %in% latbord)){
-      if(curlng ==180){
-        if(curlat>=90-(res/2)){
-          row <- abs(ceiling((curlat - 90)/res)+1)+abs(floor((curlng+180)/res)-1)*(180/res)
-        }else{
-          row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res)-1)*(180/res)
+    #save the unique locations in nsites
+    occ <- ulatlng
+    #fill matrix with default values -1 for each species/genus/.. and each locality
+    def.values <- base::matrix(-1, nrow = base::nrow(occ), ncol = base::length(urank))
+    #add the unique localities to the matrix
+    occ <- base::cbind(occ, def.values)
+    #set lat, lng and species/genus/.. names as column names
+    base::colnames(occ) <- c(base::unlist(base::names(latlng)), urank)
+    #getting the number of occurrences of a species/genus/... for each locality
+    for (curloc in 1:base::nrow(occ)) {
+      #get lat & lng
+      lat_cur <- occ[curloc, "paleolat"]
+      lng_cur <- occ[curloc, "paleolng"]
+      #go through the list with unique species/genera/...
+      for (curtaxon in 1:base::length(urank)) {
+        #get current species/genus/...
+        taxon_cur <- urank[curtaxon]
+        #get all fossil occurrences at current locality
+        curlatlng <- base::subset(rankdata, rankdata$paleolat == lat_cur)
+        curlatlng <- base::subset(curlatlng, curlatlng$paleolng == lng_cur)
+        #select only current species/genus/...
+        if(rank=="species"){
+          cur.taxon <- base::subset(curlatlng, curlatlng[,"matched_name"] == taxon_cur)
+        }else if(rank=="genus"){
+          cur.taxon <- base::subset(curlatlng, curlatlng[,"genus"] == taxon_cur)
+        }else if(rank=="family"){
+          cur.taxon <- base::subset(curlatlng, curlatlng[,"family"] == taxon_cur)
+        }else if(rank=="order"){
+          cur.taxon <- base::subset(curlatlng, curlatlng[,"order"] == taxon_cur)
+        }else if(rank=="class"){
+          cur.taxon <- base::subset(curlatlng, curlatlng[,"class"] == taxon_cur)
+        }else if(rank=="phylum"){
+          cur.taxon <- base::subset(curlatlng, curlatlng[,"phylum"] == taxon_cur)
         }
-        
-      }else if(curlng==-180){
-        if(curlat>=90-(res/2)){
-          row <- abs(ceiling((curlat - 90)/res)+1)+abs(floor((curlng+180)/res))*(180/res)
-        }else{
-          row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res))*(180/res)
-        }
-        
-      }else{
-        row <- abs(ceiling((curlat - 90)/res))+1+abs(floor((curlng+180)/res))*(180/res)
+        #count the number of species/geners/.. in this locality and save it in the matrix
+        count<- base::nrow(cur.taxon)
+        occ[curloc, curtaxon + 2] <- count
       }
+    }
+    if(pa){
+      occnoloc <- occ[,3:length(occ)]
+      occnoloc[occnoloc>0]<-1
+      occ <- base::cbind(paleolng=occ$paleolng, paleolat=occ$paleolat, occnoloc)
+    }
+    occ <- occ[with(occ, order(paleolng, -paleolat)), ]
+    #return the data.frame
+    return(occ)
+  }
+  if(unity=="cell"){
+    if(rank=="species"){
+      data <- data[which(data$matched_rank=="species"),]
+    }else if(rank=="genus"){
+      data <- data[which(!is.na(data$genus)),]
+    }else if(rank=="order"){
+      data <- data[which(!is.na(data$order)),]
+    }else if(rank=="family"){
+      data <- data[which(!is.na(data$family)),]
+    }else if(rank=="class"){
+      data <- data[which(!is.na(data$class)),]
     }else{
-      if(curlng ==180){
-        row <- abs(ceiling((curlat - 90)/res))+1+abs(floor((curlng+180)/res)-1)*(180/res)
-      }else if(curlng==-180){
-        if(curlat>=90-(res/2)){
-          row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res)-1)*(180/res)
-        }else{
-          row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res)-1)*(180/res)
-        }
-      }else{
-        if(curlat<=-90+(res/2)){
-          if(curlng <= -180+(res/2)){
-            row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res))*(180/res)
+      data <- data[which(!is.na(data$phylum)),]
+    }
+    #remove NA columns that don't have the chosen rank
+    if(rank=="species"){
+      rankcol <- "matched_name"
+    }else{
+      rankcol <- rank
+    }
+    data <- data[!is.na(data[[rankcol]]),]
+    #only getting occurences with a known genus
+    rankdata <-.rfilter(data, rank)
+    #getting list of unique taxa
+    if(rank=="species"){
+      urank <- base::as.vector(base::unique(rankdata[, "matched_name"]))
+    }else if(rank=="genus"){
+      urank <- base::as.vector(base::unique(rankdata[, "genus"]))
+    }else if(rank=="family"){
+      urank <- base::as.vector(base::unique(rankdata[, "family"]))
+    }else if (rank=="order"){
+      urank <- base::as.vector(base::unique(rankdata[, "order"]))
+    }
+    else if(rank=="class"){
+      urank <- base::as.vector(base::unique(rankdata[, "class"]))
+    }else{
+      urank <- base::as.vector(base::unique(rankdata[, "phylum"]))
+    }
+    #define lat/lng sequence using the resolution
+    lat <- base::seq(-90+(res/2) , 90-(res/2), res)
+    long <- base::seq(-180+(res/2), 180-(res/2), res)
+    occ <- base::expand.grid (long, lat)
+    base::colnames(occ) <- c ("paleolng", "paleolat")
+    occ <- occ[with(occ, order(paleolng, -paleolat)), ]
+    #fill with default values 0 and add lat, lng and column names
+    def.values <- base::matrix(0, nrow = base::nrow (occ), ncol = base::length(urank))
+    occ <- base::cbind(occ, def.values)
+    base::colnames(occ) <- c ("paleolng", "paleolat", urank)
+    #getting the number of occurrences of a taxa for each locality
+    latbord <- seq(90,-90, -res)
+    for(curocc in 1:length(data$paleolng)){
+      curtaxon <- as.character(data[[rankcol]][curocc])
+      curlat <- data$paleolat[curocc]
+      curlng <- data$paleolng[curocc]
+      if(!(curlat %in% latbord)){
+        if(curlng ==180){
+          if(curlat>=90-(res/2)){
+            row <- abs(ceiling((curlat - 90)/res)+1)+abs(floor((curlng+180)/res)-1)*(180/res)
+          }else{
+            row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res)-1)*(180/res)
+          }
+          
+        }else if(curlng==-180){
+          if(curlat>=90-(res/2)){
+            row <- abs(ceiling((curlat - 90)/res)+1)+abs(floor((curlng+180)/res))*(180/res)
           }else{
             row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res))*(180/res)
           }
-        }else if (curlat >= 90-(res/2)){
-          row <- abs(ceiling((curlat - 90)/res))+1+abs(floor((curlng+180)/res))*(180/res)
+          
         }else{
           row <- abs(ceiling((curlat - 90)/res))+1+abs(floor((curlng+180)/res))*(180/res)
         }
+      }else{
+        if(curlng ==180){
+          row <- abs(ceiling((curlat - 90)/res))+1+abs(floor((curlng+180)/res)-1)*(180/res)
+        }else if(curlng==-180){
+          if(curlat>=90-(res/2)){
+            row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res)-1)*(180/res)
+          }else{
+            row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res)-1)*(180/res)
+          }
+        }else{
+          if(curlat<=-90+(res/2)){
+            if(curlng <= -180+(res/2)){
+              row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res))*(180/res)
+            }else{
+              row <- abs(ceiling((curlat - 90)/res))+abs(floor((curlng+180)/res))*(180/res)
+            }
+          }else if (curlat >= 90-(res/2)){
+            row <- abs(ceiling((curlat - 90)/res))+1+abs(floor((curlng+180)/res))*(180/res)
+          }else{
+            row <- abs(ceiling((curlat - 90)/res))+1+abs(floor((curlng+180)/res))*(180/res)
+          }
+        }
       }
+      
+      if(row==0){
+        row <- 1
+      }
+      occ[row, curtaxon] <- (occ[row, curtaxon] +1)
     }
-    
-    
-    if(row==0){
-      row <- 1
+    if(pa){
+      occnoloc <- occ[,3:base::length(occ)]
+      occnoloc[occnoloc>0]<-1
+      occ <- base::cbind(paleolng=occ$paleolng, paleolat=occ$paleolat, occnoloc)
     }
-    occ[row, curtaxon] <- (occ[row, curtaxon] +1)
+    #return matrix as data frame
+    return(base::as.data.frame(occ))
   }
-  if(pa){
-    occnoloc <- occ[,3:base::length(occ)]
-    occnoloc[occnoloc>0]<-1
-    occ <- base::cbind(paleolng=occ$paleolng, paleolat=occ$paleolat, occnoloc)
-  }
-  #return matrix as data frame
-  return(base::as.data.frame(occ))
+  
 }
+
+
 
 #####################mapdiv####################
 
@@ -867,11 +823,11 @@ pm_occ_cell <- function(data, rank = "genus", res=1, pa=FALSE) {
 #'div_cell <- mapdiv (shape, data, unity="cell", rank="genus", res=1)
 #' 
 #' #save as pdf file
-#' pdf("pm_divraster_loc-GPlates_Quaternary-Canis.pdf")
+#' pdf("mapdiv-GPlates_Quaternary-Canis.pdf")
 #' mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
 #' dev.off()
 #' #save as tiff image
-#' tiff("pm_divraster_loc-GPlates_Quaternary-Canis.tiff", 
+#' tiff("mapdiv-GPlates_Quaternary-Canis.tiff", 
 #'       height = 10.5, width = 19, units = 'cm', res=300)
 #' mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
 #' dev.off()
@@ -890,7 +846,7 @@ mapdiv <- function(shape, data, unity, rank="genus", res=1, fun=mean,
   ras <- raster::raster(spatialext, res=res)
  
   if(unity=="cell"){
-    occ_df_cell <- pasta::pm_occ_cell(data, rank=rank)
+    occ_df_cell <- pasta::spsite(data, unity=unity, res=res, rank=rank)
     
     #remove lat and lng from data frame
     drops <- c("paleolat","paleolng")
@@ -914,7 +870,7 @@ mapdiv <- function(shape, data, unity, rank="genus", res=1, fun=mean,
     }
     occurrences[occurrences > 0] <- 1
     div.df <- base::data.frame(paleolat=occ_df_cell$paleolat, paleolng=occ_df_cell$paleolng, genus=occurrences)
-    div_cell <- pm_occ_cell(div.df)
+    div_cell <- pasta::spsite(div.df, unity="cell", res=res, rank="genus")
     if(base::length(div_cell)>3){
       div_cell$`0` <- NULL
     }
@@ -930,7 +886,9 @@ mapdiv <- function(shape, data, unity, rank="genus", res=1, fun=mean,
     }
   }
   if(unity=="fossilsite"){
-    occ_df <- pasta::pm_occ(data, rank=rank) 
+
+    occ_df <- pasta::spsite(data, unity=unity, res=res, rank=rank)
+
     
     drops <- c("paleolat","paleolng")
     rawocc <- base::data.frame(occ_df[, !(base::names(occ_df) %in% drops)])
@@ -957,7 +915,7 @@ mapdiv <- function(shape, data, unity, rank="genus", res=1, fun=mean,
     #set the ones with a fossil occurrence but no diversity to 0
     div.df <-base::cbind(divlatlng, base::rep(1, base::length(divlatlng[,1])))
     base::colnames(div.df)[4] <- "genus"
-    div_cell <- pm_occ_cell(div.df)
+    div_cell <- pasta::spsite(div.df, unity="cell", res=res, rank="genus")
     #sort div_cell as r@data@values is sorted
     xyras <- base::data.frame(raster::xyFromCell(divraster,1:base::length(divraster@data@values)))
     div_cell <- div_cell[base::order(base::match(
@@ -1030,12 +988,12 @@ mapdiv <- function(shape, data, unity, rank="genus", res=1, fun=mean,
 }
 
 
-###################################pm_latrich###################
-#' pm_latrich
+###################################latdivgrad###################
+#' latdivgrad
 #' 
 #' Calculates latitudinal diversity of taxa (species, genera, families, orders).
 #' 
-#' @usage pm_latrich (shape, data, rank = "genus", res=1,
+#' @usage latdivgrad (shape, data, method, rank = "genus", res=1,
 #'                    colland="#66666680", colsea="#00509010", 
 #'                    colpoints="#65432190", 
 #'                    rich.col="#654321", pch=21, do.plot=TRUE, ...)
@@ -1043,6 +1001,7 @@ mapdiv <- function(shape, data, unity, rank="genus", res=1, fun=mean,
 #' @param shape SpatialPolygonsDataFrame object containing a map.
 #' @param data data.frame with fossil occurrences. Can be created with
 #'  getdata(interval, base_name)
+#' @param method character. Defining the method of diversity measure, method="shannon" or method="richness".
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".
 #' @param res numeric. Defining the spatial resolution. Default res=1. 
@@ -1062,22 +1021,22 @@ mapdiv <- function(shape, data, unity, rank="genus", res=1, fun=mean,
 #' 
 #' shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 #' data<- getdata (base_name="Canis", interval="Quaternary")
-#' pm_latrich (shape, data, rank = "genus", res=1)
+#' latdivgrad (shape, data, method="richness", rank = "genus", res=1)
 #' 
 #' #save as pdf file
-#' pdf("pm_latrich-GPlates_Quaternary-Canis.pdf")
-#' pm_latrich (shape, data, rank = "genus", res=1)
+#' pdf("latdivgrad-GPlates_Quaternary-Canis.pdf")
+#' latdivgrad (shape, data, method="richness", rank = "genus", res=1)
 #' dev.off()
 #' #save as tiff image
-#' tiff("pm_latrich-GPlates_Quaternary-Canis.tiff", 
+#' tiff("latdivgrad-GPlates_Quaternary-Canis.tiff", 
 #'       height = 9, width = 17.5, units = 'cm', res=300)
-#' pm_latrich (shape, data, rank = "genus", res=1)
+#' latdivgrad (shape, data, method="richness", rank = "genus", res=1)
 #' dev.off()
 #' 
 #'}
 
 
-pm_latrich <- function(shape, data, rank = "genus",
+latdivgrad <- function(shape, data, method, rank = "genus",
                        res=1, 
                        colland="#66666680", colsea="#00509010", 
                        colpoints="#65432190",
@@ -1104,8 +1063,8 @@ pm_latrich <- function(shape, data, rank = "genus",
   }
   #define default graphical parameters
   graphparams.def <- base::list(x=shape, col="white", border = FALSE
-                         , xlim=c(-180,180), ylim=c(-90,90)
-                         , xaxs="i", yaxs="i")
+                                , xlim=c(-180,180), ylim=c(-90,90)
+                                , xaxs="i", yaxs="i")
   #get users input parameters
   graphparams.user <- base::list(...)
   names_graphparams.user <- base::as.vector(base::names(graphparams.user))
@@ -1116,33 +1075,58 @@ pm_latrich <- function(shape, data, rank = "genus",
   }
   #create argument list with default and user values
   graphparams <- c(graphparams.def, graphparams.user)
-  #filter the data for the taxonomic rank
-  rankdata <-.rfilter(data, rank)
-  #setting min and max value for lat
-  #creating empty richness data frame
-  richn <- NULL
-  #going through lats
-  for(lat in base::seq(-90,90-res,res)) {
-    if(lat==-90){
-      latocc <- base::subset(rankdata, rankdata$paleolat>=lat)
-      latocc <- base::subset(latocc, latocc$paleolat<=(lat+res))
-      latocc <- base::unique(latocc[,3])
-    }else{
-      latocc <- base::subset(rankdata, rankdata$paleolat>lat)
-      latocc <- base::subset(latocc, latocc$paleolat<=(lat+res))
-      latocc <- base::unique(latocc[,3])
+  
+  if(method=="richness"){
+    #filter the data for the taxonomic rank
+    rankdata <-.rfilter(data, rank)
+    #setting min and max value for lat
+    #creating empty richness data frame
+    richn <- NULL
+    #going through lats
+    for(lat in base::seq(-90,90-res,res)) {
+      if(lat==-90){
+        latocc <- base::subset(rankdata, rankdata$paleolat>=lat)
+        latocc <- base::subset(latocc, latocc$paleolat<=(lat+res))
+        latocc <- base::unique(latocc[,3])
+      }else{
+        latocc <- base::subset(rankdata, rankdata$paleolat>lat)
+        latocc <- base::subset(latocc, latocc$paleolat<=(lat+res))
+        latocc <- base::unique(latocc[,3])
+      }
+      #count and save the number of different taxa at each latitude
+      richn <- c(richn, base::length(latocc))
     }
-    #count and save the number of different taxa at each latitude
-    richn <- c(richn, base::length(latocc))
+    #define the magnitude of the richness graph
+    magn <- 140/base::max(richn)
+    #combine min,max lat and richness in a data frame
+    latdiv <- base::data.frame(paleolat = c(base::seq(-90+(res/2), 90-(res/2), res)), div=richn)
   }
-  #define the magnitude of the richness graph
-  magn <- 140/base::max(richn)
-  #combine min,max lat and richness in a data frame
-  latrich <- base::data.frame(paleolat = c(base::seq(-90+(res/2), 90-(res/2), res)), richness=richn)
+  if(method=="shannon"){
+    rankdata <- pasta::spsite(data, unity="fossilsite", res=res, rank=rank)
+    
+    div <- c()
+    for(lat in base::seq(-90, 90-res, res)){
+      if(lat==-90){
+        latocc <- base::subset(rankdata, rankdata$paleolat>=lat)
+      }else{
+        latocc <- base::subset(rankdata, rankdata$paleolat>lat)
+      }
+      latocc <- base::subset(latocc, latocc$paleolat<=lat+res)
+      drops <- c("paleolat","paleolng")
+      rawocc <- base::data.frame(latocc[, !(base::names(latocc) %in% drops)])
+      sum_occ <- base::colSums(rawocc)
+      div <- c(div , vegan::diversity(sum_occ))
+    }
+    #calculate the magnitude by taking the max of the diversity
+    magn <- 140/base::max(div)
+    #create data frame with paleolat and diversity
+    latdiv <- base::data.frame(paleolat = c(base::seq(-90+(res/2), 90-(res/2), res)), div=div)
+  }
+  
   #calculate the center of each range
   centros<- (base::seq(-90,90-res,res)+(base::seq(-90,90-res,res) + res))/2
-  #save the richness, x and y value for plotting
-  rich<- 180 + (latrich$richness*magn)
+  #save the diversity, x and y value for plotting
+  rich<- 180 + (latdiv$div*magn)
   yrich<- c(180, rich, 180)
   xrich<- c(-90, centros, 90)
   #if do.plot is true create a plot
@@ -1162,7 +1146,7 @@ pm_latrich <- function(shape, data, rank = "genus",
     graphics::points(rankdata$paleolng, rankdata$paleolat, 
                      pch=pch, col=NA, bg=colpoints)
     #add x-axis and x-axis labels
-    graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
+    graphics::axis(side = 1, pos=-84, lwd = 0, xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
     #add y-axis and y-axis labels
     graphics::axis(side = 2, pos=-175, lwd = 0, yaxp=c(90,-90,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6, las=1)
@@ -1183,170 +1167,13 @@ pm_latrich <- function(shape, data, rank = "genus",
       #add the richness axes
       graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = rich.col ,col.axis = rich.col , col= rich.col , cex.axis=0.6, tck=-0.01)
       graphics::axis(side=3, pos=80, lwd =0, xpd=TRUE, at=ax_seq, labels=ax_lab , col.ticks = rich.col ,col.axis = rich.col , col= rich.col , cex.axis=0.6, tck=-0.01)
-      graphics::axis(side=3, pos=90, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="richness", col.ticks=rich.col, col.axis=rich.col, col=rich.col, cex.axis=0.8, tck=-0.01, cex.lab=0.8)  
+      graphics::axis(side=3, pos=90, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels=method, col.ticks=rich.col, col.axis=rich.col, col=rich.col, cex.axis=0.8, tck=-0.01, cex.lab=0.8)  
     }
     
     #restore the prior margin settings
     graphics::par(mar=def.mar)
   }
   #return latitudinal richness
-  latrich <- latrich[base::length(latrich$paleolat):1,]
-  return(latrich)
-}
-
-###################################pm_latdiv###################
-#' pm_latdiv
-#' 
-#' Calculates the Shannon diversity along the latitudinal gradient based on 
-#' the individual values of diverstiy the fossil localities of those latitudes.
-#' The function returns the mean or max values of diversity of the sampled 
-#' localities along the latitudinal gradient.
-#' 
-#' @usage pm_latdiv (shape, occ_df, res=1, fun= max,
-#'                   colland="#66666680", colsea="#00509010",  
-#'                   colpoints="#65432190",
-#'                   div.col="#654321", pch=21, do.plot=TRUE, ...)
-#' 
-#' @param shape SpatialPolygonsDataFrame object containing a map.
-#' @param occ_df data.frame with fossil occurrences. Can be created with pm_occ(data)
-#' @param res numeric. Defining the spatial resolution. By default res=1. 
-#' @param fun function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
-#' You can use functions such as min, max, or mean, or the character value: 'count'. 
-#' @param colland define the color of the land masses. By default colland = "#66666660".
-#' @param colsea define the color of the sea. By default colsea = "#00509010".
-#' @param colpoints define the color of the occurrence-points. By default colpoints="#65432190".
-#' @param div.col define the color od zje diversity curve. By default div.col="#654321".
-#' @param pch point symbol for plotting the occurences. By default pch=21.
-#' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
-#' @return Returns adata frame with shannon diversity,
-#' a plot of the corresponding time map with the occurrences and their
-#' latitudinal diversity
-#' 
-#' @export 
-#' @examples 
-#' \dontrun{
-#' 
-#' shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-#' data<- getdata (base_name="Canis", interval="Quaternary")
-#' occ_df <- pm_occ (data)
-#' pm_latdiv (shape, occ_df, fun=mean)
-#' pm_latdiv (shape, occ_df, fun=max)
-#' 
-#' #save as pdf file
-#' pdf("pm_latrich-GPlates_Quaternary-Canis.pdf")
-#' pm_latdiv (shape, occ_df, fun=mean)
-#' dev.off()
-#' #save as tiff image
-#' tiff("pm_latrich-GPlates_Quaternary-Canis.tiff", 
-#'       height = 9, width = 17.5, units = 'cm', res=300)
-#' pm_latdiv (shape, occ_df, fun=mean)
-#' dev.off()
-#' 
-#'}
-
-pm_latdiv <- function(shape, occ_df, res=1, 
-                      fun= max,
-                      colland="#66666680", colsea="#00509010", 
-                      colpoints="#65432190",
-                      div.col="#654321", pch=21, do.plot=TRUE, ...) {
-  #check the users input data
-  if(!.checkLatLng(occ_df)){
-    stop("Column/s paleolat and/or paleolng are missing in the input data.")
-  }
-  if(!.checkRange(occ_df)){
-    stop("Range of Latitude and/or Longitude is not allowed.")
-  }
-  if(!.checkShape(shape)){
-    stop("Shape is not a SpatialPolygonsDataFrame.")
-  }
-  if(!.checkFun(fun, "pm_latdiv")){
-    stop(base::paste("\"", fun, "\" is not a valid input for parameter fun.", sep=""))
-  }
-  #default graphical parameter list
-  graphparams.def <- base::list(x=shape, col="white", border = FALSE
-                         , xlim=c(-180,180), ylim=c(-90,90)
-                         , xaxs="i", yaxs="i")
-  #list of user defined graphical parameter
-  graphparams.user <- base::list(...)
-  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
-  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
-  #is user changes default parameter keep users value
-  for( i in names_graphparams.user){
-    if(i %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def)==i)] 
-  }
-  #create a graphical parameter list with default and user defined values
-  graphparams <- c(graphparams.def, graphparams.user)
-  # calculate diversity for each lat range
-  div <- c()
-  for(lat in base::seq(-90, 90-res, res)){
-    if(lat==-90){
-      latocc <- base::subset(occ_df, occ_df$paleolat>=lat)
-    }else{
-      latocc <- base::subset(occ_df, occ_df$paleolat>lat)
-    }
-    latocc <- base::subset(latocc, latocc$paleolat<=lat+res)
-    drops <- c("paleolat","paleolng")
-    rawocc <- base::data.frame(latocc[, !(base::names(latocc) %in% drops)])
-    sum_occ <- base::colSums(rawocc)
-    div <- c(div , vegan::diversity(sum_occ))
-  }
-  #calculate the magnitude by taking the max of the diversity
-  magn <- 140/base::max(div)
-  #create data frame with paleolat and diversity
-  latdiv <- base::data.frame(paleolat = c(base::seq(-90+(res/2), 90-(res/2), res)), div=div)
-  #define values for plotting the diversity
-  centros<- (base::seq(-90,90-res,res)+(base::seq(-90,90-res,res) + res))/2
-  rich<- 180 + (latdiv$div*magn)
-  ydiv<- c(180, rich, 180)
-  xdiv<- c(-90, centros, 90)
-  #if do.plot create a plot
-  if(do.plot){
-    #save current margin values and define needed ones
-    def.mar <- graphics::par("mar")
-    graphics::par(mar=c(1.5,1.5,2,10), xpd=NA)
-    #create a plot with users and default graphical parameters
-    base::do.call(raster::plot, graphparams)
-    #create a rectangle as the sea
-    graphics::rect(xleft=-180, xright=180, 
-                   ybottom=-90, ytop=90, col=colsea, 
-                   border=FALSE)
-    #add the landmasses to the plot
-    raster::plot(shape, col=colland, border=FALSE, 
-                 add=T)
-    #add the fossil occurrences to the map
-    graphics::points(occ_df[, "paleolng"], occ_df[, "paleolat"], 
-                     pch=pch, col=NA, 
-                     bg=colpoints)
-    #add x-axis and x-axis labels
-    graphics::axis(side = 1, pos=-84, lwd = 0, , xaxp=c(180,-180,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    graphics::axis(side = 1, pos=-89, lwd = 0, at=0 , labels="Longitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    #add y-axis and y-axis labels
-    graphics::axis(side = 2, pos=-175, lwd = 0, yaxp=c(90,-90,4), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6, las=1)
-    graphics::axis(side = 2, pos=-178, lwd = 0, at=0 , labels="Latitude", col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.6)
-    #get metadata from the SpatialPolygonsDataFrame
-    shape.info <- .getShapeInfo(shape)
-    #add name, model and age at the top right of the plot
-    graphics::axis(side = 3, pos=94, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
-    graphics::axis(side = 3, pos=86, lwd = 0, at=135 , labels=shape.info[2], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.5)
-    graphics::axis(side = 3, pos=78, lwd = 0, at=135 , labels=paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=0.7)
-    #add the diversity curve next to the plot
-    if(!is.nan(base::min(ydiv))){
-      graphics::polygon(ydiv, xdiv, col=div.col, 
-                        border=F, xpd=T)
-      #get the values for the diversity axes
-      ax_seq <- base::seq(base::min(ydiv),base::max(ydiv), ((base::max(ydiv)-base::min(ydiv))/2))
-      ax_lab <- ax_seq-180
-      ax_lab <- round(ax_lab/magn, 2)
-      #add the axes to the diversity graph
-      graphics::axis(side=3, pos=90, lwd =1, xpd=TRUE, at=ax_seq, labels=FALSE , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
-      graphics::axis(side=3, pos=80, lwd =0, xpd=TRUE, at=ax_seq, labels=ax_lab , col.ticks = div.col ,col.axis = div.col , col= div.col , cex.axis=0.6, tck=-0.01)
-      graphics::axis(side=3, pos=90, lwd = 0, xpd=TRUE, at=ax_seq[round(length(ax_seq)/2)], labels="diversity", col.ticks=div.col, col.axis=div.col, col=div.col, cex.axis=0.8, tck=-0.01)
-    }
-    #restore prior margin settings
-    graphics::par(mar=def.mar) 
-  }
-  #return latitudinal diversity in order like on plot
   latdiv <- latdiv[base::length(latdiv$paleolat):1,]
   return(latdiv)
 }

@@ -94,12 +94,12 @@ mycols <- colorRampPalette(c("#F5DEB3",
   }
   if (rank=="genus") {
     #save all fossil occurrences where there is a known genus
-    rankdata <- base::subset(data, data$genus!="NA")
+    rankdata <- base::subset(data, !is.na(data$genus))
     rankdata<- rankdata[, c("paleolat", "paleolng", "genus")]
   }
   if (rank=="family") {
     #save all fossil occurrences where there is a known family
-    rankdata <- base::subset(data, data$family!="NA")
+    rankdata <- base::subset(data, !is.na(data$family))
     rankdata<- rankdata[, c("paleolat", "paleolng", "family")]
   }
   if (rank=="order") {
@@ -109,7 +109,7 @@ mycols <- colorRampPalette(c("#F5DEB3",
   }
   if (rank=="class") {
     #save all fossil occurrences where there is a known class
-    rankdata <- base::subset(data, data$order!="NA")
+    rankdata <- base::subset(data, data$class!="NA")
     rankdata<- rankdata[, c("paleolat", "paleolng", "class")]
   }
   if (rank=="phylum") {

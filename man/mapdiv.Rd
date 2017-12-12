@@ -51,11 +51,11 @@ div_site <- mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
 div_cell <- mapdiv (shape, data, unity="cell", rank="genus", res=1)
 
 #save as pdf file
-pdf("pm_divraster_loc-GPlates_Quaternary-Canis.pdf")
+pdf("mapdiv-GPlates_Quaternary-Canis.pdf")
 mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
 dev.off()
 #save as tiff image
-tiff("pm_divraster_loc-GPlates_Quaternary-Canis.tiff", 
+tiff("mapdiv-GPlates_Quaternary-Canis.tiff", 
       height = 10.5, width = 19, units = 'cm', res=300)
 mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
 dev.off()
