@@ -49,7 +49,8 @@ Calculates latitudinal diversity of taxa (species, genera, families, orders).
 
 shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 data<- getdata (base_name="Canis", interval="Quaternary")
-latdivgrad (shape, data, method="richness", rank = "genus", res=1)
+shannon <- latdivgrad (shape, data, method="shannon", rank = "species", res=1)
+rich <- latdivgrad (shape, data, method="richness", rank = "genus", res=1)
 
 #save as pdf file
 pdf("latdivgrad-GPlates_Quaternary-Canis.pdf")

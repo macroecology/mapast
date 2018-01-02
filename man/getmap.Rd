@@ -44,11 +44,11 @@ dev.off()
 
 
 #Smith
-getmap(interval="112", model="Smith")
+getmap(interval="112.0", model="Smith")
 
 
 #Golonka
-getmap(interval="123", model="Golonka")
+getmap(interval="123.0", model="Golonka")
 
 #for checking which maps are available including a specific age 
 # or the complete list of maps provided by this package

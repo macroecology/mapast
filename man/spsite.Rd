@@ -32,7 +32,9 @@ genus, family or order per locality.
 \dontrun{
 
 data <- getdata(base_name = "Canis", interval = "Quaternary")
-result <- spsite(data, rank = "genus")
+result <- spsite(data, unity="fossilsite", rank = "genus")
+
+result_cell <- spsite(data, unity="cell", rank = "genus")
 
 }
 }

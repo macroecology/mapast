@@ -4,10 +4,7 @@ base::load(base::system.file("testdata", "testdata.rda", package = "pasta"))
 
 data <- data[1:100,]
 data <- data[which(!data$matched_rank=="unranked clade"),]
-# data <- pasta::getdata("Oligocene", "mammalia", limit=100)
-# shape <- pasta::getmap("Oligocene", "GPlates")
-occ_species <- pasta::spsite(data, unity="fossilsite", rank="species") 
-occ_cell_species <- pasta::spsite(data, unity="cell", rank="species") 
+
 
 #####mapocc#####
 testthat::context("mapocc")
@@ -177,55 +174,50 @@ testthat::test_that("test that mapdiv with cell output is a RasterLayer", {
 rm(div_cell)
 
  
-# ####latdivgrad#####
-# testthat::context("latdivgrad")
-# latrich_species <- pasta::latdivgrad(shape, data, method="richness", rank="species")
-# names_species <- base::names(latrich_species)
-# testthat::test_that("test that column names are correct", {
-#   testthat::expect_true("paleolat" %in% names_species)
-#   testthat::expect_true("richness" %in% names_species)
-# })
-# 
-# testthat::test_that("test that first two rows habe only data from ", {
-#   testthat::expect_true(base::min(latrich_species$lat_min)>=-90 && base::max(latrich_species$lat_min)<=90 
-#               && base::min(latrich_species$lat_max)>=-90 && base::max(latrich_species$lat_max)<=90)
-# })
-# 
-# testthat::test_that("test that richness has only numeric values", {
-#   nums_latrich <- base::as.vector(t(latrich_species$richn))
-#   testthat::expect_true(base::is.numeric(nums_latrich))
-# })
-# 
-# rm(latrich_species, nums_latrich, names_species)
-# 
-# #####latdivgrad#####
-# testthat::context("latdivgrad")
+####latdivgrad#####
+testthat::context("latdivgrad")
+latrich_species <- pasta::latdivgrad(shape, data, method="richness", rank="species")
+names_species <- base::names(latrich_species)
+testthat::test_that("test that column names are correct", {
+  testthat::expect_true("paleolat" %in% names_species)
+  testthat::expect_true("div" %in% names_species)
+})
+
+testthat::test_that("test that range of paleolat is correct", {
+  testthat::expect_true(base::min(latrich_species$paleolat)>=-90 && base::max(latrich_species$paleolat)<=90)
+})
+
+testthat::test_that("test that diversity has only numeric values", {
+  nums_latrich <- base::as.vector(t(latrich_species$div))
+  testthat::expect_true(base::is.numeric(nums_latrich))
+})
+
+rm(latrich_species, nums_latrich, names_species)
+
 # #get max and mean latitudinal diversity
-# latdiv_max <- latdivgrad(shape, data, method="shannon", fun=max)
-# latdiv_mean <- latdivgrad(shape, data, method="shannon", fun=mean)
-# names_max <- base::names(latdiv_max)
-# names_mean <- base::names(latdiv_mean)
-# testthat::test_that("test that output has columns minlat, maxlat, div", {
-#   testthat::expect_true("paleolat" %in% names_max && "paleolat" %in% names_mean)
-#   testthat::expect_true("div" %in% names_max && "div" %in% names_mean)
-# })
-# 
-#   
-# testthat::test_that("test that latitude values are correct", {
-#   testthat::expect_true(base::min(latdiv_max$maxlat)>=-90 && base::max(latdiv_max$maxlat)<=90 
-#               && base::min(latdiv_max$minlat)>=-90 && base::max(latdiv_max$minlat)<=90)
-#   testthat::expect_true(base::min(latdiv_mean$maxlat)>=-90 && base::max(latdiv_mean$maxlat)<=90 
-#               && base::min(latdiv_mean$minlat)>=-90 && base::max(latdiv_mean$minlat)<=90)
-# })
-# 
-# testthat::test_that("test that diversity column has only numeric values", {
-#   nums_latdiv_max <- base::as.vector(t(latdiv_max$div))
-#   testthat::expect_true(base::is.numeric(nums_latdiv_max))
-#   nums_latdiv_mean <- base::as.vector(t(latdiv_mean$div))
-#   testthat::expect_true(base::is.numeric(nums_latdiv_mean))
-# })
-# rm(latdiv_max, latdiv_mean, nums_latdiv_max, nums_latdiv_mean, names_max, names_mean)
-# rm(occ_species, occ_cell_species)
+latdiv_max <- latdivgrad(shape, data, method="shannon", fun=max)
+latdiv_mean <- latdivgrad(shape, data, method="shannon", fun=mean)
+names_max <- base::names(latdiv_max)
+names_mean <- base::names(latdiv_mean)
+testthat::test_that("test that output has columns minlat, maxlat, div", {
+  testthat::expect_true("paleolat" %in% names_max && "paleolat" %in% names_mean)
+  testthat::expect_true("div" %in% names_max && "div" %in% names_mean)
+})
+
+
+testthat::test_that("test that paleolat value ranges are correct", {
+  testthat::expect_true(base::min(latdiv_mean$paleolat)>=-90 && base::max(latdiv_mean$paleolat)<=90
+              && base::min(latdiv_max$paleolat)>=-90 && base::max(latdiv_max$paleolat)<=90)
+})
+
+testthat::test_that("test that diversity column has only numeric values", {
+  nums_latdiv_max <- base::as.vector(t(latdiv_max$div))
+  testthat::expect_true(base::is.numeric(nums_latdiv_max))
+  nums_latdiv_mean <- base::as.vector(t(latdiv_mean$div))
+  testthat::expect_true(base::is.numeric(nums_latdiv_mean))
+})
+rm(latdiv_max, latdiv_mean, nums_latdiv_max, nums_latdiv_mean, names_max, names_mean)
+rm(occ_species, occ_cell_species)
   
   
 rm(shape, data)

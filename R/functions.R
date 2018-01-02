@@ -33,11 +33,11 @@
 #' 
 #' 
 #' #Smith
-#' getmap(interval="112", model="Smith")
+#' getmap(interval="112.0", model="Smith")
 #' 
 #' 
 #' #Golonka
-#' getmap(interval="123", model="Golonka")
+#' getmap(interval="123.0", model="Golonka")
 #' 
 #' #for checking which maps are available including a specific age 
 #' # or the complete list of maps provided by this package
@@ -309,9 +309,9 @@ pastplot <- function(interval, model, data,
 #' 
 #' #save as pdf file
 #' pdf("mapocc-GPlates_Quaternary-Canis.pdf")
-#' occras <- mapocc(shape, data)
+#' mapocc(shape, data)
 #' dev.off()
-#' save as tiff image
+#' # save as tiff image
 #' tiff("mapocc-GPlates_Quaternary-Canis.tiff", 
 #'       height = 10.5, width = 19, units = 'cm', res=300)
 #' mapocc(shape, data)
@@ -452,12 +452,12 @@ mapocc <- function(shape, data,
 #' 
 #' #save as pdf file
 #' pdf("maprich-GPlates_Paleocene-Testudines.pdf")
-#' richness<- maprich(shape, data, rank="genus")
+#' maprich(shape, data, rank="genus")
 #' dev.off()
 #' #save as tiff image
 #' tiff("maprich-GPlates_Paleocene-Testudines.tiff", 
 #'       height = 10.5, width = 19, units = 'cm', res=300)
-#' richness<- maprich(shape, data, rank="genus")
+#' maprich(shape, data, rank="genus")
 #' dev.off()
 #' 
 #'}
@@ -578,7 +578,9 @@ maprich <- function (shape, data, rank="genus", res=1,
 #' \dontrun{
 #' 
 #' data <- getdata(base_name = "Canis", interval = "Quaternary")
-#' result <- spsite(data, rank = "genus")
+#' result <- spsite(data, unity="fossilsite", rank = "genus")
+#' 
+#' result_cell <- spsite(data, unity="cell", rank = "genus")
 #' 
 #'}
 
@@ -1021,7 +1023,8 @@ mapdiv <- function(shape, data, unity, rank="genus", res=1, fun=mean,
 #' 
 #' shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
 #' data<- getdata (base_name="Canis", interval="Quaternary")
-#' latdivgrad (shape, data, method="richness", rank = "genus", res=1)
+#' shannon <- latdivgrad (shape, data, method="shannon", rank = "species", res=1)
+#' rich <- latdivgrad (shape, data, method="richness", rank = "genus", res=1)
 #' 
 #' #save as pdf file
 #' pdf("latdivgrad-GPlates_Quaternary-Canis.pdf")

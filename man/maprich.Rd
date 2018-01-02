@@ -47,12 +47,12 @@ richness<- maprich(shape, data, rank="genus")
 
 #save as pdf file
 pdf("maprich-GPlates_Paleocene-Testudines.pdf")
-richness<- maprich(shape, data, rank="genus")
+maprich(shape, data, rank="genus")
 dev.off()
 #save as tiff image
 tiff("maprich-GPlates_Paleocene-Testudines.tiff", 
       height = 10.5, width = 19, units = 'cm', res=300)
-richness<- maprich(shape, data, rank="genus")
+maprich(shape, data, rank="genus")
 dev.off()
 
 }

@@ -46,9 +46,9 @@ mapocc(shape, data)
 
 #save as pdf file
 pdf("mapocc-GPlates_Quaternary-Canis.pdf")
-occras <- mapocc(shape, data)
+mapocc(shape, data)
 dev.off()
-save as tiff image
+# save as tiff image
 tiff("mapocc-GPlates_Quaternary-Canis.tiff", 
       height = 10.5, width = 19, units = 'cm', res=300)
 mapocc(shape, data)

@@ -132,13 +132,13 @@
 #.checkFun(fun2, fct2)
 #}
 
-.checkFun <- function(fun, fct){
-  if(fct == "pm_latdiv"){
-    return(base::grep("mean", base::list(fun))==1 || base::identical(fun,mean) || base::identical(fun,max))
-  }else if(fct == "pm_divraster_loc"){
-    return(base::grep("mean", base::list(fun))==1 || base::identical(fun, mean) || base::identical(fun,max) || base::identical(fun,min) || base::identical(fun,"count"))
-  }
-}
+# .checkFun <- function(fun, fct){
+#   if(fct == "pm_latdiv"){
+#     return(base::grep("mean", base::list(fun))==1 || base::identical(fun,mean) || base::identical(fun,max))
+#   }else if(fct == "pm_divraster_loc"){
+#     return(base::grep("mean", base::list(fun))==1 || base::identical(fun, mean) || base::identical(fun,max) || base::identical(fun,min) || base::identical(fun,"count"))
+#   }
+# }
 
 
 ######.checkRange#####

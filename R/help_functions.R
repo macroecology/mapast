@@ -74,7 +74,7 @@ mycols <- colorRampPalette(c("#F5DEB3",
 ##and for each raster every species only once
 ##@usage .rfilter (data, rank)
 ##@param data a data frame which needs to have a column called paleolat and 
-##a column called paleolng, can be created with getdata_paleomap
+##a column called paleolng, can be created with getdata
 ##@param rank rank of interest
 ##@return filtered data frame with only species
 ##examples 
