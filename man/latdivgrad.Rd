@@ -4,62 +4,67 @@
 \alias{latdivgrad}
 \title{latdivgrad}
 \usage{
-latdivgrad (shape, data, method, rank = "genus", res=1,
-                   colland="#66666680", colsea="#00509010", 
-                   colpoints="#65432190", 
-                   rich.col="#654321", pch=21, do.plot=TRUE, ...)
+latdivgrad (shape, data, method, rank = "genus", res = 1,
+                   colland ="#66666680", colsea = "#00509010", 
+                   colpoints = "#65432190", 
+                   rich.col = "#654321", pch = 21, do.plot = TRUE, ...)
 }
 \arguments{
-\item{shape}{SpatialPolygonsDataFrame object containing a map.}
+\item{shape}{SpatialPolygonsDataFrame. A map, which can be created with getmap.}
 
-\item{data}{data.frame with fossil occurrences. Can be created with
-getdata(interval, base_name)}
+\item{data}{data.frame. Fossil occurrence data, which can be created with
+getdata(interval, base_name).}
 
-\item{method}{character. Defining the method of diversity measure, method="shannon" or method="richness".}
+\item{method}{character. Defining the method of diversity measure, method = "shannon" or method = "richness".}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".}
 
-\item{res}{numeric. Defining the spatial resolution. Default res=1.}
+\item{res}{numeric. Defining the spatial resolution. Default res = 1.}
 
-\item{colland}{define the color of the land masses. By default colland = "#66666660".}
+\item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
-\item{colsea}{define the color of the sea. By default colsea = "#00509010".}
+\item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{define the color of the occurrence-points. By default colpoints="#65432190".}
+\item{colpoints}{character. Defines the color of the occurrence-points. By default colpoints = "#65432190".}
 
-\item{rich.col}{define the color of the richness curve. By default rich.col="#654321".}
+\item{rich.col}{character. Defines the color of the richness curve. By default rich.col = "#654321".}
 
-\item{pch}{point symbol for plotting the occurences. By default pch=21.}
+\item{pch}{numeric. Point symbol for plotting the occurences. By default pch = 21.}
 
-\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
+\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, 
-such as main="my own title", main.col="red".}
+such as main = "my own title" or main.col = "red".}
 }
 \value{
-Returns adata frame with richness of rank and a plot of the continental masses 
-with the occurrences and the latitudinal richness.
+data.frame
 }
 \description{
-Calculates latitudinal diversity of taxa (species, genera, families, orders).
+Calculates the latitudinal diversity of taxa (species, genera, families, orders) and creates a plot of the continental masses with the fossil occurrences and the latitudinal diversity.
 }
 \examples{
 \dontrun{
 
-shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-data<- getdata (base_name="Canis", interval="Quaternary")
-shannon <- latdivgrad (shape, data, method="shannon", rank = "species", res=1)
-rich <- latdivgrad (shape, data, method="richness", rank = "genus", res=1)
+library(pasta)
 
-#save as pdf file
+#get the map and the fossil data
+shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
+data <- getdata (base_name = "Canis", interval = "Quaternary")
+#calculate the shannon diversity
+shannon <- latdivgrad (shape, data, method = "shannon", rank = "species", res = 1)
+#calculate the richness
+rich <- latdivgrad (shape, data, method = "richness", rank = "genus", res = 1)
+
+#save plot as pdf file
 pdf("latdivgrad-GPlates_Quaternary-Canis.pdf")
-latdivgrad (shape, data, method="richness", rank = "genus", res=1)
+latdivgrad (shape, data, method = "richness", rank = "genus", res = 1)
 dev.off()
-#save as tiff image
+
+#save plot as tiff image
 tiff("latdivgrad-GPlates_Quaternary-Canis.tiff", 
-      height = 9, width = 17.5, units = 'cm', res=300)
-latdivgrad (shape, data, method="richness", rank = "genus", res=1)
+      height = 9, width = 17.5, units = "cm", res = 300)
+latdivgrad (shape, data, method = "richness", rank = "genus", res = 1)
 dev.off()
 
 }

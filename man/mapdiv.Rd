@@ -4,60 +4,66 @@
 \alias{mapdiv}
 \title{mapdiv}
 \usage{
-mapdiv  (shape, data, unity, rank="genus", res=1, fun=mean,
-                           colland="#66666660", colsea="#00509010", col.grid=mycols(100), 
-                           do.plot=TRUE, ...)
+mapdiv  (shape, data, unity, rank = "genus", res = 1, fun = mean,
+                           colland = "#66666660", colsea = "#00509010", 
+                           col.grid = mycols(100), do.plot = TRUE, ...)
 }
 \arguments{
-\item{shape}{SpatialPolygonsDataFrame object containing a map.}
+\item{shape}{SpatialPolygonsDataFrame. A map which can be created with getmap.}
 
-\item{data}{data.frame with fossil occurrences}
+\item{data}{data.frame. Fossil occurrences data.}
 
-\item{unity}{either "fossilsite" or "cell"}
+\item{unity}{character. Either "fossilsite" or "cell".}
 
-\item{rank}{taxnomic rank. By default rank="genus"}
+\item{rank}{character. Taxnomic rank. By default rank = "genus".}
 
-\item{res}{numeric. Defining the spatial resolution. Default res=1.}
+\item{res}{numeric. Defining the spatial resolution. Default res = 1.}
 
 \item{fun}{function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
 You can use functions such as min, max, or mean, or the character value: 'count'.}
 
-\item{colland}{define the color of the land masses. By default colland = "#66666660".}
+\item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
-\item{colsea}{define the color of the sea. By default colsea = "#00509010".}
+\item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
 
-\item{col.grid}{define the color of the raster.}
+\item{col.grid}{character. Defines the color of the raster.}
 
-\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
+\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to
-plot, such as main="my own title", main.col="red".}
+plot, such as main = "my own title" or main.col = "red".}
 }
 \value{
-Creates a plot with map of the time intervall, the fossil occurences and the 
-RasterLayer. And returns the RasterLayer itself.
+RasterLayer
 }
 \description{
 Calculates the Shannon diversity per cell or locality 
 (taking into account relative abundances of all the fossil records 
-whithin the cell).
+whithin the cell) and creates a plot of the map with a RasterLayer of the diversity.
 }
 \examples{
 \dontrun{
 
-shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-data<- getdata (base_name="Canis", interval="Quaternary")
-div_site <- mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
-div_cell <- mapdiv (shape, data, unity="cell", rank="genus", res=1)
+library(pasta)
 
-#save as pdf file
+#get GPlates map
+shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
+#get data from the paleobiology DB
+data <- getdata (base_name = "Canis", interval = "Quaternary")
+#calculate diversity per locality
+div_site <- mapdiv (shape, data, unity = "fossilsite", rank ="genus", res = 1)
+#calculate diversity per cell
+div_cell <- mapdiv (shape, data, unity = "cell", rank = "genus", res = 1)
+
+#save plot as pdf file
 pdf("mapdiv-GPlates_Quaternary-Canis.pdf")
-mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
+mapdiv (shape, data, unity = "fossilsite", rank = "genus", res = 1)
 dev.off()
-#save as tiff image
+
+#save plot as tiff image
 tiff("mapdiv-GPlates_Quaternary-Canis.tiff", 
-      height = 10.5, width = 19, units = 'cm', res=300)
-mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
+      height = 10.5, width = 19, units = "cm", res = 300)
+mapdiv (shape, data, unity = "fossilsite", rank = "genus", res = 1)
 dev.off()
 
 }

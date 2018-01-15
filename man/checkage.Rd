@@ -4,23 +4,26 @@
 \alias{checkage}
 \title{checkage}
 \usage{
-checkage(age="all")
+checkage(age = "all")
 }
 \arguments{
-\item{age}{character. defining the age of interest. By default age="all", which gives complete list.}
+\item{age}{character. Defining the age of interest in mya. By default age = "all", which gives the complete list.}
 }
 \value{
-Returns a data.frame which maps are available
+data.frame
 }
 \description{
-Creates a data frame with all maps that contain the age requested.
+Creates a data.frame with all maps that contain the requested age.
 }
 \examples{
 \dontrun{
 
-checkage(age="112")
+library(pasta)
 
-#get complete list with all available maps
+#get a data.frame with all maps including the age 112 mya
+checkage(age = "112")
+
+#get complete data.frame with all available ages, from all models
 checkage()
 
 }

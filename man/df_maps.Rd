@@ -6,6 +6,6 @@
 \title{df_maps}
 \format{data.frame}
 \description{
-A data.frame containing Model, interval, fromage and toage of the maps provided by the package
+Dataset. A data.frame containing model, interval, fromage and toage of the maps provided by the package.
 }
 \keyword{datasets}

@@ -1,11 +1,11 @@
 
 #'We have developed pasta (PAST mAps), an R-package designed to make paleontolgical maps available to
-#'plot the fossil occurences from Paleobiology Database onto the maps of the past.
+#'plot the fossil occurrences from the Paleobiology Database onto paleogeographical maps.
 #'
 #'
-#'We programmed functions for getting the shape files of the paleontological maps, 
-#'functions to get fossil data from the paleobilogy database and plotting this 
-#'data on the maps.
+#'We programmed functions for getting the SpatialPolygonsDaraFrame of the paleontological maps, 
+#'functions to get a data.frame of fossil occurrences from the Paleobilogy Database, analysing the diversity of the past 
+#'and plotting this data on the maps.
 #'
 #' @name pasta
 #' @title pasta (PAST mAps):  An R-package for getting and using paleogeographical maps.
@@ -32,6 +32,6 @@
 #'\url{http://paleobiodb.org}
 #'
 #' 
-#' @import roxygen2 paleobioDB raster vegan maptools devtools  sp
+#' @import devtools maptools paleobioDB roxygen2 raster sp vegan
 #' 
 NULL

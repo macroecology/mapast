@@ -8,47 +8,51 @@ getmap(interval, model, colland = "#66666660"
                           , colsea = "#00509010", do.plot = TRUE, ...)
 }
 \arguments{
-\item{interval}{character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)}
+\item{interval}{character. Temporal paleoeographical interval of interest (e.g. "Cretaceous" for GPlates or "112.0" for Smith).}
 
-\item{model}{character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka"}
+\item{model}{character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka".}
 
-\item{colland}{define the color of the land masses. By default colland = "#66666660"}
+\item{colland}{character. Defines the color of the land masses. By default colland = "#66666660"}
 
-\item{colsea}{define the color of the sea. By default colsea = "#00509010"}
+\item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
 
-\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
+\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
 
-\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main = "my own title" or main.col = "red".}
 }
 \value{
-Returns a SpatialPolygonsDataFrame and creates a plot (if do.plot=TRUE).
+SpatialPolygonsDataFrame
 }
 \description{
-Generates a shapefile with the paleogeographical map of the chosen 
-time interval (e.g. "Cretaceous") and a plot.
+Generates a SpatialPolygonsDataFrame with the paleogeographical map of the chosen 
+time interval (e.g. "Cretaceous") and a plot of the map.
 }
 \examples{
 \dontrun{
 
+library(pasta)
+
 #GPlates
-getmap(interval="Cretaceous", model="GPlates")
-#save map as pdf file
+getmap(interval = "Cretaceous", model = "GPlates")
+
+#save plot as pdf file
 pdf("getmap-GPlates_Cretaceous.pdf")
-getmap(interval="Cretaceous", model="GPlates")
+getmap(interval = "Cretaceous", model = "GPlates")
 dev.off()
-#save map as tiff image
+
+#save plot as tiff image
 tiff("getmap-GPlates_Cretaceous.tiff", 
-      height = 10, width = 17, units = 'cm', res=300)
-getmap(interval="Cretaceous", model="GPlates")
+      height = 10, width = 17, units = "cm", res = 300)
+getmap(interval = "Cretaceous", model = "GPlates")
 dev.off()
 
 
 #Smith
-getmap(interval="112.0", model="Smith")
+getmap(interval = "112.0", model = "Smith")
 
 
 #Golonka
-getmap(interval="123.0", model="Golonka")
+getmap(interval = "123.0", model = "Golonka")
 
 #for checking which maps are available including a specific age 
 # or the complete list of maps provided by this package

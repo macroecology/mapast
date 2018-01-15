@@ -4,53 +4,59 @@
 \alias{mapocc}
 \title{mapocc}
 \usage{
-mapocc(shape, data, rank = "genus", res=1,
-                    colland = "#66666660", colsea = "#00509010", col.grid=mycols(100), 
-                    do.plot=TRUE, ...)
+mapocc(shape, data, rank = "genus", res = 1,
+                    colland = "#66666660", colsea = "#00509010", col.grid = mycols(100), 
+                    do.plot = TRUE, ...)
 }
 \arguments{
-\item{shape}{SpatialPolygonsDataFrame object containing a map.}
+\item{shape}{SpatialPolygonsDataFrame. A map that can be created with getmap.}
 
-\item{data}{data.frame with fossil occurrences. Can be created with 
-getdata(interval, base_name)}
+\item{data}{data.frame. Fossil occurrences data. Can be created with 
+getdata(interval, base_name).}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum".}
 
-\item{res}{numeric. Defining the spatial resolution. Default res=1.}
+\item{res}{numeric. Defining the spatial resolution. Default res = 1.}
 
-\item{colland}{define the color of the land masses. By default colland = "#66666660".}
+\item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
-\item{colsea}{define the color of the sea. By default colsea = "#00509010".}
+\item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
 
-\item{col.grid}{define the color of the raster.}
+\item{col.grid}{character. Defines the color of the raster.}
 
-\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
+\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to
-plot, such as main="my own title", main.col="red".}
+plot, such as main = "my own title" or main.col = "red".}
 }
 \value{
-Returns a RasterLayer with the number of occurrences.
+RasterLayer
 }
 \description{
-Creates a raster and a plot of the fossil occurences by taxonomic rank per cell 
-(a proxy for the sampling effort).
+Creates a RasterLayer, containing the number of occurrences per cell, and a plot of the fossil 
+occurences by taxonomic rank per cell (a proxy for the sampling effort).
 }
 \examples{
 \dontrun{
 
-shape <- getmap(interval="Quaternary", model="GPlates", do.plot = FALSE)
-data <- getdata(base_name="Canis", interval="Quaternary")
+library(pasta)
+
+#get map
+shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
+#get data from paleobioDB
+data <- getdata(base_name = "Canis", interval = "Quaternary")
+#creasre map with occurrence RasterLayer
 mapocc(shape, data)
 
-#save as pdf file
+#save plot as pdf file
 pdf("mapocc-GPlates_Quaternary-Canis.pdf")
 mapocc(shape, data)
 dev.off()
-# save as tiff image
+
+# save plot as tiff image
 tiff("mapocc-GPlates_Quaternary-Canis.tiff", 
-      height = 10.5, width = 19, units = 'cm', res=300)
+      height = 10.5, width = 19, units = "cm", res = 300)
 mapocc(shape, data)
 dev.off()
 

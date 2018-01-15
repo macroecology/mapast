@@ -6,48 +6,52 @@
 \usage{
 pastplot(interval, model, data, colland = "#66666660",
                 colsea = "#00509010",colpoints = "#65432190", 
-                pch =16, cex = 1, ...)
+                pch = 16, cex = 1, ...)
 }
 \arguments{
 \item{interval}{character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)}
 
-\item{model}{character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka"}
+\item{model}{character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka".}
 
-\item{data}{data.frame with fossil occurrences. Can be created with getdata(interval, base_name)}
+\item{data}{data.frame. Fossil occurrences data. Can be created with getdata(interval, base_name).}
 
-\item{colland}{define the color of the land masses. By default colland = "#66666660".}
+\item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
-\item{colsea}{define the color of the sea. By default colsea = "#00509010".}
+\item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{define the color of the occurrence-points. By default colpoints = "#65432190".}
+\item{colpoints}{character. Defines the color of the occurrence-points. By default colpoints = "#65432190".}
 
-\item{pch}{point symbol for plotting the occurences. By default pch=16 (filled circle).}
+\item{pch}{numeric. Point symbol for plotting the occurences. By default pch = 16 (filled circle).}
 
-\item{cex}{numeric. size of the points. By default cex=1.}
+\item{cex}{numeric. Size of the points. By default cex = 1.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
 }
 \value{
-Creates a plot with the configuration of the continents at the selected 
-time interval and the fossil occurrences.
+Plot
 }
 \description{
-Plots your query from the paleobioDB onto the map of the selected time interval.
+Plots your fossil occurrence data from the paleobioDB onto the map of the selected time interval.
 }
 \examples{
 \dontrun{
 
-data  <-  getdata (interval="Cretaceous", base_name="Mammalia")
-pastplot(interval="Cretaceous", model="GPlates", data)
+library(pasta)
 
-#save as pdf file
+#get data
+data  <-  getdata (interval = "Cretaceous", base_name = "Mammalia")
+#create a plot with fossils on the paleogeographical map
+pastplot(interval = "Cretaceous", model = "GPlates", data)
+
+#save plot as pdf file
 pdf("pastplot-GPlates_Cretaceous-Mammalia.pdf")
-pastplot(interval="Cretaceous", model="GPlates", data)
+pastplot(interval = "Cretaceous", model = "GPlates", data)
 dev.off()
-#save as tiff image
+
+#save plot as tiff image
 tiff("pastplot-GPlates_Cretaceous-Mammalia.tiff", 
-      height = 10.5, width = 17, units = 'cm', res=300)
-pastplot(interval="Cretaceous", model="GPlates", data)
+      height = 10.5, width = 17, units = "cm", res = 300)
+pastplot(interval = "Cretaceous", model = "GPlates", data)
 dev.off()
 
 }

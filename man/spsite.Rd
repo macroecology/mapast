@@ -4,36 +4,38 @@
 \alias{spsite}
 \title{spsite}
 \usage{
-spsite(data, unity, res=1, rank = "genus", pa=FALSE)
+spsite(data, unity, res = 1, rank = "genus", pa = FALSE)
 }
 \arguments{
-\item{data}{data.frame with fossil occurrences. Can be created with 
-getdata(interval, base_name)}
+\item{data}{data.frame. Fossil occurrences data. Can be created with 
+getdata(interval, base_name).}
 
-\item{unity}{character. unity="fossilsite" or unity="cell" defining if the user wants the occurrences per 
+\item{unity}{character. unity = "fossilsite" or unity = "cell" defining if the user wants the occurrences per 
 cell or per fossilsite.}
 
-\item{res}{numeric. Defining the spatial resolution. By default res=1. Only used if unity="cell".}
+\item{res}{numeric. Defining the spatial resolution. By default res = 1. Only used if unity = "cell".}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"}
 
-\item{pa}{boolean. Defines if the user wants presence absence or counted data. By default pa=FALSE.}
+\item{pa}{boolean. Defines if the user wants presence absence or counted data. By default pa = FALSE.}
 }
 \value{
-Returns a matrix with number of species, genera, families or orders 
-per locality.
+data.frame
 }
 \description{
-Generates a diversity matrix, with the number occurrences of each species, 
-genus, family or order per locality.
+Generates a diversity data.frame, with the number occurrences of a taxon per locality.
 }
 \examples{
 \dontrun{
 
-data <- getdata(base_name = "Canis", interval = "Quaternary")
-result <- spsite(data, unity="fossilsite", rank = "genus")
+library(pasta)
 
+#get fossil occurrence data
+data <- getdata(base_name = "Canis", interval = "Quaternary")
+#get thediversity per locality
+result <- spsite(data, unity = "fossilsite", rank = "genus")
+#get the diversity per cell
 result_cell <- spsite(data, unity="cell", rank = "genus")
 
 }

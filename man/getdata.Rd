@@ -4,32 +4,36 @@
 \alias{getdata}
 \title{getdata}
 \usage{
-getdata(interval, base_name, limit="all")
+getdata(interval, base_name, limit = "all")
 }
 \arguments{
-\item{interval}{character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)}
+\item{interval}{character. Temporal paleoeographical interval of interest (e.g. "Cretaceous" for GPlates or "112.0" for Smith).}
 
-\item{base_name}{character. The name of the taxon of interest. (e.g. "Canis" or "reptilia")}
+\item{base_name}{character. The name of the taxon of interest (e.g. "Canis" or "reptilia").}
 
-\item{limit}{integer. Defining the max. number of occurrences to be downloaded from paleobioDB. By default limit="all"}
+\item{limit}{numeric. Defining the maximum number of occurrences to be downloaded from paleobioDB. By default limit = "all".}
 }
 \value{
-Returns a data frame with fossil occurrences
+data.frame
 }
 \description{
-Uses the paleobioDB R package to extract data used in for other functions of this package
-from the Paleobiology Database.
+Uses the paleobioDB R package to extract data needed for other functions of this package
+from the Paleobiology Database. Creates a data.frame with fossil occurrence data.
 }
 \examples{
 \dontrun{
 
-getdata(interval="Quaternary",base_name="Canis")
+library(pasta)
+
+getdata(interval = "Quaternary", base_name = "Canis")
 
 #if you want to use FROMAGE and TOAGE to define the interval you can use the paleobioDB package
-myocc <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="mammalia", 
-                    min_ma=0, max_ma=2.58, 
-                    show=c("paleoloc", "phylo"), 
-                    vocab="pbdb", limit=100))
+#max_ma defines the fromage parameter
+#min_ma defines the toage parameter
+myocc <- base::data.frame(paleobioDB::pbdb_occurrences(base_name = "mammalia", 
+                    min_ma = 0, max_ma = 2.58, 
+                    show = c("paleoloc", "phylo"), 
+                    vocab = "pbdb", limit = 100))
                     
 }
 }

@@ -4,55 +4,60 @@
 \alias{maprich}
 \title{maprich}
 \usage{
-maprich(shape, data, rank="genus", res=1, 
-                     colland = "#66666660", colsea = "#00509010", col.grid= mycols(100), 
-                     do.plot=TRUE, ...)
+maprich(shape, data, rank = "genus", res = 1, 
+                     colland = "#66666660", colsea = "#00509010", col.grid = mycols(100), 
+                     do.plot = TRUE, ...)
 }
 \arguments{
-\item{shape}{SpatialPolygonsDataFrame object containing a map.}
+\item{shape}{SpatialPolygonsDataFrame. A map which can be created with getmap.}
 
-\item{data}{data.frame with fossil occurrences. Can be created with 
-getdata(interval, base_name)}
+\item{data}{data.frame. Fossil occurrences data. Can be created with 
+getdata(interval, base_name).}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank="genus".}
 
-\item{res}{numeric. Defining the spatial resolution. Default res=1.}
+\item{res}{numeric. Defining the spatial resolution. Default res = 1.}
 
-\item{colland}{define the color of the land masses. By default colland = "#66666660".}
+\item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
-\item{colsea}{define the color of the sea. By default colsea = "#00509010".}
+\item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
 
-\item{col.grid}{define the color of the raster.}
+\item{col.grid}{character. Defines the color of the raster.}
 
 \item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to
-plot, such as main="my own title", main.col="red".}
+plot, such as main = "my own title" or main.col = "red".}
 }
 \value{
-Creates a plot with map of the time intervall, the fossil occurences and the 
-RasterLayer. And returns the RasterLayer itself
+RasterLayer
 }
 \description{
-Creates a raster of species richness
-and makes a plot of the map and raster.
+Creates a RasterLayer of taxon richness
+and makes a plot of the map and richness raster.
 }
 \examples{
 \dontrun{
 
-shape<- getmap(interval="Paleocene", model="GPlates")
-data<- getdata(base_name="Testudines", interval="Paleocene")
-richness<- maprich(shape, data, rank="genus")
+library(pasta)
 
-#save as pdf file
+#get map
+shape <- getmap(interval = "Paleocene", model = "GPlates")
+#get the data from the paleobioDB
+data<- getdata(base_name = "Testudines", interval = "Paleocene")
+#calculate the genus richness
+richness<- maprich(shape, data, rank = "genus")
+
+#save plot as pdf file
 pdf("maprich-GPlates_Paleocene-Testudines.pdf")
-maprich(shape, data, rank="genus")
+maprich(shape, data, rank = "genus")
 dev.off()
-#save as tiff image
+
+#save plot as tiff image
 tiff("maprich-GPlates_Paleocene-Testudines.tiff", 
-      height = 10.5, width = 19, units = 'cm', res=300)
-maprich(shape, data, rank="genus")
+      height = 10.5, width = 19, units = "cm", res = 300)
+maprich(shape, data, rank = "genus")
 dev.off()
 
 }
