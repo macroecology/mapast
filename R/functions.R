@@ -1264,3 +1264,291 @@ checkage <- function(age = "all"){
   #return the list with the maps
   maps
 }
+
+
+
+##########################GPlates API functions#############################
+
+###########################modelmap#############################
+
+#' modelmap
+#' 
+#' Gets a map of a specific age from a model specified by the user.
+#' Available models and ages at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models .
+#' 
+#' @usage modelmap(ma, model = 'SETON2012', show.plates = FALSE, colland, colsea, do.plot, ...)
+#' 
+#' @param ma numeric. Age in Ma.
+#' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
+#' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
+#' @param show.plates boolean. Defines if the user wants to get the continental plate borders. By default. show.plates = FALSE.
+#' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
+#' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
+#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
+#' @return SpatialPolygonsDataFrame
+#' @export
+#' @examples
+#' \dontrun{
+#' 
+#' #with continental plates
+#' map <- modelmap(100, model = 'SETON2012', show.plates = T)
+#' coastlines <- map[[1]]
+#' plates <- map[[2]]
+#' 
+#' #without continental plates
+#' coastlines <- modelmap(100, model = 'SETON2012')
+#' 
+#'#save map as tiff image
+#' tiff("getmap-GPlates_Cretaceous.tiff", 
+#'       height = 10, width = 17, units = "cm", res = 300)
+#' modelmap(100, model = 'SETON2012', show.plates = T)
+#' dev.off()
+#' 
+#'}
+
+modelmap <- function(ma, model = 'SETON2012', show.plates = FALSE, colland = "#66666660", 
+                     colsea = "#00509010", 
+                     do.plot = TRUE, ...) {
+  url <- paste0("http://gws.gplates.org/reconstruct/coastlines/?time=",ma,"&model=",model)
+  err <- FALSE
+  shape <- tryCatch(
+    {
+      rgdal::readOGR(url)
+    }, error = function(e) {
+      err <- TRUE
+      message(paste0("There is no map for ", ma, " mya in ", model, " model."))
+      stop()
+    }
+  )
+  
+  errplate <- FALSE
+  if(show.plates){
+    #no plate bounds for paleomap
+    plateurl <- paste0("http://gws.gplates.org/topology/plate_boundaries/?time=", ma, "&model=", model)
+    platebounds <- tryCatch(
+      {
+        rgdal::readOGR(plateurl)
+      }, error = function(e){
+        errplate <- TRUE
+        message(paste0("No Plate Boundaries available for ", ma, " mya in ", model, "model."))
+        stop()
+      }
+    )
+  }
+  
+  if(!err){
+    #getting final parameter list for plot
+    #default parameter list for plotting
+    graphparams.def <- base::list(x = shape, col = "white", border = FALSE
+                                  , xlim = c(-180, 180), ylim = c(-90, 90)
+                                  , xaxs = "i", yaxs = "i")
+    #list of user defined graphical parameter
+    graphparams.user <- base::list(...)
+    names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+    names_graphparams.def <- base::as.vector(base::names(graphparams.def))
+    #remove default parameter if user specifies a different value
+    for( param in names_graphparams.user){
+      if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == param)] 
+    }
+    #complete new list of plotting parameters, including default and user specified ones
+    graphparams <- c(graphparams.def, graphparams.user)
+    # if user does not set plot=FALSE plot the shape file
+    if (do.plot) {
+      #define the size of the margin of the plot and save the former definition
+      def.mar <- graphics::par("mar")
+      graphics::par(mar = c(2, 2, 2, 2))
+      #do a first plot with the graphical parameters set by the user
+      base::do.call(sp::plot, graphparams)
+      if(!errplate && show.plates){
+        sp::plot(platebounds, add = T, col = "#66666680")
+      }
+      #draw a rectangle showing the sea
+      graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
+                     ytop = 90, col = colsea, 
+                     border = FALSE)
+      #add x-axis and x-axis label
+      graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+      graphics::axis(side = 1, pos = -89, lwd = 0, at = 0 , labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+      #add y-axis and y-axis label
+      graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+      graphics::axis(side = 2, pos = -178, lwd = 0, at = 0 , labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+      #get metadata from the SpatialPolygonsDataFrame
+      # shape.info <- .getShapeInfo(shape)
+      #add name, model and age info top right of the plot
+      # graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
+      graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+      graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(ma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+      #add the landmasses to the plot
+      sp::plot(shape, col = colland, border = FALSE, add = TRUE)
+      #restore the former graphical mar parameters
+      graphics::par(mar = def.mar)
+    }
+    # return the shape file
+    if(!errplate && show.plates){
+      return(list(shape, platebounds))
+    }else{
+      return(shape)
+    }
+  }
+}
+
+################madata##############################
+
+#' madata
+#' 
+#' Uses the paleobioDB R package to extract data used in for other functions of this package
+#' from the Paleobiology Database.
+#'  
+#' @usage madata(minma, maxma, base_name, limit="all", paleocoords=F, 
+#' recontime=NULL, model='SETON2012')
+#' 
+#' @param minma numeric. Minimal age in Ma.
+#' @param maxma numeric. Maximal age in Ma.
+#' @param base_name character. The name of the taxon of interest. (e.g. "Canis" or "reptilia")
+#' @param limit integer. Defining the max. number of occurrences to be downloaded from paleobioDB. By default limit="all"
+#' @param paleocoords boolean. Defines if the user wants to get the paleocoordinates.
+#' @param recontime numeric. Time of reconstruction in ma. If recontime is null the recnstruction time will be 
+#' the midpoint of the interval the fossil occurred.
+#' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
+#' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
+#' @return Returns a data frame with fossil occurrences
+#' @export 
+#' @examples 
+#' \dontrun{
+#' 
+#' #get data without paleocoordinates
+#' occ <- madata(minma=0, maxma=10,base_name="Canis", limit=100)
+#' 
+#' #get data with paleocoordinates taking the midpoint of the occurrence time
+#' occma <- madata(minma=0, maxma=10,base_name="Canis", 
+#'                     limit=100, paleocoords=TRUE, model='SETON2012')
+#' 
+#' #get data with paleocoordinates for a chosen time in ma
+#' occmatime <- madata(minma=0, maxma=10,base_name="Canis", limit=100, 
+#'                          paleocoords=TRUE, recontime=5,  model='SETON2012')
+#'                     
+#'                     
+#'}
+
+
+madata <- function(minma, maxma, base_name, limit="all", paleocoords=F, recontime=NULL, model='SETON2012') {
+  #create an empty data frame for storing the fossil data
+  occ <- base::data.frame()
+  #try to get data from the Paleobiology Database with the given parameters, using R-package paleobioDB
+  try(occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name=base_name, min_ma=minma, max_ma=maxma, 
+                                                           show=c("coords", "phylo"), 
+                                                           vocab="pbdb", limit=limit))
+      , silent=TRUE)
+  #if there were results, save them in a data frame called 'data' and remove entries which do not have a paleolatitude or paleolongitude
+  
+  if (base::nrow(occ) != 0) {
+    if(paleocoords){
+      if(is.null(recontime)){
+        occ <- paleocoords(occ, NULL)
+      }else{
+        occ <- paleocoords(occ, recontime)
+      }
+      
+    }
+    
+    return(occ)
+  } else { #catching error when there are no occurences for the request
+    stop("There is no data that matches your query on the paleobioDB. 
+         Check if the spelling, temporal intervals, etc. are correct")
+  }
+}
+
+################paleocoords##############################
+
+#' paleocoords
+#' 
+#' Descr.
+#'  
+#' @usage paleocoords(occ, recontime=NULL, model='SETON2012')
+#' 
+#' @param occ data.frame. Fossil data, which should at least have the columns lng and lat (if recontime=NULL also early_age and late_age).
+#' @param recontime numeric. Time of reconstruction in ma. If recontime is null the recnstruction time will be 
+#' the midpoint of the interval the fossil occurred.
+#' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
+#' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
+#' @return data.frame
+#' @export 
+#' @examples 
+#' \dontrun{
+#' 
+#' occ <- madata(minma=0, maxma=10,base_name="Canis", limit=100)
+#' 
+#' #reconstruct paleocoordinates with midpoint of appearance time
+#' occ_ma <- paleoocoords(occ, recontime=NULL, model='SETON2012')
+#' 
+#' #reconstruct paleocoordinates with specific time
+#' occ_matime <- paleoocoords(occ, recontime=5, model='SETON2012')
+#' 
+#'                     
+#'}
+
+
+paleocoords <- function(occ, recontime=NULL, model='SETON2012') {
+  if(!.checkRecon(occ, recontime)){
+    if(is.null(recontime)){
+      stop("Your data.frame needs to have columns called lng, lat, early_age and late_age.")
+    }else{
+      stop("Your data.frame needs to have columns called lng and lat.")
+    }
+    
+  }
+  paleolng <- c()
+  paleolat <- c()
+  ma <-c()
+  if(is.null(recontime)){
+    ma <- (occ$early_age-occ$late_age)/2
+    occ <- cbind(occ, ma)
+    uma <- unique(ma)
+    
+    for( i in 1:length(uma)){
+      part <- occ[occ$ma==uma[i],]
+      
+      pts <- ""
+      for( j in 1:length(part$ma)){
+        pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+      }
+      
+      pts <- substring(pts, 2)
+      
+      url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model)
+      
+      paleopts <- rjson::fromJSON(file=url)
+      
+      for (k in 1:length(paleopts$coordinates)){
+        paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+        paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+      }
+    }
+  }else{
+    ma <- rep(recontime, length(occ$lng))
+    occ <- cbind(occ, ma)
+    
+    
+    pts <- ""
+    for( j in 1:length(occ$lng)){
+      pts <- paste0(pts,",", occ$lng[j], ",", occ$lat[j])
+    }
+    
+    pts <- substring(pts, 2)
+    
+    url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",recontime, "&model=",model)
+    
+    paleopts <- rjson::fromJSON(file=url)
+    
+    for (k in 1:length(paleopts$coordinates)){
+      paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+      paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+    }
+  }
+  
+  
+  occ <- cbind(occ, paleolng, paleolat)
+  
+  return(occ)
+}

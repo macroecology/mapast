@@ -19,7 +19,9 @@ Imports:
     vegan,
     maptools,
     devtools,
-    sp
+    sp,
+	rgdal,
+	rjson
 Suggests: testthat
 BugReports: https://github.com/macroecology/pasta/issues
 URL: https://github.com/macroecology/pasta.git

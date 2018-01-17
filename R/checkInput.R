@@ -158,3 +158,27 @@
   lng <- df$paleolng
   return(base::min(lat)>=-90 && base::max(lat)<=90 && base::min(lng)>=-180 && base::max(lng)<=180)
 }
+
+
+######.checkRecon#####
+#.checkRecon
+#
+#checks if lat, lng and, if recontime not given, early_age and late age columns exist.
+#
+#@param df data frame including 
+#@return boolean if lat and lng are in range
+#@examples
+#\dontrun{
+#.checkRecon(df)
+#}
+
+.checkRecon <- function(df, recontime){
+  coln <- base::colnames(df)
+  if(is.null(recontime)){
+    return("lng" %in% coln && "lat" %in% coln && "early_age" %in% coln && "late_age" %in% coln)
+  }else{
+    return("lng" %in% coln && "lat" %in% coln)
+  }
+  
+}
+
