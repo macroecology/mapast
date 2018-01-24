@@ -1,195 +1,367 @@
-###########################getmap#############################
+####################formatdata#############################
 
-#' getmap
+#' formatdata
 #' 
-#' Generates a SpatialPolygonsDataFrame with the paleogeographical map of the chosen 
-#' time interval (e.g. "Cretaceous") and a plot of the map.
+#' Changes columns names of your data.frame from a fossil database to the names needed for the functions in this package.
+#' It also calculates the average age if not already given by the database.
 #' 
-#' @usage getmap(interval, model, colland = "#66666660"
-#'                           , colsea = "#00509010", do.plot = TRUE, ...)
+#' @usage formatdata(df, db="pbdb")
 #' 
-#' @param interval character. Temporal paleoeographical interval of interest (e.g. "Cretaceous" for GPlates or "112.0" for Smith).
-#' @param model character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka".
-#' @param colland character. Defines the color of the land masses. By default colland = "#66666660"
-#' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main = "my own title" or main.col = "red".
-#' @return SpatialPolygonsDataFrame
+#' @param df data.frame. Fossil data.
+#' @param db character. Name of the database where the data is from.
+#' @return data.frame
 #' @export
-#' @examples
+#' @examples 
 #' \dontrun{
 #' 
-#' library(pasta)
+#' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma=0, max_ma=10, 
+#'   show=c("coords", "phylo"), 
+#'   vocab="pbdb", limit=100))
+#' formatdata(data, db="pbdb")
 #' 
-#' #GPlates
-#' getmap(interval = "Cretaceous", model = "GPlates")
-#' 
-#' #save plot as pdf file
-#' pdf("getmap-GPlates_Cretaceous.pdf")
-#' getmap(interval = "Cretaceous", model = "GPlates")
-#' dev.off()
-#'
-#'#save plot as tiff image
-#' tiff("getmap-GPlates_Cretaceous.tiff", 
-#'       height = 10, width = 17, units = "cm", res = 300)
-#' getmap(interval = "Cretaceous", model = "GPlates")
-#' dev.off()
-#' 
-#' 
-#' #Smith
-#' getmap(interval = "112.0", model = "Smith")
-#' 
-#' 
-#' #Golonka
-#' getmap(interval = "123.0", model = "Golonka")
-#' 
-#' #for checking which maps are available including a specific age 
-#' # or the complete list of maps provided by this package
-#' # look at ??checkage
-#' 
-#'}
+#' }
 
-getmap <- function(interval, model, colland = "#66666660", 
-                      colsea = "#00509010", 
-                      do.plot = TRUE, ...) {
-  #check if requested map is available
-  mapavailable <- .mapAvailable(interval, model)
-  if(mapavailable){
-    # if map is available, get shape file from external database
-    #get GPlates map
-    if(model == "GPlates"){
-      shape <- utils::data(list = base::paste(model,interval, sep = "_"), package = "paleogeoDB"
-                           ,envir = base::environment())
-      base::assign("shape",base::get(interval))
-    }else{
-      #get Smith or Golonka map
-      shape <- utils::data(list = base::paste(model,interval, sep = "_"), package = "paleogeoDB"
-                           ,envir = base::environment())
-      base::assign("shape",base::get(base::paste(model,interval, sep = "_")))
+formatdata <- function(df, db="pbdb"){
+  
+  if(db=="pbdb"){
+    #####TODO: check if it has columns genus, family, order, class, phylum, early_age, late_age, matched_name, matched rank####
+    
+    avg_age <- (df$early_age + df$late_age) / 2
+    
+    species <- c()
+    for(rank in 1:length(df$matched_rank)){
+      if(df$matched_rank[rank]=="species"){
+        species <- c(species, as.character(df$matched_name[rank][[1]]))
+      }else{
+        species <- c(species, NA)
+      }
     }
-  }else{
-    # throw error if map is not available
-    stop(paste0("No map available for interval = \"",interval,"\", model = \"",
-                model,"\". Please use checkage() to see which maps are available."))
+    
+    df <- cbind(df, species, avg_age)
+    df <- df[order(-as.numeric(df$avg_age)), ]
+    
   }
-  #getting final parameter list for plot
-  #default parameter list for plotting
-  graphparams.def <- base::list(x = shape, col = "white", border = FALSE
-                         , xlim = c(-180,180), ylim = c(-90,90)
-                         , xaxs = "i", yaxs = "i")
-  #list of user defined graphical parameter
-  graphparams.user <- base::list(...)
-  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
-  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
-  #remove default parameter if user specifies a different value
-  for( param in names_graphparams.user){
-    if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == param)] 
-  }
-  #complete new list of plotting parameters, including default and user specified ones
-  graphparams <- c(graphparams.def, graphparams.user)
-  # if user does not set plot=FALSE plot the shape file
-  if (do.plot) {
-    #define the size of the margin of the plot and save the former definition
-    def.mar <- graphics::par("mar")
-    graphics::par(mar = c(2,2,2,2))
-    #do a first plot with the graphical parameters set by the user
-    base::do.call(sp::plot, graphparams)
-    #draw a rectangle showing the sea
-    graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
-         ytop = 90, col = colsea, 
-         border = FALSE)
-    #add x-axis and x-axis label
-    graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180,-180,4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
-    graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels="Longitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
-    #add y-axis and y-axis label
-    graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-    graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
-    #get metadata from the SpatialPolygonsDataFrame
-    shape.info <- .getShapeInfo(shape)
-    #add name, model and age info top right of the plot
-    graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = shape.info[1], col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 1)
-    graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = shape.info[2], col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.5)
-    graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.7)
-    #add the landmasses to the plot
-    sp::plot(shape, col = colland, border = FALSE, add = TRUE)
-    #restore the former graphical mar parameters
-    graphics::par(mar = def.mar)
-  }
-  # return the shape file
-  return(shape)
+  
+  return(df)
 }
 
+################paleocoords##############################
 
-
-################getdata##############################
-
-#' getdata
+#' paleocoords
 #' 
-#' Uses the paleobioDB R package to extract data needed for other functions of this package
-#' from the Paleobiology Database. Creates a data.frame with fossil occurrence data.
+#' Descr.
 #'  
-#' @usage getdata(interval, base_name, limit = "all")
+#' @usage paleocoords(occ, recontime=NULL, model='SETON2012')
 #' 
-#' @param interval character. Temporal paleoeographical interval of interest (e.g. "Cretaceous" for GPlates or "112.0" for Smith).
-#' @param base_name character. The name of the taxon of interest (e.g. "Canis" or "reptilia").
-#' @param limit numeric. Defining the maximum number of occurrences to be downloaded from paleobioDB. By default limit = "all".
+#' @param occ data.frame. Fossil data, which should at least have the columns lng and lat (if recontime=NULL also early_age and late_age).
+#' @param recontime numeric. Time of reconstruction in ma. If recontime is null the recnstruction time will be 
+#' the midpoint of the interval the fossil occurred.
+#' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
+#' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
 #' @return data.frame
 #' @export 
 #' @examples 
 #' \dontrun{
 #' 
-#' library(pasta)
+#' occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma=0, max_ma=10, 
+#' show=c("coords", "phylo"), 
+#' vocab="pbdb", limit=100))
 #' 
-#' getdata(interval = "Quaternary", base_name = "Canis")
+#' #reconstruct paleocoordinates with midpoint of appearance time
+#' occ_ma <- paleoocoords(occ, recontime=NULL, model='SETON2012')
 #' 
-#' #if you want to use FROMAGE and TOAGE to define the interval you can use the paleobioDB package
-#' #max_ma defines the fromage parameter
-#' #min_ma defines the toage parameter
-#' myocc <- base::data.frame(paleobioDB::pbdb_occurrences(base_name = "mammalia", 
-#'                     min_ma = 0, max_ma = 2.58, 
-#'                     show = c("paleoloc", "phylo"), 
-#'                     vocab = "pbdb", limit = 100))
+#' #reconstruct paleocoordinates with specific time
+#' occ_matime <- paleoocoords(occ, recontime=5, model='SETON2012')
+#' 
 #'                     
 #'}
 
 
-getdata <- function(interval, base_name, limit = "all") {
-  #create an empty data frame for storing the fossil data
-  occ <- base::data.frame()
-  #try to get data from the Paleobiology Database with the given parameters, using R-package paleobioDB
-  try(occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name = base_name, interval = interval, 
-                                     show = c("paleoloc", "phylo"), 
-                                     vocab = "pbdb", limit = limit))
-                        , silent = TRUE)
-  #if there were results, save them in a data frame called 'data' and remove entries which do not have a paleolatitude or paleolongitude
-  if (base::nrow(occ) != 0) {
-    data <- .checkPbdb(occ)
-    data <- data[!base::is.na(data$paleolat), ]
-    data <- data[!base::is.na(data$paleolng), ]
-    #return data frame with the fossil occurrences
-    return(data)
-  } else { #catching error when there are no occurences for the request
-      stop("There is no data that matches your query on the paleobioDB. 
-          Check if the spelling, temporal intervals, etc. are correct")
+paleocoords <- function(occ, time = "automatic", timevector=NULL, stepsize=10, model = 'SETON2012') {
+  # if(!.checkRecon(occ, recontime)){
+  #   if(is.null(recontime)){
+  #     stop("Your data.frame needs to have columns called lng, lat, early_age and late_age.")
+  #   }else{
+  #     stop("Your data.frame needs to have columns called lng and lat.")
+  #   }
+  #   
+  # }
+  paleolng <- c()
+  paleolat <- c()
+  
+  if(time=="average"){
+    uma <- unique(round(occ$avg_age))
+
+    
+    for( i in 1:length(uma)){
+      part <- occ[round(occ$avg_age)==uma[i], ]
+      pts <- ""
+      for( j in 1:length(part$avg_age)){
+        pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+      }
+      
+      pts <- substring(pts, 2)
+
+      url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model)
+      paleopts <- rjson::fromJSON(file=url)
+      for (k in 1:length(paleopts$coordinates)){
+        paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+        paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+      }
     }
+    recon_age <- round(occ$avg_age)
+    occ <- cbind(occ, recon_age)
+    
+    
+  }else if(time=="automatic"){
+    #take min/max from early/late age as min and max from time bin (abgerundet/aufgerundet)
+    #separate into bins of size stepsize
+    #separate df into bins and take bin_age as request parameter.
+    #set avg age to bin avg age
+    min <- floor(min(occ$late_age))
+    max <- ceiling(max(occ$early_age))
+    ages <- seq(min, max, stepsize)
+    #check if the stepsize is too big for min&max, if stepsize is not possible, just take min and max as borders and create one bin
+    if(length(ages)==1){
+      ages <- c(min, max)
+    }
+    #check if the max age is missing and add it to the ages for max border of last bin
+    if((max-min)/stepsize != round((max-min)/stepsize)){
+      ages <- c(ages, max)
+    }
+    bin_age <- ages[-length(ages)] + diff(ages)/2
+    bin_ages <- c()
+    for(i in 1:length(occ$avg_age)){
+      for(j in 1:length(ages)-1){
+        #check if >= ages j and <= ages j+1 --> then it is in bin_age[j] -> add bin_age[j] to bin_ages
+        if(occ$avg_age[i] >= ages[j] && occ$avg_age[i]<= ages[j+1]){
+          bin_ages <- c(bin_ages, bin_age[j])
+        }
+      }
+    }
+
+    recon_age <- bin_ages
+    occ <- cbind(occ, recon_age)
+    
+    uma <- unique(recon_age)
+    for( i in 1:length(uma)){
+      part <- occ[occ$recon_age==uma[i], ]
+      pts <- ""
+      for( j in 1:length(part$recon_age)){
+        pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+      }
+      
+      pts <- substring(pts, 2)
+      
+      url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model)
+      paleopts <- rjson::fromJSON(file=url)
+      for (k in 1:length(paleopts$coordinates)){
+        paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+        paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+      }
+    }
+    
+  }else if(time=="timevector"){
+    #take midpoints of user specified bins for reconstruction
+    #separate df into sets belonging to bins
+    #calc for each bin
+    
+    bin_age <- timevector[-length(timevector)] + diff(timevector)/2
+    bin_ages <- c()
+    for(i in 1:length(occ$avg_age)){
+      if(occ$avg_age[i] < min(timevector) || occ$avg_age[i] > max(timevector)){
+        bin_ages <- c(bin_ages, NA)
+      }else{
+        for(j in 1:(length(timevector)-1)){
+          #check if >= ages j and <= ages j+1 --> then it is in bin_age[j] -> add bin_age[j] to bin_ages
+          if(occ$avg_age[i] >= timevector[j] && occ$avg_age[i]<= timevector[j+1]){
+            bin_ages <- c(bin_ages, bin_age[j])
+          }
+        }
+      }
+
+    }
+    recon_age <- bin_ages
+    occ <- cbind(occ, recon_age)
+    
+    uma <- unique(recon_age)
+    for( i in 1:length(uma)){
+      if(is.na(uma[i])){
+
+        part <- subset(occ, is.na(occ$recon_age))
+
+        for( na in 1: length(part$recon_age)){
+          paleolng <- c(paleolng, NA)
+          paleolat <- c(paleolat, NA)
+        }
+      }else{
+
+        part <- subset(occ, occ$recon_age==uma[i])
+        pts <- ""
+        for( j in 1:length(part$recon_age)){
+          pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+        }
+
+        pts <- substring(pts, 2)
+        url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model)
+        paleopts <- rjson::fromJSON(file=url)
+        for (k in 1:length(paleopts$coordinates)){
+          paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+          paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+        }
+      }
+      
+    }
+    
+    
+  }
+
+
+  occ <- cbind(occ, paleolng, paleolat)
+  
+  return(occ)
+}
+
+###########################getmap#############################
+
+#' getmap
+#' 
+#' Gets a map of a specific age from a model specified by the user.
+#' Available models and ages at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models .
+#' 
+#' @usage getmap(ma, model = 'SETON2012', show.plates = FALSE, colland, colsea, do.plot, ...)
+#' 
+#' @param ma numeric. Age in Ma.
+#' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
+#' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
+#' @param show.plates boolean. Defines if the user wants to get the continental plate borders. By default. show.plates = FALSE.
+#' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
+#' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
+#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
+#' @return SpatialPolygonsDataFrame
+#' @export
+#' @examples
+#' \dontrun{
+#' 
+#' #with continental plates
+#' map <- getmap(100, model = 'SETON2012', show.plates = T)
+#' coastlines <- map[[1]]
+#' plates <- map[[2]]
+#' 
+#' #without continental plates
+#' coastlines <- getmap(100, model = 'SETON2012')
+#' 
+#'#save map as tiff image
+#' tiff("getmap-GPlates_Cretaceous.tiff", 
+#'       height = 10, width = 17, units = "cm", res = 300)
+#' getmap(100, model = 'SETON2012', show.plates = T)
+#' dev.off()
+#' 
+#'}
+
+getmap <- function(ma, model = 'SETON2012', show.plates = FALSE, colland = "#66666660", 
+                   colsea = "#00509010", 
+                   do.plot = TRUE, ...) {
+  url <- paste0("http://gws.gplates.org/reconstruct/coastlines/?time=",ma,"&model=",model)
+  err <- FALSE
+  shape <- tryCatch(
+    {
+      rgdal::readOGR(url)
+    }, error = function(e) {
+      err <- TRUE
+      message(paste0("There is no map for ", ma, " mya in ", model, " model. Please check the spelling, the age and the model you choose."))
+      stop()
+    }
+  )
+  
+  errplate <- FALSE
+  if(show.plates){
+    #no plate bounds for paleomap
+    plateurl <- paste0("http://gws.gplates.org/topology/plate_boundaries/?time=", ma, "&model=", model)
+    platebounds <- tryCatch(
+      {
+        rgdal::readOGR(plateurl)
+      }, error = function(e){
+        errplate <- TRUE
+        message(paste0("No Plate Boundaries available for ", ma, " mya in ", model, "model. Please check the spelling, the age and the model you choose."))
+        stop()
+      }
+    )
+  }
+  
+  if(!err){
+    #getting final parameter list for plot
+    #default parameter list for plotting
+    graphparams.def <- base::list(x = shape, col = "white", border = FALSE
+                                  , xlim = c(-180, 180), ylim = c(-90, 90)
+                                  , xaxs = "i", yaxs = "i")
+    #list of user defined graphical parameter
+    graphparams.user <- base::list(...)
+    names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+    names_graphparams.def <- base::as.vector(base::names(graphparams.def))
+    #remove default parameter if user specifies a different value
+    for( param in names_graphparams.user){
+      if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == param)] 
+    }
+    #complete new list of plotting parameters, including default and user specified ones
+    graphparams <- c(graphparams.def, graphparams.user)
+    # if user does not set plot=FALSE plot the shape file
+    if (do.plot) {
+      #define the size of the margin of the plot and save the former definition
+      def.mar <- graphics::par("mar")
+      graphics::par(mar = c(2, 2, 2, 2))
+      #do a first plot with the graphical parameters set by the user
+      base::do.call(sp::plot, graphparams)
+      if(!errplate && show.plates){
+        sp::plot(platebounds, add = T, col = "#66666680")
+      }
+      #draw a rectangle showing the sea
+      graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
+                     ytop = 90, col = colsea, 
+                     border = FALSE)
+      #add x-axis and x-axis label
+      graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+      graphics::axis(side = 1, pos = -89, lwd = 0, at = 0 , labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+      #add y-axis and y-axis label
+      graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+      graphics::axis(side = 2, pos = -178, lwd = 0, at = 0 , labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+      #get metadata from the SpatialPolygonsDataFrame
+      # shape.info <- .getShapeInfo(shape)
+      #add name, model and age info top right of the plot
+      # graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
+      graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+      graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(ma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+      #add the landmasses to the plot
+      sp::plot(shape, col = colland, border = FALSE, add = TRUE)
+      #restore the former graphical mar parameters
+      graphics::par(mar = def.mar)
+    }
+    # return the shape file
+    if(!errplate && show.plates){
+      return(list(shape, platebounds))
+    }else{
+      return(shape)
+    }
+  }
 }
 
 
-
-####################pastplot#################################
-
-#' pastplot
+####################mapast#################################
+#####TODO: add format="pdf" (can also be tiff)#####
+#####TODO: ??add parameter if take avg_age or other column#####
+#' mapast
 #' 
 #' Plots your fossil occurrence data from the paleobioDB onto the map of the selected time interval.
 #' 
 #' 
-#' @usage pastplot(interval, model, data, colland = "#66666660",
+#' 
+#' @usage mapast(interval, model, data, colland = "#66666660",
 #'                 colsea = "#00509010",colpoints = "#65432190", 
 #'                 pch = 16, cex = 1, ...)
 #' 
-#' @param interval character. Temporal paleoeographical interval of interest. (e.g. "Cretaceous" for GPlates or "112.0" for Smith)
 #' @param model character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka".
-#' @param data data.frame. Fossil occurrences data. Can be created with getdata(interval, base_name).
+#' @param data data.frame. Fossil occurrences data.
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
 #' @param colpoints character. Defines the color of the occurrence-points. By default colpoints = "#65432190".
@@ -204,91 +376,119 @@ getdata <- function(interval, base_name, limit = "all") {
 #' library(pasta)
 #' 
 #' #get data
-#' data  <-  getdata (interval = "Cretaceous", base_name = "Mammalia")
+#' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma=0, max_ma=10, 
+#' show=c("coords", "phylo"), 
+#' vocab="pbdb", limit=100))
 #' #create a plot with fossils on the paleogeographical map
-#' pastplot(interval = "Cretaceous", model = "GPlates", data)
+#' mapast(ma=5 , model = "SETON2012", data)
 #' 
 #' #save plot as pdf file
-#' pdf("pastplot-GPlates_Cretaceous-Mammalia.pdf")
-#' pastplot(interval = "Cretaceous", model = "GPlates", data)
+#' pdf("mapast-GPlates_Cretaceous-Mammalia.pdf")
+#' mapast(interval = "Cretaceous", model = "GPlates", data)
 #' dev.off()
 #' 
 #' #save plot as tiff image
-#' tiff("pastplot-GPlates_Cretaceous-Mammalia.tiff", 
+#' tiff("mapast-GPlates_Cretaceous-Mammalia.tiff", 
 #'       height = 10.5, width = 17, units = "cm", res = 300)
-#' pastplot(interval = "Cretaceous", model = "GPlates", data)
+#' mapast(interval = "Cretaceous", model = "GPlates", data)
 #' dev.off()
 #' 
 #'}
 
-pastplot <- function(interval, model, data,
+mapast <- function(model="SETON2012", data, save.plot=TRUE, save.as="tiff",
                     colland = "#66666660",
                     colsea = "#00509010", 
                     colpoints = "#65432190", 
                     pch = 16, cex = 1, ...) {
   
   #check if inut data has needed columns (paleolat/paleolng)
-  if(!.checkLatLng(data)){
-    stop("Column/s paleolat and/or paleolng are missing in the input data.")
-  }
-  if(!.checkRange(data)){
-    stop("Range of Latitude and/or Longitude is not allowed.")
-  }
+  # if(!.checkLatLng(data)){
+  #   stop("Column/s paleolat and/or paleolng are missing in the input data.")
+  # }
+  # if(!.checkRange(data)){
+  #   stop("Range of Latitude and/or Longitude is not allowed.")
+  # }
+  
+  #####TODO: loop through avg_age -> for each one map and the corresponding points#####
   #getting the shape file with getmap
-  shape <- pasta::getmap(interval = interval, model = model, do.plot = FALSE)
-  #default parameter list for plotting
-  graphparams.def <- base::list(x = shape, col = "white", border = FALSE
-                         , xlim = c(-180, 180), ylim = c(-90, 90)
-                         , xaxs = "i", yaxs = "i")
-  #list of user defined graphical parameter
-  graphparams.user <- base::list(...)
-  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
-  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
-  #remove default parameter from list if user specified the same parameter different
-  for( param in names_graphparams.user){
-    if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == param)] 
-  }
-  #create graphparams with default and user parameter for plotting
-  graphparams <- c(graphparams.def, graphparams.user)
-  #plotting the map and the data
-  #input data needs to be a data frame
-  if (base::class(data) == "data.frame") {
-    #save old mar settings and define plotting margins as we need
-    def.mar <- graphics::par("mar")
-    graphics::par(mar = c(1.5, 1.5, 2, 1.5))
-    #plot with the parameter list which includes users graphical parameter
-    #defines size and axes of the plot
-    base::do.call(sp::plot, graphparams)
-    #draw the rectangle showing the sea
-    graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
-         ytop = 90, col = colsea, 
-         border = FALSE)
-    #plot the landmasses on the sea
-    sp::plot(shape, col = colland, border = FALSE, add = TRUE)
-    # add x-axis and x-axis labels
-    graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    # add y-axis and y-axis labels
-    graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-    graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    #get metadata from the SpatialPolygonDataFrame
-    shape.info <- .getShapeInfo(shape)
-    #add name, model and age at the top right of the plot
-    graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = shape.info[1], col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-    graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = shape.info[2], col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.5)
-    graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-    #add the fossil occurrences to the plot
-    graphics::points(data$paleolng, 
-           data$paleolat, 
-           pch = pch, col = colpoints, 
-           cex = cex)
-    #restore the old margin values
-    graphics::par(mar = def.mar)
+  uage <- unique(data$recon_age)
+  for(age in 1:length(uage)){
+    curma <- uage[age]
+    
+    subdata <- subset(data, data$recon_age == curma)
+    
+    
+    shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
+    #default parameter list for plotting
+    graphparams.def <- base::list(x = shape, col = "white", border = FALSE
+                                  , xlim = c(-180, 180), ylim = c(-90, 90)
+                                  , xaxs = "i", yaxs = "i")
+    #list of user defined graphical parameter
+    graphparams.user <- base::list(...)
+    names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+    names_graphparams.def <- base::as.vector(base::names(graphparams.def))
+    #remove default parameter from list if user specified the same parameter different
+    for( param in names_graphparams.user){
+      if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == param)] 
+    }
+    #create graphparams with default and user parameter for plotting
+    graphparams <- c(graphparams.def, graphparams.user)
+    #plotting the map and the data
+    #input data needs to be a data frame
+    if (base::class(data) == "data.frame") {
+      if(save.plot){
+        if(save.as=="tiff"){
+          tiff(paste0("mapast-",curma,"mya_",model,".tiff"), 
+               height = 10.5, width = 17, units = "cm", res = 300)
+        }
+        #not working
+        # if(save.as=="pdf"){
+        #   filename <- paste0("mapast-",curma,"mya_",model,".pdf")
+        #   pdf(filename)
+        # }
+      }
+      
+      #save old mar settings and define plotting margins as we need
+      def.mar <- graphics::par("mar")
+      graphics::par(mar = c(1.5, 1.5, 2, 1.5))
+      #plot with the parameter list which includes users graphical parameter
+      #defines size and axes of the plot
+      base::do.call(sp::plot, graphparams)
+      #draw the rectangle showing the sea
+      graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
+                     ytop = 90, col = colsea, 
+                     border = FALSE)
+      #plot the landmasses on the sea
+      sp::plot(shape, col = colland, border = FALSE, add = TRUE)
+      # add x-axis and x-axis labels
+      graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+      graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+      # add y-axis and y-axis labels
+      graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+      graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+      #get metadata from the SpatialPolygonDataFrame
+      # shape.info <- .getShapeInfo(shape)
+      #add name, model and age at the top right of the plot
+      graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+      graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = paste0(curma, " mya"), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+      # graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+      #add the fossil occurrences to the plot
+      graphics::points(subdata$paleolng, 
+                       subdata$paleolat, 
+                       pch = pch, col = colpoints, 
+                       cex = cex)
+      #restore the old margin values
+      graphics::par(mar = def.mar)
+      if(save.plot){
+        dev.off()
+      }
+
+    }
   }
 }
 
 #####################mapocc##############################
-
+#####TODO: go through ages, get map, calc for each time bin and return raster stack. Keep shape, could be a list of shapes or a shape#####
 #' mapocc
 #' 
 #' Creates a RasterLayer, containing the number of occurrences per cell, and a plot of the fossil 
@@ -439,7 +639,7 @@ mapocc <- function(shape, data,
 }
 
 #####################maprich####################
-
+#####TODO: go through ages, get map, calc for each time bin and return raster stack. Keep shape, could be a list of shapes or a shape#####
 #' maprich
 #' 
 #' Creates a RasterLayer of taxon richness
@@ -585,14 +785,14 @@ maprich <- function (shape, data, rank = "genus", res = 1,
 }
 
 ########spsite###################
+####TODO: calc for eacht time bin and return list of df's####
 #' spsite
 #' 
 #' Generates a diversity data.frame, with the number occurrences of a taxon per locality.
 #' 
 #' @usage spsite(data, unity, res = 1, rank = "genus", pa = FALSE)
 #' 
-#' @param data data.frame. Fossil occurrences data. Can be created with 
-#' getdata(interval, base_name).
+#' @param data data.frame. Fossil occurrences data.
 #' @param unity character. unity = "fossilsite" or unity = "cell" defining if the user wants the occurrences per 
 #' cell or per fossilsite.
 #' @param res numeric. Defining the spatial resolution. By default res = 1. Only used if unity = "cell".
@@ -820,7 +1020,7 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 
 
 #####################mapdiv####################
-
+####TODO: go through time bins and calc this for every time bin. Shape can be a list of shapes or a single shape (should be same size as number of bins)####
 #' mapdiv
 #' 
 #' Calculates the Shannon diversity per cell or locality 
@@ -1029,6 +1229,7 @@ mapdiv <- function(shape, data, unity, rank = "genus", res = 1, fun = mean,
 
 
 ###################################latdivgrad###################
+####TODO: go through time bins, calc for every time bin, create a df with column for each time bin####
 #' latdivgrad
 #' 
 #' Calculates the latitudinal diversity of taxa (species, genera, families, orders) and creates a plot of the continental masses with the fossil occurrences and the latitudinal diversity.
@@ -1225,330 +1426,6 @@ latdivgrad <- function(shape, data, method, rank = "genus",
 }
 
 
-###########################checkage#############################
-#' checkage
-#' 
-#' Creates a data.frame with all maps that contain the requested age.
-#' 
-#' @usage checkage(age = "all")
-#' 
-#' @param age character. Defining the age of interest in mya. By default age = "all", which gives the complete list.
-#' @return data.frame
-#' @export
-#' @examples
-#' \dontrun{
-#' 
-#' library(pasta)
-#' 
-#' #get a data.frame with all maps including the age 112 mya
-#' checkage(age = "112")
-#' 
-#' #get complete data.frame with all available ages, from all models
-#' checkage()
-#' 
-#'}
-
-checkage <- function(age = "all"){
-  #define data frame df_maps
-  df_maps <- NULL
-  #load df_maps from the package
-  utils::data(df_maps,envir = base::environment())
-  #if age is a defined age get all maps including this age
-  if(age != "all"){
-    maps <- df_maps[base::as.numeric(df_maps$fromage) >= base::as.numeric(age),]
-    maps <- maps[base::as.numeric(maps$toage) <= base::as.numeric(age),]
-  }else{
-    #else if age is "all" return complete list
-    maps <- df_maps
-  }
-  #return the list with the maps
-  maps
-}
 
 
 
-##########################GPlates API functions#############################
-
-###########################modelmap#############################
-
-#' modelmap
-#' 
-#' Gets a map of a specific age from a model specified by the user.
-#' Available models and ages at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models .
-#' 
-#' @usage modelmap(ma, model = 'SETON2012', show.plates = FALSE, colland, colsea, do.plot, ...)
-#' 
-#' @param ma numeric. Age in Ma.
-#' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
-#' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
-#' @param show.plates boolean. Defines if the user wants to get the continental plate borders. By default. show.plates = FALSE.
-#' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
-#' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
-#' @return SpatialPolygonsDataFrame
-#' @export
-#' @examples
-#' \dontrun{
-#' 
-#' #with continental plates
-#' map <- modelmap(100, model = 'SETON2012', show.plates = T)
-#' coastlines <- map[[1]]
-#' plates <- map[[2]]
-#' 
-#' #without continental plates
-#' coastlines <- modelmap(100, model = 'SETON2012')
-#' 
-#'#save map as tiff image
-#' tiff("getmap-GPlates_Cretaceous.tiff", 
-#'       height = 10, width = 17, units = "cm", res = 300)
-#' modelmap(100, model = 'SETON2012', show.plates = T)
-#' dev.off()
-#' 
-#'}
-
-modelmap <- function(ma, model = 'SETON2012', show.plates = FALSE, colland = "#66666660", 
-                     colsea = "#00509010", 
-                     do.plot = TRUE, ...) {
-  url <- paste0("http://gws.gplates.org/reconstruct/coastlines/?time=",ma,"&model=",model)
-  err <- FALSE
-  shape <- tryCatch(
-    {
-      rgdal::readOGR(url)
-    }, error = function(e) {
-      err <- TRUE
-      message(paste0("There is no map for ", ma, " mya in ", model, " model."))
-      stop()
-    }
-  )
-  
-  errplate <- FALSE
-  if(show.plates){
-    #no plate bounds for paleomap
-    plateurl <- paste0("http://gws.gplates.org/topology/plate_boundaries/?time=", ma, "&model=", model)
-    platebounds <- tryCatch(
-      {
-        rgdal::readOGR(plateurl)
-      }, error = function(e){
-        errplate <- TRUE
-        message(paste0("No Plate Boundaries available for ", ma, " mya in ", model, "model."))
-        stop()
-      }
-    )
-  }
-  
-  if(!err){
-    #getting final parameter list for plot
-    #default parameter list for plotting
-    graphparams.def <- base::list(x = shape, col = "white", border = FALSE
-                                  , xlim = c(-180, 180), ylim = c(-90, 90)
-                                  , xaxs = "i", yaxs = "i")
-    #list of user defined graphical parameter
-    graphparams.user <- base::list(...)
-    names_graphparams.user <- base::as.vector(base::names(graphparams.user))
-    names_graphparams.def <- base::as.vector(base::names(graphparams.def))
-    #remove default parameter if user specifies a different value
-    for( param in names_graphparams.user){
-      if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == param)] 
-    }
-    #complete new list of plotting parameters, including default and user specified ones
-    graphparams <- c(graphparams.def, graphparams.user)
-    # if user does not set plot=FALSE plot the shape file
-    if (do.plot) {
-      #define the size of the margin of the plot and save the former definition
-      def.mar <- graphics::par("mar")
-      graphics::par(mar = c(2, 2, 2, 2))
-      #do a first plot with the graphical parameters set by the user
-      base::do.call(sp::plot, graphparams)
-      if(!errplate && show.plates){
-        sp::plot(platebounds, add = T, col = "#66666680")
-      }
-      #draw a rectangle showing the sea
-      graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
-                     ytop = 90, col = colsea, 
-                     border = FALSE)
-      #add x-axis and x-axis label
-      graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-      graphics::axis(side = 1, pos = -89, lwd = 0, at = 0 , labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-      #add y-axis and y-axis label
-      graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-      graphics::axis(side = 2, pos = -178, lwd = 0, at = 0 , labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-      #get metadata from the SpatialPolygonsDataFrame
-      # shape.info <- .getShapeInfo(shape)
-      #add name, model and age info top right of the plot
-      # graphics::axis(side = 3, pos=97, lwd = 0, at=135 , labels=shape.info[1], col.ticks = "darkgrey",col.axis ="darkgrey", cex.axis=1)
-      graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-      graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(ma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-      #add the landmasses to the plot
-      sp::plot(shape, col = colland, border = FALSE, add = TRUE)
-      #restore the former graphical mar parameters
-      graphics::par(mar = def.mar)
-    }
-    # return the shape file
-    if(!errplate && show.plates){
-      return(list(shape, platebounds))
-    }else{
-      return(shape)
-    }
-  }
-}
-
-################madata##############################
-
-#' madata
-#' 
-#' Uses the paleobioDB R package to extract data used in for other functions of this package
-#' from the Paleobiology Database.
-#'  
-#' @usage madata(minma, maxma, base_name, limit="all", paleocoords=F, 
-#' recontime=NULL, model='SETON2012')
-#' 
-#' @param minma numeric. Minimal age in Ma.
-#' @param maxma numeric. Maximal age in Ma.
-#' @param base_name character. The name of the taxon of interest. (e.g. "Canis" or "reptilia")
-#' @param limit integer. Defining the max. number of occurrences to be downloaded from paleobioDB. By default limit="all"
-#' @param paleocoords boolean. Defines if the user wants to get the paleocoordinates.
-#' @param recontime numeric. Time of reconstruction in ma. If recontime is null the recnstruction time will be 
-#' the midpoint of the interval the fossil occurred.
-#' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
-#' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
-#' @return Returns a data frame with fossil occurrences
-#' @export 
-#' @examples 
-#' \dontrun{
-#' 
-#' #get data without paleocoordinates
-#' occ <- madata(minma=0, maxma=10,base_name="Canis", limit=100)
-#' 
-#' #get data with paleocoordinates taking the midpoint of the occurrence time
-#' occma <- madata(minma=0, maxma=10,base_name="Canis", 
-#'                     limit=100, paleocoords=TRUE, model='SETON2012')
-#' 
-#' #get data with paleocoordinates for a chosen time in ma
-#' occmatime <- madata(minma=0, maxma=10,base_name="Canis", limit=100, 
-#'                          paleocoords=TRUE, recontime=5,  model='SETON2012')
-#'                     
-#'                     
-#'}
-
-
-madata <- function(minma, maxma, base_name, limit="all", paleocoords=F, recontime=NULL, model='SETON2012') {
-  #create an empty data frame for storing the fossil data
-  occ <- base::data.frame()
-  #try to get data from the Paleobiology Database with the given parameters, using R-package paleobioDB
-  try(occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name=base_name, min_ma=minma, max_ma=maxma, 
-                                                           show=c("coords", "phylo"), 
-                                                           vocab="pbdb", limit=limit))
-      , silent=TRUE)
-  #if there were results, save them in a data frame called 'data' and remove entries which do not have a paleolatitude or paleolongitude
-  
-  if (base::nrow(occ) != 0) {
-    if(paleocoords){
-      if(is.null(recontime)){
-        occ <- paleocoords(occ, NULL)
-      }else{
-        occ <- paleocoords(occ, recontime)
-      }
-      
-    }
-    
-    return(occ)
-  } else { #catching error when there are no occurences for the request
-    stop("There is no data that matches your query on the paleobioDB. 
-         Check if the spelling, temporal intervals, etc. are correct")
-  }
-}
-
-################paleocoords##############################
-
-#' paleocoords
-#' 
-#' Descr.
-#'  
-#' @usage paleocoords(occ, recontime=NULL, model='SETON2012')
-#' 
-#' @param occ data.frame. Fossil data, which should at least have the columns lng and lat (if recontime=NULL also early_age and late_age).
-#' @param recontime numeric. Time of reconstruction in ma. If recontime is null the recnstruction time will be 
-#' the midpoint of the interval the fossil occurred.
-#' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
-#' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
-#' @return data.frame
-#' @export 
-#' @examples 
-#' \dontrun{
-#' 
-#' occ <- madata(minma=0, maxma=10,base_name="Canis", limit=100)
-#' 
-#' #reconstruct paleocoordinates with midpoint of appearance time
-#' occ_ma <- paleoocoords(occ, recontime=NULL, model='SETON2012')
-#' 
-#' #reconstruct paleocoordinates with specific time
-#' occ_matime <- paleoocoords(occ, recontime=5, model='SETON2012')
-#' 
-#'                     
-#'}
-
-
-paleocoords <- function(occ, recontime=NULL, model='SETON2012') {
-  if(!.checkRecon(occ, recontime)){
-    if(is.null(recontime)){
-      stop("Your data.frame needs to have columns called lng, lat, early_age and late_age.")
-    }else{
-      stop("Your data.frame needs to have columns called lng and lat.")
-    }
-    
-  }
-  paleolng <- c()
-  paleolat <- c()
-  ma <-c()
-  if(is.null(recontime)){
-    ma <- (occ$early_age-occ$late_age)/2
-    occ <- cbind(occ, ma)
-    uma <- unique(ma)
-    
-    for( i in 1:length(uma)){
-      part <- occ[occ$ma==uma[i],]
-      
-      pts <- ""
-      for( j in 1:length(part$ma)){
-        pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
-      }
-      
-      pts <- substring(pts, 2)
-      
-      url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model)
-      
-      paleopts <- rjson::fromJSON(file=url)
-      
-      for (k in 1:length(paleopts$coordinates)){
-        paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
-        paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
-      }
-    }
-  }else{
-    ma <- rep(recontime, length(occ$lng))
-    occ <- cbind(occ, ma)
-    
-    
-    pts <- ""
-    for( j in 1:length(occ$lng)){
-      pts <- paste0(pts,",", occ$lng[j], ",", occ$lat[j])
-    }
-    
-    pts <- substring(pts, 2)
-    
-    url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",recontime, "&model=",model)
-    
-    paleopts <- rjson::fromJSON(file=url)
-    
-    for (k in 1:length(paleopts$coordinates)){
-      paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
-      paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
-    }
-  }
-  
-  
-  occ <- cbind(occ, paleolng, paleolat)
-  
-  return(occ)
-}
