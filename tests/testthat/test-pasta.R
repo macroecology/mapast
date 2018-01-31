@@ -1,5 +1,5 @@
 #get the data
-base::load(base::system.file("testdata", "testdata.rda", package = "pasta"))
+base::load(base::system.file("testdata", "testdata.rda", package = "mapast"))
 
 
 data <- data[1:100,]
@@ -10,7 +10,7 @@ data <- data[which(!data$matched_rank=="unranked clade"),]
 testthat::context("mapocc")
 testthat::test_that("test on mapocc, if output is raster", {
   #create raster
-  ras <- pasta::mapocc(shape, data, rank="genus")
+  ras <- mapast::mapocc(shape, data, rank="genus")
   #test if raster is a RasterLayer
   testthat::expect_that(ras@class[1], equals("RasterLayer"))
   rm(ras)
@@ -20,7 +20,7 @@ testthat::test_that("test on mapocc, if output is raster", {
 testthat::context("maprich")
 testthat::test_that("test on maprich, if output is raster",{
   #create species richness raster
-  spras <- pasta::maprich(shape, data)
+  spras <- mapast::maprich(shape, data)
   #test if class of raster is RasterLayer
   testthat::expect_that(spras@class[1], equals("RasterLayer"))
   rm(spras)
@@ -29,12 +29,12 @@ testthat::test_that("test on maprich, if output is raster",{
 ######spsite#####
 testthat::context("spsite")
   #create ocurrence matrices
-  occ_species <- pasta::spsite(data, unity="fossilsite", rank="species")
-  occ_genus <- pasta::spsite(data, unity="fossilsite", rank="genus")
-  occ_family <- pasta::spsite(data, unity="fossilsite", rank="family")
-  occ_order <- pasta::spsite(data, unity="fossilsite", rank="order")
-  occ_class <- pasta::spsite(data, unity="fossilsite", rank="class")
-  occ_phylum <-pasta::spsite(data, unity="fossilsite", rank="phylum")
+  occ_species <- mapast::spsite(data, unity="fossilsite", rank="species")
+  occ_genus <- mapast::spsite(data, unity="fossilsite", rank="genus")
+  occ_family <- mapast::spsite(data, unity="fossilsite", rank="family")
+  occ_order <- mapast::spsite(data, unity="fossilsite", rank="order")
+  occ_class <- mapast::spsite(data, unity="fossilsite", rank="class")
+  occ_phylum <-mapast::spsite(data, unity="fossilsite", rank="phylum")
   #test if paleolat and paleolng are inside and correct
 testthat::test_that("test that spsite gives correct output for species", {
   coln_species <- base::colnames(occ_species)
@@ -85,12 +85,12 @@ rm(nums_species, nums_genus, nums_family, nums_order, nums_class, nums_phylum)
 ######spsite######   
 testthat::context("spsite")
 # #get output of function
-occ_cell_species <- pasta::spsite(data, unity="cell", rank="species")
-occ_cell_genus <- pasta::spsite(data, unity="cell", rank="genus")
-occ_cell_family <- pasta::spsite(data, unity="cell", rank="family")
-occ_cell_order <- pasta::spsite(data, unity="cell", rank="order")
-occ_cell_class <- pasta::spsite(data, unity="cell", rank="class")
-occ_cell_phylum <-pasta::spsite(data, unity="cell", rank="phylum")
+occ_cell_species <- mapast::spsite(data, unity="cell", rank="species")
+occ_cell_genus <- mapast::spsite(data, unity="cell", rank="genus")
+occ_cell_family <- mapast::spsite(data, unity="cell", rank="family")
+occ_cell_order <- mapast::spsite(data, unity="cell", rank="order")
+occ_cell_class <- mapast::spsite(data, unity="cell", rank="class")
+occ_cell_phylum <-mapast::spsite(data, unity="cell", rank="phylum")
 #test if paleolat and paleolng are inside and correct
 testthat::test_that("test that spsite gives correct output for species", {
   coln_cell_species <- base::colnames(occ_cell_species)
@@ -154,10 +154,10 @@ rm(nums_cell_species, nums_cell_genus, nums_cell_family, nums_cell_order, nums_c
 
 #####mapdiv#####
 testthat::context("mapdiv")
-div_mean <- pasta::mapdiv(shape, data, unity="fossilsite", fun=mean)
-div_max <- pasta::mapdiv(shape, data, unity="fossilsite", fun=max)
-div_min <- pasta::mapdiv(shape, data, unity="fossilsite", fun=min)
-div_count <- pasta::mapdiv(shape, data, unity="fossilsite", fun="count")
+div_mean <- mapast::mapdiv(shape, data, unity="fossilsite", fun=mean)
+div_max <- mapast::mapdiv(shape, data, unity="fossilsite", fun=max)
+div_min <- mapast::mapdiv(shape, data, unity="fossilsite", fun=min)
+div_count <- mapast::mapdiv(shape, data, unity="fossilsite", fun="count")
 testthat::test_that("test that mapdiv with fossilsite output is a RasterLayer", {
   testthat::expect_that(div_mean@class[1], equals("RasterLayer"))
   testthat::expect_that(div_max@class[1], equals("RasterLayer"))
@@ -166,7 +166,7 @@ testthat::test_that("test that mapdiv with fossilsite output is a RasterLayer", 
 })
 rm(div_mean, div_max, div_min, div_count)
 
-div_cell <- pasta::mapdiv(shape, data, unity="cell")
+div_cell <- mapast::mapdiv(shape, data, unity="cell")
 testthat::test_that("test that mapdiv with cell output is a RasterLayer", {
   testthat::expect_that(div_cell@class[1], equals("RasterLayer"))
 })
@@ -176,7 +176,7 @@ rm(div_cell)
  
 ####latdivgrad#####
 testthat::context("latdivgrad")
-latrich_species <- pasta::latdivgrad(shape, data, method="richness", rank="species")
+latrich_species <- mapast::latdivgrad(shape, data, method="richness", rank="species")
 names_species <- base::names(latrich_species)
 testthat::test_that("test that column names are correct", {
   testthat::expect_true("paleolat" %in% names_species)

@@ -31,29 +31,31 @@ mycols <- colorRampPalette(c("#F5DEB3",
 # }
 
 .rank_filter <- function(r, data, res, rank) {
-  #get species data
-  if (rank == "species") {
-    if (base::length(data$matched_rank) != 0) {
-      #only extract data where a matched rank exists
-      rank.df <- data[!base::is.na(data$matched_rank), ]
-      #extract only species data
-      rank.df <- rank.df[rank.df$matched_rank == rank, ]
-      #split of the matched number
-      rank.df <- base::split(rank.df, rank.df$matched_no)
-    }
-  }else{
-    ranks <- base::data.frame(rank=c("genus","family","order","class","phylum"),
-                      matched_rank=c("genus_no","family_no","order_no",
-                                     "class_no","phylum_no"))
-    
-    if (base::length(data$matched_rank) != 0) {
-      rank.df <- data[!base::is.na(data$matched_rank), ]
-      rankcolumn <- base::paste(ranks$matched_rank[ranks$rank==rank])
-      rank.df <- rank.df[!base::is.na(rank.df[,rankcolumn]),]
-      split_no <- base::paste(rank.df[, rankcolumn])
-      rank.df <- base::split(rank.df, split_no)
-    }
+  if (rank=="species") {
+    #save all fossil occurrences where the rank is species
+    rank.df <- base::subset(data, !is.na(data$species))
   }
+  if (rank=="genus") {
+    #save all fossil occurrences where there is a known genus
+    rank.df <- base::subset(data, !is.na(data$genus))
+  }
+  if (rank=="family") {
+    #save all fossil occurrences where there is a known family
+    rank.df <- base::subset(data, !is.na(data$family))
+  }
+  if (rank=="order") {
+    #save all fossil occurrences where there is a known order
+    rank.df <- base::subset(data, data$order!="NA")
+  }
+  if (rank=="class") {
+    #save all fossil occurrences where there is a known class
+    rank.df <- base::subset(data, data$class!="NA")
+  }
+  if (rank=="phylum") {
+    #save all fossil occurrences where there is a known phylum
+    rank.df <- base::subset(data, data$order!="NA")
+  }
+  rank.df <- setNames(split(rank.df, seq(nrow(rank.df))), rownames(rank.df))
   rankraster <- base::lapply(rank.df, function(y) {
     #split off paleolat and paleolng
     latlng <- base::split(y, base::paste(y$paleolng, y$paleolat))
@@ -86,11 +88,9 @@ mycols <- colorRampPalette(c("#F5DEB3",
 
 .rfilter <- function(data, rank) {
   if (rank=="species") {
-    matched_rank <- NULL
-    genus <- NULL
     #save all fossil occurrences where the rank is species
-    rankdata <- base::subset(data, data$matched_rank=="species")
-    rankdata<- rankdata[, c("paleolat", "paleolng", "matched_name")]
+    rankdata <- base::subset(data, !is.na(data$species))
+    rankdata<- rankdata[, c("paleolat", "paleolng", "species")]
   }
   if (rank=="genus") {
     #save all fossil occurrences where there is a known genus

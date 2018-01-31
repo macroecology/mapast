@@ -1,3 +1,3 @@
 library(testthat)
-library(pasta)
-testthat::test_check("pasta")
+library(mapast)
+testthat::test_check("mapast")

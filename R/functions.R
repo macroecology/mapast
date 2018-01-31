@@ -76,7 +76,7 @@ formatdata <- function(df, db="pbdb"){
 #'                     
 #'}
 
-
+####TODO: check if coordinates are inside range, if not add NA as paleocoords and not pass them to api####
 paleocoords <- function(occ, time = "automatic", timevector=NULL, stepsize=10, model = 'SETON2012') {
   # if(!.checkRecon(occ, recontime)){
   #   if(is.null(recontime)){
@@ -102,11 +102,16 @@ paleocoords <- function(occ, time = "automatic", timevector=NULL, stepsize=10, m
       
       pts <- substring(pts, 2)
 
-      url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model)
+      url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
       paleopts <- rjson::fromJSON(file=url)
       for (k in 1:length(paleopts$coordinates)){
-        paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
-        paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+        if(is.null(paleopts$coordinates[[k]])){
+          paleolng <- c(paleolng, NA)
+          paleolat <- c(paleolat, NA)
+        }else{
+          paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+          paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+        }
       }
     }
     recon_age <- round(occ$avg_age)
@@ -153,11 +158,17 @@ paleocoords <- function(occ, time = "automatic", timevector=NULL, stepsize=10, m
       
       pts <- substring(pts, 2)
       
-      url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model)
+      url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
       paleopts <- rjson::fromJSON(file=url)
       for (k in 1:length(paleopts$coordinates)){
-        paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
-        paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+        if(is.null(paleopts$coordinates[[k]])){
+          paleolng <- c(paleolng, NA)
+          paleolat <- c(paleolat, NA)
+        }else{
+          paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+          paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+        }
+        
       }
     }
     
@@ -203,11 +214,16 @@ paleocoords <- function(occ, time = "automatic", timevector=NULL, stepsize=10, m
         }
 
         pts <- substring(pts, 2)
-        url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model)
+        url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
         paleopts <- rjson::fromJSON(file=url)
         for (k in 1:length(paleopts$coordinates)){
-          paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
-          paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+          if(is.null(paleopts$coordinates[[k]])){
+            paleolng <- c(paleolng, NA)
+            paleolat <- c(paleolat, NA)
+          }else{
+            paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+            paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+          }
         }
       }
       
@@ -218,6 +234,15 @@ paleocoords <- function(occ, time = "automatic", timevector=NULL, stepsize=10, m
 
 
   occ <- cbind(occ, paleolng, paleolat)
+  num_reconage <- unique(na.omit(occ$recon_age))
+  print(num_reconage)
+  if(length(num_reconage)>1){
+    ages <- c()
+    for(i in 1:length(num_reconage)){
+      ages <- paste0(ages, ", ", num_reconage[i], "mya ")
+    }
+    warning(paste0("You can not plot all of these points in a single map. You have ", length(num_reconage)," different maps, which are ", substring(ages, 2), "."))
+  }
   
   return(occ)
 }
@@ -267,7 +292,7 @@ getmap <- function(ma, model = 'SETON2012', show.plates = FALSE, colland = "#666
   err <- FALSE
   shape <- tryCatch(
     {
-      rgdal::readOGR(url)
+      rgdal::readOGR(url, verbose = FALSE)
     }, error = function(e) {
       err <- TRUE
       message(paste0("There is no map for ", ma, " mya in ", model, " model. Please check the spelling, the age and the model you choose."))
@@ -281,7 +306,7 @@ getmap <- function(ma, model = 'SETON2012', show.plates = FALSE, colland = "#666
     plateurl <- paste0("http://gws.gplates.org/topology/plate_boundaries/?time=", ma, "&model=", model)
     platebounds <- tryCatch(
       {
-        rgdal::readOGR(plateurl)
+        rgdal::readOGR(plateurl, verbose = FALSE)
       }, error = function(e){
         errplate <- TRUE
         message(paste0("No Plate Boundaries available for ", ma, " mya in ", model, "model. Please check the spelling, the age and the model you choose."))
@@ -348,7 +373,6 @@ getmap <- function(ma, model = 'SETON2012', show.plates = FALSE, colland = "#666
 
 
 ####################mapast#################################
-#####TODO: add format="pdf" (can also be tiff)#####
 #####TODO: ??add parameter if take avg_age or other column#####
 #' mapast
 #' 
@@ -360,8 +384,11 @@ getmap <- function(ma, model = 'SETON2012', show.plates = FALSE, colland = "#666
 #'                 colsea = "#00509010",colpoints = "#65432190", 
 #'                 pch = 16, cex = 1, ...)
 #' 
-#' @param model character. Defining the model the map was created with. "GPlates", "Smith" or "Golonka".
+#' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
+#' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
 #' @param data data.frame. Fossil occurrences data.
+#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
+#' @param save.as character. Defines the format the plots should be saved. "tiff" or "pdf".
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
 #' @param colpoints character. Defines the color of the occurrence-points. By default colpoints = "#65432190".
@@ -373,7 +400,7 @@ getmap <- function(ma, model = 'SETON2012', show.plates = FALSE, colland = "#666
 #' @examples 
 #' \dontrun{
 #' 
-#' library(pasta)
+#' library(mapast)
 #' 
 #' #get data
 #' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma=0, max_ma=10, 
@@ -395,7 +422,7 @@ getmap <- function(ma, model = 'SETON2012', show.plates = FALSE, colland = "#666
 #' 
 #'}
 
-mapast <- function(model="SETON2012", data, save.plot=TRUE, save.as="tiff",
+mapast <- function(model="SETON2012", data, do.plot=TRUE, save.as="tiff",
                     colland = "#66666660",
                     colsea = "#00509010", 
                     colpoints = "#65432190", 
@@ -409,7 +436,11 @@ mapast <- function(model="SETON2012", data, save.plot=TRUE, save.as="tiff",
   #   stop("Range of Latitude and/or Longitude is not allowed.")
   # }
   
-  #####TODO: loop through avg_age -> for each one map and the corresponding points#####
+  #count how many maps will be created
+  #print warning
+  num_recon <- length(unique(na.omit(data$recon_age)))
+  print(paste0("You have ", num_recon," reconstruction times (meaning ", num_recon," maps). This is going to take about ",num_recon," minutes."))
+  #through revcon_age -> for each one map and the corresponding points#
   #getting the shape file with getmap
   uage <- unique(data$recon_age)
   for(age in 1:length(uage)){
@@ -433,77 +464,112 @@ mapast <- function(model="SETON2012", data, save.plot=TRUE, save.as="tiff",
     }
     #create graphparams with default and user parameter for plotting
     graphparams <- c(graphparams.def, graphparams.user)
+    #save old mar settings and define plotting margins as we need
+    def.mar <- graphics::par("mar")
+    graphics::par(mar = c(1.5, 1.5, 2, 1.5))
     #plotting the map and the data
     #input data needs to be a data frame
     if (base::class(data) == "data.frame") {
-      if(save.plot){
+      if(do.plot){
         if(save.as=="tiff"){
           tiff(paste0("mapast-",curma,"mya_",model,".tiff"), 
                height = 10.5, width = 17, units = "cm", res = 300)
+          #plot with the parameter list which includes users graphical parameter
+          #defines size and axes of the plot
+          base::do.call(sp::plot, graphparams)
+          #draw the rectangle showing the sea
+          graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
+                         ytop = 90, col = colsea, 
+                         border = FALSE)
+          #plot the landmasses on the sea
+          sp::plot(shape, col = colland, border = FALSE, add = TRUE)
+          # add x-axis and x-axis labels
+          graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          # add y-axis and y-axis labels
+          graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+          graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          #get metadata from the SpatialPolygonDataFrame
+          # shape.info <- .getShapeInfo(shape)
+          #add name, model and age at the top right of the plot
+          graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+          graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = paste0(curma, " mya"), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+          # graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+          #add the fossil occurrences to the plot
+          graphics::points(subdata$paleolng, 
+                           subdata$paleolat, 
+                           pch = pch, col = colpoints, 
+                           cex = cex)
+          
+          dev.off()
         }
         #not working
-        # if(save.as=="pdf"){
-        #   filename <- paste0("mapast-",curma,"mya_",model,".pdf")
-        #   pdf(filename)
-        # }
+        if(save.as=="pdf"){
+          filename <- paste0("mapast-",curma,"mya_",model,".pdf")
+          pdf(filename)
+          #plot with the parameter list which includes users graphical parameter
+          #defines size and axes of the plot
+          map <- base::do.call(sp::plot, graphparams)
+          #draw the rectangle showing the sea
+          map <- graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
+                         ytop = 90, col = colsea, 
+                         border = FALSE)
+          #plot the landmasses on the sea
+          map <- sp::plot(shape, col = colland, border = FALSE, add = TRUE)
+          # add x-axis and x-axis labels
+          map <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          map <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          # add y-axis and y-axis labels
+          map <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+          map <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          #get metadata from the SpatialPolygonDataFrame
+          # shape.info <- .getShapeInfo(shape)
+          #add name, model and age at the top right of the plot
+          map <- graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+          map <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = paste0(curma, " mya"), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+          # graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+          #add the fossil occurrences to the plot
+          map <-graphics::points(subdata$paleolng, 
+                           subdata$paleolat, 
+                           pch = pch, col = colpoints, 
+                           cex = cex)
+          print(map)
+          
+          dev.off()
+        }
       }
       
-      #save old mar settings and define plotting margins as we need
-      def.mar <- graphics::par("mar")
-      graphics::par(mar = c(1.5, 1.5, 2, 1.5))
-      #plot with the parameter list which includes users graphical parameter
-      #defines size and axes of the plot
-      base::do.call(sp::plot, graphparams)
-      #draw the rectangle showing the sea
-      graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
-                     ytop = 90, col = colsea, 
-                     border = FALSE)
-      #plot the landmasses on the sea
-      sp::plot(shape, col = colland, border = FALSE, add = TRUE)
-      # add x-axis and x-axis labels
-      graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-      graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-      # add y-axis and y-axis labels
-      graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-      graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-      #get metadata from the SpatialPolygonDataFrame
-      # shape.info <- .getShapeInfo(shape)
-      #add name, model and age at the top right of the plot
-      graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-      graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = paste0(curma, " mya"), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-      # graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-      #add the fossil occurrences to the plot
-      graphics::points(subdata$paleolng, 
-                       subdata$paleolat, 
-                       pch = pch, col = colpoints, 
-                       cex = cex)
+
+
       #restore the old margin values
       graphics::par(mar = def.mar)
-      if(save.plot){
-        dev.off()
-      }
+
+      
 
     }
   }
 }
 
 #####################mapocc##############################
-#####TODO: go through ages, get map, calc for each time bin and return raster stack. Keep shape, could be a list of shapes or a shape#####
+#####TODO: if shape input, could be a list of shapes or a shape#####
+#####shape_ages as parameter where age of maps is given (by the user), so functions takes this map if it is there, otherwise get map from db#####
 #' mapocc
 #' 
 #' Creates a RasterLayer, containing the number of occurrences per cell, and a plot of the fossil 
 #' occurences by taxonomic rank per cell (a proxy for the sampling effort).
 #' 
-#' @usage mapocc(shape, data, rank = "genus", res = 1,
+#' @usage mapocc(data, rank = "genus", res = 1,
 #'                     colland = "#66666660", colsea = "#00509010", col.grid = mycols(100), 
 #'                     do.plot = TRUE, ...)
 #' 
-#' @param shape SpatialPolygonsDataFrame. A map that can be created with getmap.
 #' @param data data.frame. Fossil occurrences data. Can be created with 
 #' getdata(interval, base_name).
+#' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
+#' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum".
 #' @param res numeric. Defining the spatial resolution. Default res = 1. 
+#' @param save.as character. Defines the format the plots should be saved. "tiff" or "pdf".
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
 #' @param col.grid character. Defines the color of the raster.
@@ -515,7 +581,7 @@ mapast <- function(model="SETON2012", data, save.plot=TRUE, save.as="tiff",
 #' @examples 
 #' \dontrun{
 #' 
-#' library(pasta)
+#' library(mapast)
 #' 
 #' #get map
 #' shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
@@ -537,109 +603,160 @@ mapast <- function(model="SETON2012", data, save.plot=TRUE, save.as="tiff",
 #' 
 #'}
 
-mapocc <- function(shape, data, 
+mapocc <- function(data, model="SETON2012",
                          rank = "genus", 
-                         res=1, 
+                         res=1, save.as="tiff",
                          colland = "#66666660",
                          colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...) {
   #check user input
   #check if data has latitude and longitude columns
-  if(!.checkLatLng(data)){
-    stop("Column/s paleolat and/or paleolng are missing in the input data.")
-  }
-  if(!.checkRange(data)){
-    stop("Range of Latitude and/or Longitude is not allowed.")
-  }
-  #check if the rank is allowed
-  if(!.checkRank(rank)){
-    stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep = ""))
-  }
-  #check if the needed column for the chosen rank is in the data frame
-  if(!.checkDataRank(data,rank)){
-    if(rank == "species"){
-      stop(base::paste("There is no column matched_name in the data frame.", sep = ""))
-    }else{
-      stop(base::paste("There is no column ", rank,  " in the data frame.", sep = ""))
-    }
-  }
-  #check if the shape is a SpatialPolygonsDataFrame
-  if(!.checkShape(shape)){
-    stop("Shape is not a SpatialPolygonsDataFrame.")
-  }
-  #filter data for rank
-  rankdata <- .rfilter(data, rank)
-  #creating a raster in the size of the shape
-  spatialext <- raster::extent(c(-180, 180, -90, 90))
-  ras <- raster::raster(spatialext, res = res)
-  #create a raster of the occurences (sampling effort)
-  if(rank == "species"){
-    occraster <- raster::rasterize(rankdata[ , c("paleolng", "paleolat")], ras, field = rankdata[ , "matched_name"], fun = "count")
-  }else{
-    occraster <- raster::rasterize(rankdata[ , c("paleolng", "paleolat")], ras, field = rankdata[ , rank], fun = "count")
-  }
+  # if(!.checkLatLng(data)){
+  #   stop("Column/s paleolat and/or paleolng are missing in the input data.")
+  # }
+  # if(!.checkRange(data)){
+  #   stop("Range of Latitude and/or Longitude is not allowed.")
+  # }
+  # #check if the rank is allowed
+  # if(!.checkRank(rank)){
+  #   stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep = ""))
+  # }
+  # #check if the needed column for the chosen rank is in the data frame
+  # if(!.checkDataRank(data,rank)){
+  #   if(rank == "species"){
+  #     stop(base::paste("There is no column matched_name in the data frame.", sep = ""))
+  #   }else{
+  #     stop(base::paste("There is no column ", rank,  " in the data frame.", sep = ""))
+  #   }
+  # }
+  # #check if the shape is a SpatialPolygonsDataFrame
+  # if(!.checkShape(shape)){
+  #   stop("Shape is not a SpatialPolygonsDataFrame.")
+  # }
   
-  #default graphical parameter list
-  graphparams.def <- base::list(x = shape, col = "white", border = FALSE, col.grid = col.grid
-                         , xlim = c(-180, 180), ylim = c(-90, 90)
-                         , xaxs = "i", yaxs = "i")
-  #list user given graphical parameter
-  graphparams.user <- base::list(...)
-  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
-  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
-  #if user changes parameter defined with default values take users values
-  for( param in names_graphparams.user){
-    if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == param)] 
+  #count how many maps will be created
+  #print warning
+  num_recon <- length(unique(na.omit(data$recon_age)))
+  print(paste0("You have ", num_recon," reconstruction times (meaning ", num_recon," maps). This is going to take about ",num_recon," minutes."))
+  #through revcon_age -> for each one map and the corresponding points#
+  #getting the shape file with getmap
+  occraster <- c()
+  uage <- unique(data$recon_age)
+  for(age in 1:length(uage)){
+    curma <- uage[age]
+    
+    subdata <- subset(data, data$recon_age == curma)
+    #filter data for rank
+    rankdata <- .rfilter(subdata, rank)
+    #creating a raster in the size of the shape
+    spatialext <- raster::extent(c(-180, 180, -90, 90))
+    ras <- raster::raster(spatialext, res = res)
+    #create a raster of the occurences (sampling effort)
+    curoccraster <- raster::rasterize(rankdata[ , c("paleolng", "paleolat")], ras, field = rankdata[ , rank], fun = "count")
+    occraster <- c(occraster, curoccraster)
+    shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
+    #default graphical parameter list
+    graphparams.def <- base::list(x = shape, col = "white", border = FALSE, col.grid = col.grid
+                                  , xlim = c(-180, 180), ylim = c(-90, 90)
+                                  , xaxs = "i", yaxs = "i")
+    #list user given graphical parameter
+    graphparams.user <- base::list(...)
+    names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+    names_graphparams.def <- base::as.vector(base::names(graphparams.def))
+    #if user changes parameter defined with default values take users values
+    for( param in names_graphparams.user){
+      if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == param)] 
+    }
+    #create a graphical parameter list including default and user parameter
+    graphparams <- c(graphparams.def, graphparams.user)
+    #if user changes grid color, save it in mycol and remove it from the list
+    gridcol <- graphparams$col.grid
+    graphparams <- graphparams[- base::which(base::names(graphparams) == "col.grid")]
+    #if do.plot is true, create a plot
+    if(do.plot){
+      #save old margin values and define needed margin values
+      def.mar <- graphics::par("mar")
+      graphics::par(mar = c(1.5, 1.5, 2, 4))
+      if(save.as=="tiff"){
+        tiff(paste0("mapocc-",curma,"mya_",model,".tiff"), 
+             height = 10.5, width = 17, units = "cm", res = 300)
+        #create a plot with the users parameters
+        base::do.call(raster::plot, graphparams)
+        #create a rectangle showing the sea
+        graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
+                       border = FALSE)
+        #plot the landmasses on the sea
+        raster::plot(shape, col = colland, border = FALSE, add = T)
+        #add x-axis and x-axis labels
+        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        #add y-axis and y-axis labels
+        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        #
+        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        #add the raster to the plot without legend
+        raster::plot(curoccraster, add = T,axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
+        #allow the plot to expand the borders
+        graphics::par(xpd = TRUE)
+        graphics::par(bty = "n")
+        #add the raster legend outside the plot
+        raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA),
+                     legend.args = list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, col = col.grid[length(col.grid) / 2]))
+        raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[length(col.grid) / 2]))
+        graphics::par(bty = "o")
+        dev.off()
+      }
+      if(save.as=="pdf"){
+        filename <- paste0("mapocc-",curma,"mya_",model,".pdf")
+        pdf(filename)
+        #create a plot with the users parameters
+        map <- base::do.call(raster::plot, graphparams)
+        #create a rectangle showing the sea
+        map <- graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
+                       border = FALSE)
+        #plot the landmasses on the sea
+        map <- raster::plot(shape, col = colland, border = FALSE, add = T)
+        #add x-axis and x-axis labels
+        map <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        map <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        #add y-axis and y-axis labels
+        map <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        map <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        #
+        map <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+        map <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        #add the raster to the plot without legend
+        map <- raster::plot(curoccraster, add = T,axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
+        #allow the plot to expand the borders
+        graphics::par(xpd = TRUE)
+        graphics::par(bty = "n")
+        #add the raster legend outside the plot
+        map <- raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA),
+                     legend.args = list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, col = col.grid[length(col.grid) / 2]))
+        map <- raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[length(col.grid) / 2]))
+        graphics::par(bty = "o")
+        print(map)
+        dev.off()
+      }
+     
+      #restore default margin settings
+      graphics::par(mar = def.mar)
+    }
+  
   }
-  #create a graphical parameter list including default and user parameter
-  graphparams <- c(graphparams.def, graphparams.user)
-  #if user changes grid color, save it in mycol and remove it from the list
-  gridcol <- graphparams$col.grid
-  graphparams <- graphparams[- base::which(base::names(graphparams) == "col.grid")]
-  #if do.plot is true, create a plot
-  if(do.plot){
-    #save old margin values and define needed margin values
-    def.mar <- graphics::par("mar")
-    graphics::par(mar = c(1.5, 1.5, 2, 4))
-    #create a plot with the users parameters
-    base::do.call(raster::plot, graphparams)
-    #create a rectangle showing the sea
-    graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
-                   border = FALSE)
-    #plot the landmasses on the sea
-    raster::plot(shape, col = colland, border = FALSE, add = T)
-    #add x-axis and x-axis labels
-    graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    #add y-axis and y-axis labels
-    graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-    graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    #get metatdata from the SpatialPolygonsDataFrame
-    shape.info <- .getShapeInfo(shape)
-    #add name, model, age at the top right of the plot
-    graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = shape.info[1], col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-    graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = shape.info[2], col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.5)
-    graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-    #add the raster to the plot without legend
-    raster::plot(occraster, add = T,axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
-    #allow the plot to expand the borders
-    graphics::par(xpd = TRUE)
-    graphics::par(bty = "n")
-    #add the raster legend outside the plot
-    raster::plot(occraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                  axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA),
-                  legend.args = list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, col = col.grid[length(col.grid) / 2]))
-    raster::plot(occraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                  axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[length(col.grid) / 2]))
-    graphics::par(bty = "o")
-    #restore default margin settings
-    graphics::par(mar = def.mar)
-  }
+  occstack <- raster::stack(occraster)
   #return the raster
-  return(occraster)
+  return(occstack)
 }
 
 #####################maprich####################
-#####TODO: go through ages, get map, calc for each time bin and return raster stack. Keep shape, could be a list of shapes or a shape#####
+#####TODO: Let user give shape, could be a list of shapes or a shape#####
+#### also shape_ages as input, only getting the maps that are not in the list####
 #' maprich
 #' 
 #' Creates a RasterLayer of taxon richness
@@ -649,12 +766,14 @@ mapocc <- function(shape, data,
 #'                      colland = "#66666660", colsea = "#00509010", col.grid = mycols(100), 
 #'                      do.plot = TRUE, ...)
 #' 
-#' @param shape SpatialPolygonsDataFrame. A map which can be created with getmap.
 #' @param data data.frame. Fossil occurrences data. Can be created with 
 #' getdata(interval, base_name).
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank="genus".
 #' @param res numeric. Defining the spatial resolution. Default res = 1. 
+#' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
+#' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
+#' @param save.as character. Defines the format the plots should be saved. "tiff" or "pdf".
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
@@ -666,7 +785,7 @@ mapocc <- function(shape, data,
 #' @examples 
 #' \dontrun{
 #' 
-#' library(pasta)
+#' library(mapast)
 #' 
 #' #get map
 #' shape <- getmap(interval = "Paleocene", model = "GPlates")
@@ -689,99 +808,159 @@ mapocc <- function(shape, data,
 #'}
 #'
 
-maprich <- function (shape, data, rank = "genus", res = 1, 
+maprich <- function (data, rank = "genus", res = 1, model="SETON2012", save.as="tiff",
                            colland = "#66666660",
                            colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...) {
   #check the users input data
   #check if the lat/lng column is in the data frame
-  if(!.checkLatLng(data)){
-    stop("Column/s paleolat and/or paleolng are missing in the input data.")
-  }
-  if(!.checkRange(data)){
-    stop("Range of Latitude and/or Longitude is not allowed.")
-  }
-  #check if the rank is allowed
-  if(!.checkRank(rank)){
-    stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep = ""))
-  }
-  #check if the columns according to the rank is inside the data frame
-  if(!.checkDataRank(data, rank)){
-    if(rank == "species"){
-      stop(base::paste("There is no column matched_name in the data frame.", sep = ""))
-    }else{
-      stop(base::paste("There is no column ", rank, " in the data frame.", sep = ""))
-    }
-  }
-  #check if the shape is a SpatialPolygonsDataFrame
-  if(!.checkShape(shape)){
-    stop("Shape is not a SpatialPolygonsDataFrame.")
-  }
-  #check if taxon_no is in data frame
-  if(!.checkDataNo(data, rank)){
-    stop(base::paste0("Column ", rank, "_no is missing in the data frame"))
-  }
+  # if(!.checkLatLng(data)){
+  #   stop("Column/s paleolat and/or paleolng are missing in the input data.")
+  # }
+  # if(!.checkRange(data)){
+  #   stop("Range of Latitude and/or Longitude is not allowed.")
+  # }
+  # #check if the rank is allowed
+  # if(!.checkRank(rank)){
+  #   stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep = ""))
+  # }
+  # #check if the columns according to the rank is inside the data frame
+  # if(!.checkDataRank(data, rank)){
+  #   if(rank == "species"){
+  #     stop(base::paste("There is no column matched_name in the data frame.", sep = ""))
+  #   }else{
+  #     stop(base::paste("There is no column ", rank, " in the data frame.", sep = ""))
+  #   }
+  # }
+  # #check if the shape is a SpatialPolygonsDataFrame
+  # if(!.checkShape(shape)){
+  #   stop("Shape is not a SpatialPolygonsDataFrame.")
+  # }
+  # #check if taxon_no is in data frame
+  # if(!.checkDataNo(data, rank)){
+  #   stop(base::paste0("Column ", rank, "_no is missing in the data frame"))
+  # }
+  
+  #count how many maps will be created
+  #print warning
+  num_recon <- length(unique(na.omit(data$recon_age)))
+  print(paste0("You have ", num_recon," reconstruction times (meaning ", num_recon," maps). This is going to take about ",num_recon," minutes."))
+  
   #creating a raster in size of the shape file
   spatialext <- raster::extent(c(-180, 180, -90, 90))
   ras <- raster::raster(spatialext, res = res)
-  #getting the raster of the species richness
-  richraster <- .rank_filter(ras, data, res = res, rank)
-  #default graphical parameters
-  graphparams.def <- base::list(x = shape, col = "white", border = FALSE, col.grid = col.grid
-                                       , xlim = c(-180, 180), ylim = c(-90, 90)
-                                       , xaxs = "i", yaxs = "i")
-  #list of user defined graphical parameter
-  graphparams.user <- base::list(...)
-  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
-  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
-  #if user defines default value different only keep users value
-  for( param in names_graphparams.user){
-    if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == param)] 
+  uage <- unique(data$recon_age)
+  richlist <- c()
+  for(age in 1:length(uage)){
+    curma <- uage[age]
+    
+    subdata <- subset(data, data$recon_age == curma)
+    shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
+    #getting the raster of the species richness
+    richraster <- .rank_filter(ras, subdata, res = res, rank)
+    richlist <- c(richlist, richraster)
+    #default graphical parameters
+    graphparams.def <- base::list(x = shape, col = "white", border = FALSE, col.grid = col.grid
+                                  , xlim = c(-180, 180), ylim = c(-90, 90)
+                                  , xaxs = "i", yaxs = "i")
+    #list of user defined graphical parameter
+    graphparams.user <- base::list(...)
+    names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+    names_graphparams.def <- base::as.vector(base::names(graphparams.def))
+    #if user defines default value different only keep users value
+    for( param in names_graphparams.user){
+      if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == param)] 
+    }
+    #komplete parameter list
+    graphparams <- c(graphparams.def, graphparams.user)
+    #save the color of the grid/raster and remove it from the parameter list (only needed later)
+    gridcol <- graphparams$col.grid
+    graphparams <- graphparams[- base::which(base::names(graphparams) == "col.grid")]
+    if(do.plot){
+      #save current margin values and define it as needed
+      def.mar <- graphics::par("mar")
+      graphics::par(mar = c(1.5, 1.5, 2, 4))
+      if(save.as=="tiff"){
+        tiff(paste0("maprich-",curma,"mya_",model,".tiff"), 
+             height = 10.5, width = 17, units = "cm", res = 300)
+        #plot with the default and user defined graphical parameter
+        base::do.call(raster::plot, graphparams)
+        #add a rectangle as the sea
+        graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
+                       border = FALSE)
+        #add the landmasses to the plot
+        raster::plot(shape, col = colland, border = FALSE, add = T, bty = "L")
+        #add x-axis and x-axis labels
+        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        #add y-axis and y-axis labels
+        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        #get metadata from the shape file
+        
+        #add name, model and age at the top rigt of the plot
+        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        
+        #add the raster without legend
+        raster::plot(richraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
+        #allow to draw outside the plot
+        graphics::par(xpd = TRUE)
+        graphics::par(bty = "n")
+        #add raster legend outside the plot
+        raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
+                     legend.args = list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, col = col.grid[length(col.grid) / 2]))
+        raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[length(col.grid) / 2]))
+        graphics::par(bty = "o")
+        dev.off()
+      }
+      if(save.as=="pdf"){
+        filename <- paste0("maprich-",curma,"mya_",model,".pdf")
+        pdf(filename)
+        #plot with the default and user defined graphical parameter
+        map <- base::do.call(raster::plot, graphparams)
+        #add a rectangle as the sea
+        map <- graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
+                       border = FALSE)
+        #add the landmasses to the plot
+        map <- raster::plot(shape, col = colland, border = FALSE, add = T, bty = "L")
+        #add x-axis and x-axis labels
+        map <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        map <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        #add y-axis and y-axis labels
+        map <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        map <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        #get metadata from the shape file
+        
+        #add name, model and age at the top rigt of the plot
+        map <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+        map <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        
+        #add the raster without legend
+        map <- raster::plot(richraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
+        #allow to draw outside the plot
+        graphics::par(xpd = TRUE)
+        graphics::par(bty = "n")
+        #add raster legend outside the plot
+        map <- raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
+                     legend.args = list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, col = col.grid[length(col.grid) / 2]))
+        map <- raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[length(col.grid) / 2]))
+        graphics::par(bty = "o")
+        print(map)
+        dev.off()
+      }
+      
+      #restore prior margin values
+      graphics::par(mar = def.mar)
+    }
+  
   }
-  #komplete parameter list
-  graphparams <- c(graphparams.def, graphparams.user)
-  #save the color of the grid/raster and remove it from the parameter list (only needed later)
-  gridcol <- graphparams$col.grid
-  graphparams <- graphparams[- base::which(base::names(graphparams) == "col.grid")]
-  if(do.plot){
-    #save current margin values and define it as needed
-    def.mar <- graphics::par("mar")
-    graphics::par(mar = c(1.5, 1.5, 2, 4))
-    #plot with the default and user defined graphical parameter
-    base::do.call(raster::plot, graphparams)
-    #add a rectangle as the sea
-    graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
-                   border = FALSE)
-    #add the landmasses to the plot
-    raster::plot(shape, col = colland, border = FALSE, add = T, bty = "L")
-    #add x-axis and x-axis labels
-    graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    #add y-axis and y-axis labels
-    graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-    graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    #get metadata from the shape file
-    shape.info <- .getShapeInfo(shape)
-    #add name, model and age at the top rigt of the plot
-    graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = shape.info[1], col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-    graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = shape.info[2], col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.5)
-    graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-    #add the raster without legend
-    raster::plot(richraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
-    #allow to draw outside the plot
-    graphics::par(xpd = TRUE)
-    graphics::par(bty = "n")
-    #add raster legend outside the plot
-    raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                  axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
-                  legend.args = list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, col = col.grid[length(col.grid) / 2]))
-    raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                 axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[length(col.grid) / 2]))
-    graphics::par(bty = "o")
-    #restore prior margin values
-    graphics::par(mar = def.mar)
-  }
+  rasterstack <- raster::stack(richlist)
   #return the raster
-  return(richraster)
+  return(rasterstack)
 }
 
 ########spsite###################
@@ -804,7 +983,7 @@ maprich <- function (shape, data, rank = "genus", res = 1,
 #' @examples 
 #' \dontrun{
 #' 
-#' library(pasta)
+#' library(mapast)
 #' 
 #' #get fossil occurrence data
 #' data <- getdata(base_name = "Canis", interval = "Quaternary")
@@ -816,98 +995,112 @@ maprich <- function (shape, data, rank = "genus", res = 1,
 #'}
 
 spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
-  #check users input data
-  #check if lat/lng columns are in the data frame
-  if(!.checkLatLng(data)){
-    stop("Column/s paleolat and/or paleolng are missing in the input data.")
-  }
-  if(!.checkRange(data)){
-    stop("Range of Latitude and/or Longitude is not allowed.")
-  }
-  #check if the chosen rank is allowed
-  if(!.checkRank(rank)){
-    stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep = ""))
-  }
-  #check if the column belonging to the rank is in the data frame
-  if(!.checkDataRank(data,rank)){
-    if(rank == "species"){
-      stop(base::paste("There is no column matched_name in the data frame.", sep = ""))
-    }else{
-      stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
-    }
-  }
+  # #check users input data
+  # #check if lat/lng columns are in the data frame
+  # if(!.checkLatLng(data)){
+  #   stop("Column/s paleolat and/or paleolng are missing in the input data.")
+  # }
+  # if(!.checkRange(data)){
+  #   stop("Range of Latitude and/or Longitude is not allowed.")
+  # }
+  # #check if the chosen rank is allowed
+  # if(!.checkRank(rank)){
+  #   stop(base::paste("Rank: \"", rank, "\" is not a valid rank.", sep = ""))
+  # }
+  # #check if the column belonging to the rank is in the data frame
+  # if(!.checkDataRank(data,rank)){
+  #   if(rank == "species"){
+  #     stop(base::paste("There is no column matched_name in the data frame.", sep = ""))
+  #   }else{
+  #     stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
+  #   }
+  # }
+  
+  #count how many maps will be created
+  #print warning
   
   if(unity == "fossilsite"){
-    #filter data for the rank
-    rankdata <- .rfilter(data, rank)
-    #create a data. frame with all the locations once
-    latlng <- base::data.frame(paleolng = rankdata$paleolng, paleolat = rankdata$paleolat)
-    ulatlng <- base::unique(latlng)
-    #getting list of unique taxa
-    if(rank == "species"){
-      urank <- base::as.vector(base::unique(rankdata[ , "matched_name"]))
-    }else if(rank == "genus"){
-      urank <- base::as.vector(base::unique(rankdata[ , "genus"]))
-    }else if(rank == "family"){
-      urank <- base::as.vector(base::unique(rankdata[ , "family"]))
-    }else if(rank == "order"){
-      urank <- base::as.vector(base::unique(rankdata[ , "order"]))
-    }else if(rank == "class"){
-      urank <- base::as.vector(base::unique(rankdata[ , "class"]))
-    }else if(rank == "phylum"){
-      urank <- base::as.vector(base::unique(rankdata[ , "phylum"]))
-    }
-    #save the unique locations in nsites
-    occ <- ulatlng
-    #fill matrix with default values -1 for each species/genus/.. and each locality
-    def.values <- base::matrix(-1, nrow = base::nrow(occ), ncol = base::length(urank))
-    #add the unique localities to the matrix
-    occ <- base::cbind(occ, def.values)
-    #set lat, lng and species/genus/.. names as column names
-    base::colnames(occ) <- c(base::unlist(base::names(latlng)), urank)
-    #getting the number of occurrences of a species/genus/... for each locality
-    for (curloc in 1:base::nrow(occ)) {
-      #get lat & lng
-      lat_cur <- occ[curloc, "paleolat"]
-      lng_cur <- occ[curloc, "paleolng"]
-      #go through the list with unique species/genera/...
-      for (curtaxon in 1:base::length(urank)) {
-        #get current species/genus/...
-        taxon_cur <- urank[curtaxon]
-        #get all fossil occurrences at current locality
-        curlatlng <- base::subset(rankdata, rankdata$paleolat == lat_cur)
-        curlatlng <- base::subset(curlatlng, curlatlng$paleolng == lng_cur)
-        #select only current species/genus/...
-        if(rank == "species"){
-          cur.taxon <- base::subset(curlatlng, curlatlng[ , "matched_name"] == taxon_cur)
-        }else if(rank == "genus"){
-          cur.taxon <- base::subset(curlatlng, curlatlng[ , "genus"] == taxon_cur)
-        }else if(rank == "family"){
-          cur.taxon <- base::subset(curlatlng, curlatlng[ , "family"] == taxon_cur)
-        }else if(rank == "order"){
-          cur.taxon <- base::subset(curlatlng, curlatlng[ , "order"] == taxon_cur)
-        }else if(rank == "class"){
-          cur.taxon <- base::subset(curlatlng, curlatlng[ , "class"] == taxon_cur)
-        }else if(rank == "phylum"){
-          cur.taxon <- base::subset(curlatlng, curlatlng[ , "phylum"] == taxon_cur)
-        }
-        #count the number of species/geners/.. in this locality and save it in the matrix
-        count<- base::nrow(cur.taxon)
-        occ[curloc, curtaxon + 2] <- count
+    dflist <- c()
+    uage <- unique(data$recon_age)
+    for(age in 1:length(uage)){
+      curma <- uage[age]
+      
+      subdata <- subset(data, data$recon_age == curma)
+      
+      #filter data for the rank
+      rankdata <- .rfilter(data, rank)
+      #create a data. frame with all the locations once
+      latlng <- base::data.frame(paleolng = rankdata$paleolng, paleolat = rankdata$paleolat)
+      ulatlng <- base::unique(latlng)
+      #getting list of unique taxa
+      if(rank == "species"){
+        urank <- base::as.vector(base::unique(rankdata[ , "species"]))
+      }else if(rank == "genus"){
+        urank <- base::as.vector(base::unique(rankdata[ , "genus"]))
+      }else if(rank == "family"){
+        urank <- base::as.vector(base::unique(rankdata[ , "family"]))
+      }else if(rank == "order"){
+        urank <- base::as.vector(base::unique(rankdata[ , "order"]))
+      }else if(rank == "class"){
+        urank <- base::as.vector(base::unique(rankdata[ , "class"]))
+      }else if(rank == "phylum"){
+        urank <- base::as.vector(base::unique(rankdata[ , "phylum"]))
       }
+      #save the unique locations in nsites
+      occ <- ulatlng
+      #fill matrix with default values -1 for each species/genus/.. and each locality
+      def.values <- base::matrix(-1, nrow = base::nrow(occ), ncol = base::length(urank))
+      #add the unique localities to the matrix
+      occ <- base::cbind(occ, def.values)
+      #set lat, lng and species/genus/.. names as column names
+      base::colnames(occ) <- c(base::unlist(base::names(latlng)), urank)
+      #getting the number of occurrences of a species/genus/... for each locality
+      for (curloc in 1:base::nrow(occ)) {
+        #get lat & lng
+        lat_cur <- occ[curloc, "paleolat"]
+        lng_cur <- occ[curloc, "paleolng"]
+        #go through the list with unique species/genera/...
+        for (curtaxon in 1:base::length(urank)) {
+          #get current species/genus/...
+          taxon_cur <- urank[curtaxon]
+          #get all fossil occurrences at current locality
+          curlatlng <- base::subset(rankdata, rankdata$paleolat == lat_cur)
+          curlatlng <- base::subset(curlatlng, curlatlng$paleolng == lng_cur)
+          #select only current species/genus/...
+          if(rank == "species"){
+            cur.taxon <- base::subset(curlatlng, curlatlng[ , "species"] == taxon_cur)
+          }else if(rank == "genus"){
+            cur.taxon <- base::subset(curlatlng, curlatlng[ , "genus"] == taxon_cur)
+          }else if(rank == "family"){
+            cur.taxon <- base::subset(curlatlng, curlatlng[ , "family"] == taxon_cur)
+          }else if(rank == "order"){
+            cur.taxon <- base::subset(curlatlng, curlatlng[ , "order"] == taxon_cur)
+          }else if(rank == "class"){
+            cur.taxon <- base::subset(curlatlng, curlatlng[ , "class"] == taxon_cur)
+          }else if(rank == "phylum"){
+            cur.taxon <- base::subset(curlatlng, curlatlng[ , "phylum"] == taxon_cur)
+          }
+          #count the number of species/geners/.. in this locality and save it in the matrix
+          count<- base::nrow(cur.taxon)
+          occ[curloc, curtaxon + 2] <- count
+        }
+      }
+      if(pa){
+        occnoloc <- occ[ , 3:length(occ)]
+        occnoloc[occnoloc > 0] <- 1
+        occ <- base::cbind(paleolng = occ$paleolng, paleolat = occ$paleolat, occnoloc)
+      }
+      occ <- occ[with(occ, order(paleolng, -paleolat)), ]
+      dflist <- c(dflist, occ)
     }
-    if(pa){
-      occnoloc <- occ[ , 3:length(occ)]
-      occnoloc[occnoloc > 0] <- 1
-      occ <- base::cbind(paleolng = occ$paleolng, paleolat = occ$paleolat, occnoloc)
-    }
-    occ <- occ[with(occ, order(paleolng, -paleolat)), ]
+    
     #return the data.frame
-    return(occ)
+    return(dflist)
   }
+  ######TODO: hier weiter machen!!!!!!!!!!!!!!!!!!!!!!!!!!#####################
   if(unity == "cell"){
     if(rank == "species"){
-      data <- data[which(data$matched_rank == "species"), ]
+      data <- data[which(!is.na(data$species)), ]
     }else if(rank == "genus"){
       data <- data[which(!is.na(data$genus)), ]
     }else if(rank == "order"){
@@ -930,7 +1123,7 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
     rankdata <- .rfilter(data, rank)
     #getting list of unique taxa
     if(rank == "species"){
-      urank <- base::as.vector(base::unique(rankdata[ , "matched_name"]))
+      urank <- base::as.vector(base::unique(rankdata[ , "species"]))
     }else if(rank == "genus"){
       urank <- base::as.vector(base::unique(rankdata[ , "genus"]))
     }else if(rank == "family"){
@@ -1049,7 +1242,7 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #' @examples 
 #' \dontrun{
 #' 
-#' library(pasta)
+#' library(mapast)
 #' 
 #' #get GPlates map
 #' shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
@@ -1085,7 +1278,7 @@ mapdiv <- function(shape, data, unity, rank = "genus", res = 1, fun = mean,
   ras <- raster::raster(spatialext, res = res)
  
   if(unity == "cell"){
-    occ_df_cell <- pasta::spsite(data, unity = unity, res = res, rank = rank)
+    occ_df_cell <- mapast::spsite(data, unity = unity, res = res, rank = rank)
     
     #remove lat and lng from data frame
     drops <- c("paleolat", "paleolng")
@@ -1109,7 +1302,7 @@ mapdiv <- function(shape, data, unity, rank = "genus", res = 1, fun = mean,
     }
     occurrences[occurrences > 0] <- 1
     div.df <- base::data.frame(paleolat = occ_df_cell$paleolat, paleolng = occ_df_cell$paleolng, genus = occurrences)
-    div_cell <- pasta::spsite(div.df, unity = "cell", res = res, rank = "genus")
+    div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
     if(base::length(div_cell) > 3){
       div_cell$`0` <- NULL
     }
@@ -1126,7 +1319,7 @@ mapdiv <- function(shape, data, unity, rank = "genus", res = 1, fun = mean,
   }
   if(unity == "fossilsite"){
 
-    occ_df <- pasta::spsite(data, unity = unity, res = res, rank = rank)
+    occ_df <- mapast::spsite(data, unity = unity, res = res, rank = rank)
 
     drops <- c("paleolat", "paleolng")
     rawocc <- base::data.frame(occ_df[ , !(base::names(occ_df) %in% drops)])
@@ -1153,7 +1346,7 @@ mapdiv <- function(shape, data, unity, rank = "genus", res = 1, fun = mean,
     #set the ones with a fossil occurrence but no diversity to 0
     div.df <-base::cbind(divlatlng, base::rep(1, base::length(divlatlng[ , 1])))
     base::colnames(div.df)[4] <- "genus"
-    div_cell <- pasta::spsite(div.df, unity = "cell", res = res, rank = "genus")
+    div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
     #sort div_cell as r@data@values is sorted
     xyras <- base::data.frame(raster::xyFromCell(divraster, 1:base::length(divraster@data@values)))
     div_cell <- div_cell[base::order(base::match(
@@ -1259,7 +1452,7 @@ mapdiv <- function(shape, data, unity, rank = "genus", res = 1, fun = mean,
 #' @examples 
 #' \dontrun{
 #' 
-#' library(pasta)
+#' library(mapast)
 #' 
 #' #get the map and the fossil data
 #' shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
@@ -1349,7 +1542,7 @@ latdivgrad <- function(shape, data, method, rank = "genus",
     latdiv <- base::data.frame(paleolat = c(base::seq(-90 + (res / 2), 90 - (res / 2), res)), div = richn)
   }
   if(method == "shannon"){
-    rankdata <- pasta::spsite(data, unity = "fossilsite", res = res, rank = rank)
+    rankdata <- mapast::spsite(data, unity = "fossilsite", res = res, rank = rank)
     
     div <- c()
     for(lat in base::seq(-90, 90 - res, res)){
