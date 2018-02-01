@@ -235,7 +235,6 @@ paleocoords <- function(occ, time = "automatic", timevector=NULL, stepsize=10, m
 
   occ <- cbind(occ, paleolng, paleolat)
   num_reconage <- unique(na.omit(occ$recon_age))
-  print(num_reconage)
   if(length(num_reconage)>1){
     ages <- c()
     for(i in 1:length(num_reconage)){
@@ -1020,7 +1019,8 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
   #print warning
   
   if(unity == "fossilsite"){
-    dflist <- c()
+    numdf <- 1
+    dflist <- list()
     uage <- unique(data$recon_age)
     for(age in 1:length(uage)){
       curma <- uage[age]
@@ -1091,121 +1091,129 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
         occ <- base::cbind(paleolng = occ$paleolng, paleolat = occ$paleolat, occnoloc)
       }
       occ <- occ[with(occ, order(paleolng, -paleolat)), ]
-      dflist <- c(dflist, occ)
+      dflist[[numdf]] <- occ
+      numdf <- numdf + 1
     }
     
     #return the data.frame
     return(dflist)
   }
-  ######TODO: hier weiter machen!!!!!!!!!!!!!!!!!!!!!!!!!!#####################
   if(unity == "cell"){
-    if(rank == "species"){
-      data <- data[which(!is.na(data$species)), ]
-    }else if(rank == "genus"){
-      data <- data[which(!is.na(data$genus)), ]
-    }else if(rank == "order"){
-      data <- data[which(!is.na(data$order)), ]
-    }else if(rank == "family"){
-      data <- data[which(!is.na(data$family)), ]
-    }else if(rank == "class"){
-      data <- data[which(!is.na(data$class)), ]
-    }else{
-      data <- data[which(!is.na(data$phylum)), ]
-    }
-    #remove NA columns that don't have the chosen rank
-    if(rank == "species"){
-      rankcol <- "matched_name"
-    }else{
-      rankcol <- rank
-    }
-    data <- data[!is.na(data[[rankcol]]), ]
-    #only getting occurences with a known genus
-    rankdata <- .rfilter(data, rank)
-    #getting list of unique taxa
-    if(rank == "species"){
-      urank <- base::as.vector(base::unique(rankdata[ , "species"]))
-    }else if(rank == "genus"){
-      urank <- base::as.vector(base::unique(rankdata[ , "genus"]))
-    }else if(rank == "family"){
-      urank <- base::as.vector(base::unique(rankdata[ , "family"]))
-    }else if (rank == "order"){
-      urank <- base::as.vector(base::unique(rankdata[ , "order"]))
-    }
-    else if(rank == "class"){
-      urank <- base::as.vector(base::unique(rankdata[ , "class"]))
-    }else{
-      urank <- base::as.vector(base::unique(rankdata[ , "phylum"]))
-    }
-    #define lat/lng sequence using the resolution
-    lat <- base::seq(-90 + (res / 2) , 90 - (res / 2), res)
-    long <- base::seq(-180 + (res / 2), 180 - (res / 2), res)
-    occ <- base::expand.grid (long, lat)
-    base::colnames(occ) <- c ("paleolng", "paleolat")
-    occ <- occ[with(occ, order(paleolng, -paleolat)), ]
-    #fill with default values 0 and add lat, lng and column names
-    def.values <- base::matrix(0, nrow = base::nrow (occ), ncol = base::length(urank))
-    occ <- base::cbind(occ, def.values)
-    base::colnames(occ) <- c ("paleolng", "paleolat", urank)
-    #getting the number of occurrences of a taxa for each locality
-    latbord <- seq(90, -90, -res)
-    for(curocc in 1:length(data$paleolng)){
-      curtaxon <- as.character(data[[rankcol]][curocc])
-      curlat <- data$paleolat[curocc]
-      curlng <- data$paleolng[curocc]
-      if(!(curlat %in% latbord)){
-        if(curlng == 180){
-          if(curlat >= 90 - (res / 2)){
-            row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
-          }else{
-            row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
-          }
-          
-        }else if(curlng == -180){
-          if(curlat >= 90 - (res / 2)){
-            row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res)) * (180 / res)
-          }else{
-            row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
-          }
-          
-        }else{
-          row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res))*(180 / res)
-        }
+    dflist <- list()
+    numdf <- 1
+    uage <- unique(data$recon_age)
+    for(age in 1:length(uage)){
+      curma <- uage[age]
+      
+      subdata <- subset(data, data$recon_age == curma)
+      if(rank == "species"){
+        subdata <- subdata[which(!is.na(subdata$species)), ]
+      }else if(rank == "genus"){
+        subdata <- subdata[which(!is.na(subdata$genus)), ]
+      }else if(rank == "order"){
+        subdata <- subdata[which(!is.na(subdata$order)), ]
+      }else if(rank == "family"){
+        subdata <- subdata[which(!is.na(subdata$family)), ]
+      }else if(rank == "class"){
+        subdata <- subdata[which(!is.na(subdata$class)), ]
       }else{
-        if(curlng == 180){
-          row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res) - 1) * (180 / res)
-        }else if(curlng == -180){
-          if(curlat >= 90 - (res / 2)){
-            row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
-          }else{
-            row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
-          }
-        }else{
-          if(curlat <= -90 + (res / 2)){
-            if(curlng <= -180 + (res / 2)){
-              row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
+        subdata <- subdata[which(!is.na(subdata$phylum)), ]
+      }
+      #remove NA columns that don't have the chosen rank
+      subdata <- subdata[!is.na(subdata[[rank]]), ]
+      #only getting occurences with a known genus
+      rankdata <- .rfilter(subdata, rank)
+      #getting list of unique taxa
+      if(rank == "species"){
+        urank <- base::as.vector(base::unique(rankdata[ , "species"]))
+      }else if(rank == "genus"){
+        urank <- base::as.vector(base::unique(rankdata[ , "genus"]))
+      }else if(rank == "family"){
+        urank <- base::as.vector(base::unique(rankdata[ , "family"]))
+      }else if (rank == "order"){
+        urank <- base::as.vector(base::unique(rankdata[ , "order"]))
+      }
+      else if(rank == "class"){
+        urank <- base::as.vector(base::unique(rankdata[ , "class"]))
+      }else{
+        urank <- base::as.vector(base::unique(rankdata[ , "phylum"]))
+      }
+      #define lat/lng sequence using the resolution
+      lat <- base::seq(-90 + (res / 2) , 90 - (res / 2), res)
+      long <- base::seq(-180 + (res / 2), 180 - (res / 2), res)
+      occ <- base::expand.grid (long, lat)
+      base::colnames(occ) <- c ("paleolng", "paleolat")
+      occ <- occ[with(occ, order(paleolng, -paleolat)), ]
+      #fill with default values 0 and add lat, lng and column names
+      def.values <- base::matrix(0, nrow = base::nrow (occ), ncol = base::length(urank))
+      occ <- base::cbind(occ, def.values)
+      base::colnames(occ) <- c ("paleolng", "paleolat", urank)
+      rankcol <- rank
+      #getting the number of occurrences of a taxa for each locality
+      latbord <- seq(90, -90, -res)
+      for(curocc in 1:length(subdata$paleolng)){
+        curtaxon <- as.character(subdata[[rankcol]][curocc])
+        curlat <- data$paleolat[curocc]
+        curlng <- data$paleolng[curocc]
+        if(!(curlat %in% latbord)){
+          if(curlng == 180){
+            if(curlat >= 90 - (res / 2)){
+              row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+            }else{
+              row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+            }
+            
+          }else if(curlng == -180){
+            if(curlat >= 90 - (res / 2)){
+              row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res)) * (180 / res)
             }else{
               row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
-            } 
-          }else if (curlat >= 90 - (res / 2)){
-            row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res)) * (180 / res)
+            }
+            
           }else{
-            row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res)) * (180 / res)
+            row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res))*(180 / res)
+          }
+        }else{
+          if(curlng == 180){
+            row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+          }else if(curlng == -180){
+            if(curlat >= 90 - (res / 2)){
+              row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+            }else{
+              row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+            }
+          }else{
+            if(curlat <= -90 + (res / 2)){
+              if(curlng <= -180 + (res / 2)){
+                row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
+              }else{
+                row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
+              } 
+            }else if (curlat >= 90 - (res / 2)){
+              row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res)) * (180 / res)
+            }else{
+              row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res)) * (180 / res)
+            }
           }
         }
+        
+        if(row == 0){
+          row <- 1
+        }
+        occ[row, curtaxon] <- (occ[row, curtaxon] + 1)
       }
+      if(pa){
+        occnoloc <- occ[ , 3:base::length(occ)]
+        occnoloc[occnoloc > 0] <- 1
+        occ <- base::cbind(paleolng = occ$paleolng, paleolat = occ$paleolat, occnoloc)
+      }
+      dflist[[numdf]] <- (base::as.data.frame(occ))
+      numdf <- numdf + 1
       
-      if(row == 0){
-        row <- 1
-      }
-      occ[row, curtaxon] <- (occ[row, curtaxon] + 1)
     }
-    if(pa){
-      occnoloc <- occ[ , 3:base::length(occ)]
-      occnoloc[occnoloc > 0] <- 1
-      occ <- base::cbind(paleolng = occ$paleolng, paleolat = occ$paleolat, occnoloc)
-    }
-    #return matrix as data frame
-    return(base::as.data.frame(occ))
+    
+
+    return(dflist)
   }
   
 }
@@ -1213,7 +1221,7 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 
 
 #####################mapdiv####################
-####TODO: go through time bins and calc this for every time bin. Shape can be a list of shapes or a single shape (should be same size as number of bins)####
+####TODO: add Shape which can be a list of shapes or a single shape (should be same size as number of bins)####
 #' mapdiv
 #' 
 #' Calculates the Shannon diversity per cell or locality 
@@ -1266,158 +1274,226 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #' 
 #' }
 
-mapdiv <- function(shape, data, unity, rank = "genus", res = 1, fun = mean,
+mapdiv <- function(data, unity, rank = "genus", res = 1, fun = mean, model="SETON2012",
                    colland = "#66666660", colsea = "#00509010", col.grid = mycols(100), 
-                   do.plot = TRUE, ...) {
+                   do.plot = TRUE, save.as="tiff", ...) {
   #check user input data
-  if(!.checkShape(shape)){
-    stop("Shape is not a SpatialPolygonsDataFrame.")
-  }
+  # if(!.checkShape(shape)){
+  #   stop("Shape is not a SpatialPolygonsDataFrame.")
+  # }
+  
+  
   #creating a raster in size of the shape file
   spatialext <- raster::extent(c(-180, 180, -90, 90))
   ras <- raster::raster(spatialext, res = res)
  
-  if(unity == "cell"){
-    occ_df_cell <- mapast::spsite(data, unity = unity, res = res, rank = rank)
+  uage <- unique(data$recon_age)
+  divlist <- c()
+  for(age in 1:length(uage)){
+    curma <- uage[age]
     
-    #remove lat and lng from data frame
-    drops <- c("paleolat", "paleolng")
-    rawocc <- occ_df_cell[ , !(base::names(occ_df_cell) %in% drops)]
-    rawocc <- base::data.frame(base::rep(0, base::length(occ_df_cell$paleolat)), rawocc)
-    #calculate the diversity and save diversity, lat and lng in new data frame
-    div <- vegan::diversity(rawocc)
-    divlatlng <- base::data.frame(occ_df_cell$paleolat, 
-                                  occ_df_cell$paleolng, div = div)
-    base::colnames(divlatlng) <- c("paleolat", "paleolng", "div")
-    #create a raster with the diversity
-    divraster <- raster::rasterize(divlatlng[ , c("paleolng", "paleolat")], ras, 
-                                   field = divlatlng$div, fun = fun)
-    #declare all cells where diversity=0 as NA (otherwise everything  is colored)
-    divraster[divraster == 0] <- NA
-    #set the ones with a fossil occurrence but no diversity to 0
-    if(base::length(occ_df_cell) > 3){
-      occurrences <- base::rowSums(occ_df_cell[ , 3:base::length(occ_df_cell)])
-    }else{
-      occurrences <- occ_df_cell[ , 3]
-    }
-    occurrences[occurrences > 0] <- 1
-    div.df <- base::data.frame(paleolat = occ_df_cell$paleolat, paleolng = occ_df_cell$paleolng, genus = occurrences)
-    div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
-    if(base::length(div_cell) > 3){
-      div_cell$`0` <- NULL
-    }
-    #sort div_cell as r@data@values is sorted
-    xyras <- base::data.frame(raster::xyFromCell(divraster, 1:base::length(divraster@data@values)))
-    div_cell <- div_cell[base::order(base::match(
-      base::paste(div_cell[ , 1], div_cell[ , 2]),
-      base::paste(xyras[ , 1], xyras[ , 2]))), ]
-    for(i in 1:base::length(div_cell[ , 3])){
-      if(div_cell[i, 3] > 0 && base::is.na(divraster@data@values[i])){
-        divraster@data@values[i] <- 0
-      }
-    }
-  }
-  if(unity == "fossilsite"){
-
-    occ_df <- mapast::spsite(data, unity = unity, res = res, rank = rank)
-
-    drops <- c("paleolat", "paleolng")
-    rawocc <- base::data.frame(occ_df[ , !(base::names(occ_df) %in% drops)])
-    #calculate the diversity from the fossil occurrences
-    div <- c()
-    if(nrow(rawocc > 1)){
-      for(i in 1:nrow(rawocc)){
-        div <- c(div, vegan::diversity(rawocc[i, ]))
-      }
-    }else{
+    subdata <- subset(data, data$recon_age == curma)
+    
+    
+    if(unity == "cell"){
+      # occ_df_cell <- mapast::spsite(subdata, unity = unity, res = res, rank = rank)
+      occ_df_cell <- spsite(subdata, unity = unity, res = res, rank = rank)
+      occ_df_cell <- occ_df_cell[[1]]
+      print(occ_df_cell)
+      #remove lat and lng from data frame
+      # drops <- c("paleolat", "paleolng")
+      # rawocc <- occ_df_cell[ , !(base::names(occ_df_cell) %in% drops)]
+      rawocc <- subset(occ_df_cell, select = -c(paleolng,paleolat) )
+      rawocc <- base::data.frame(base::rep(0, base::length(occ_df_cell$paleolat)), rawocc)
+      #calculate the diversity and save diversity, lat and lng in new data frame
       div <- vegan::diversity(rawocc)
-    }
-    #save paleolat, paleolng and diversity in a data frame and define column names
-    divlatlng <- base::data.frame(occ_df$paleolat, 
-                                  occ_df$paleolng, div = div)
-    base::colnames(divlatlng) <- c("paleolat", "paleolng", "div")
-    
-    #getting the raster of the diversity, using the function as defined in the input parameter
-    divraster<-raster::rasterize(divlatlng[ , c("paleolng", "paleolat")], ras, 
-                                 field = divlatlng$div, fun = fun)
-    
-    #set all values that are 0 to NA (otherwise raster would fill the whole map)
-    divraster[divraster == 0] <- NA
-    #set the ones with a fossil occurrence but no diversity to 0
-    div.df <-base::cbind(divlatlng, base::rep(1, base::length(divlatlng[ , 1])))
-    base::colnames(div.df)[4] <- "genus"
-    div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
-    #sort div_cell as r@data@values is sorted
-    xyras <- base::data.frame(raster::xyFromCell(divraster, 1:base::length(divraster@data@values)))
-    div_cell <- div_cell[base::order(base::match(
-      paste(div_cell[ , 1], div_cell[ , 2]),
-      paste(xyras[ , 1], xyras[ , 2]))), ]
-    for(i in 1:base::length(div_cell[ , 3])){
-      if(div_cell[i, 3] > 0 && base::is.na(divraster@data@values[i])){
-        divraster@data@values[i] <- 0
+      divlatlng <- base::data.frame(occ_df_cell$paleolat, 
+                                    occ_df_cell$paleolng, div = div)
+      base::colnames(divlatlng) <- c("paleolat", "paleolng", "div")
+      #create a raster with the diversity
+      divraster <- raster::rasterize(divlatlng[ , c("paleolng", "paleolat")], ras, 
+                                     field = divlatlng$div, fun = fun)
+      #declare all cells where diversity=0 as NA (otherwise everything  is colored)
+      divraster[divraster == 0] <- NA
+      #set the ones with a fossil occurrence but no diversity to 0
+      if(base::length(occ_df_cell) > 3){
+        occurrences <- base::rowSums(occ_df_cell[ , 3:base::length(occ_df_cell)])
+      }else{
+        occurrences <- occ_df_cell[ , 3]
+      }
+      occurrences[occurrences > 0] <- 1
+      div.df <- base::data.frame(paleolat = occ_df_cell$paleolat, paleolng = occ_df_cell$paleolng, genus = occurrences, recon_age= base::rep(1, base::length(occ_df_cell$paleolng)))
+      # base::colnames(div.df)[5] <- "recon_age"
+      # div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
+      div_cell <- spsite(div.df, unity = "cell", res = res, rank = "genus")
+      div_cell <- div_cell[[1]]
+      if(base::length(div_cell) > 3){
+        div_cell$`0` <- NULL
+      }
+      #sort div_cell as r@data@values is sorted
+      xyras <- base::data.frame(raster::xyFromCell(divraster, 1:base::length(divraster@data@values)))
+      div_cell <- div_cell[base::order(base::match(
+        base::paste(div_cell[ , 1], div_cell[ , 2]),
+        base::paste(xyras[ , 1], xyras[ , 2]))), ]
+      for(i in 1:base::length(div_cell[ , 3])){
+        if(div_cell[i, 3] > 0 && base::is.na(divraster@data@values[i])){
+          divraster@data@values[i] <- 0
+        }
       }
     }
+    if(unity == "fossilsite"){
+      
+      # occ_df <- mapast::spsite(subdata, unity = unity, res = res, rank = rank)
+      occ_df <- spsite(subdata, unity = unity, res = res, rank = rank)
+      occ_df <- occ_df[[1]]
+      # drops <- c("paleolat", "paleolng")
+      # rawocc <- base::data.frame(occ_df[ , !(base::names(occ_df) %in% drops)])
+      rawocc <- subset(occ_df, select = -c(paleolng,paleolat) )
+      #calculate the diversity from the fossil occurrences
+      div <- c()
+      if(nrow(rawocc > 1)){
+        for(i in 1:nrow(rawocc)){
+          div <- c(div, vegan::diversity(rawocc[i, ]))
+        }
+      }else{
+        div <- vegan::diversity(rawocc)
+      }
+      #save paleolat, paleolng and diversity in a data frame and define column names
+      divlatlng <- base::data.frame(occ_df$paleolat, 
+                                    occ_df$paleolng, div = div)
+      base::colnames(divlatlng) <- c("paleolat", "paleolng", "div")
+      #getting the raster of the diversity, using the function as defined in the input parameter
+      divraster<-raster::rasterize(divlatlng[ , c("paleolng", "paleolat")], ras, 
+                                   field = divlatlng$div, fun = fun)
+      #set all values that are 0 to NA (otherwise raster would fill the whole map)
+      divraster[divraster == 0] <- NA
+      #set the ones with a fossil occurrence but no diversity to 0
+      div.df <-base::cbind(divlatlng, base::rep(1, base::length(divlatlng[ , 1])))
+      base::colnames(div.df)[4] <- "genus"
+      div.df <-base::cbind(div.df, base::rep(1, base::length(divlatlng[ , 1])))
+      base::colnames(div.df)[5] <- "recon_age"
+      # div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
+      div_cell <- spsite(div.df, unity = "cell", res = res, rank = "genus")
+      div_cell <- div_cell[[1]]
+      #sort div_cell as r@data@values is sorted
+      xyras <- base::data.frame(raster::xyFromCell(divraster, 1:base::length(divraster@data@values)))
+      div_cell <- div_cell[base::order(base::match(
+        paste(div_cell[ , 1], div_cell[ , 2]),
+        paste(xyras[ , 1], xyras[ , 2]))), ]
+      for(i in 1:base::length(div_cell[ , 3])){
+        if(div_cell[i, 3] > 0 && base::is.na(divraster@data@values[i])){
+          divraster@data@values[i] <- 0
+        }
+      }
+    }
+    
+    shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
+    #default graphical parameter list
+    graphparams.def <- base::list(x = shape, col = "white", border = FALSE
+                                  , xlim = c(-180, 180), ylim = c(-90, 90)
+                                  , xlab = "Longitude", ylab = "Latitude"
+                                  , xaxs = "i", yaxs = "i", col.grid = col.grid)
+    #user defined grapical parameter
+    graphparams.user <- base::list(...)
+    names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+    names_graphparams.def <- base::as.vector(base::names(graphparams.def))
+    #only keep user defined graphical parameters if defined before as default
+    for( i in names_graphparams.user){
+      if(i %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == i)] 
+    }
+    #create default & user graphical parameters list
+    graphparams <- c(graphparams.def, graphparams.user)
+    #save color of the raster and remove it from parameter list
+    gridcol <- graphparams$col.grid
+    graphparams <- graphparams[- base::which(base::names(graphparams) == "col.grid")]
+    #if do.plot is true create a plot
+    if(do.plot){
+      #save current margin settings and define margin as needed
+      def.mar <- graphics::par("mar")
+      graphics::par(mar = c(1.5, 1.5, 2, 4))
+      
+      if(save.as=="tiff"){
+        tiff(paste0("mapdiv-",curma,"mya_",model,".tiff"), 
+             height = 10.5, width = 17, units = "cm", res = 300)
+        
+        #plot with parameter list
+        base::do.call(raster::plot, graphparams)
+        #add a rectangle defining the sea
+        graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
+                       border = FALSE)
+        #add the landmasses
+        raster::plot(shape, col = colland, border = FALSE, add = T)
+        #add x-axis and x-axis labels
+        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        #add y-axis and y-axis labels
+        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        
+        #add name, model, age at the top right of the plot
+        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        #add the raster without legend
+        raster::plot(divraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE)
+        #allow to expand the plot
+        graphics::par(xpd = TRUE)
+        graphics::par(bty = "n")
+        #add legend outside the plot
+        raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), legend.args = list(text = "diversity", line = 1, side = 3, adj = 0.25, cex = 0.6, col = gridcol[length(gridcol) / 2]))
+        raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = gridcol[length(gridcol) / 2]))
+        graphics::par(bty = "o")
+        
+        dev.off()
+      }
+      if(save.as=="pdf"){
+        filename <- paste0("mapdiv-",curma,"mya_",model,".pdf")
+        pdf(filename)
+        
+        map <- base::do.call(raster::plot, graphparams)
+        #add a rectangle defining the sea
+        map <- graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
+                       border = FALSE)
+        #add the landmasses
+        map <- raster::plot(shape, col = colland, border = FALSE, add = T)
+        #add x-axis and x-axis labels
+        map <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        map <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        #add y-axis and y-axis labels
+        map <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        map <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        
+        #add name, model, age at the top right of the plot
+        map <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+        map <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        #add the raster without legend
+        map <- raster::plot(divraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE)
+        #allow to expand the plot
+        graphics::par(xpd = TRUE)
+        graphics::par(bty = "n")
+        #add legend outside the plot
+        map <- raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), legend.args = list(text = "diversity", line = 1, side = 3, adj = 0.25, cex = 0.6, col = gridcol[length(gridcol) / 2]))
+        map <- raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = gridcol[length(gridcol) / 2]))
+        graphics::par(bty = "o")
+        print(map)
+        
+        dev.off()
+        
+      }
+      
+      #restore prior margin settings
+      graphics::par(mar = def.mar)
+    }
+    
+    divlist <- c(divlist, divraster)
+    
   }
-  
-  
-  #default graphical parameter list
-  graphparams.def <- base::list(x = shape, col = "white", border = FALSE
-                                , xlim = c(-180, 180), ylim = c(-90, 90)
-                                , xlab = "Longitude", ylab = "Latitude"
-                                , xaxs = "i", yaxs = "i", col.grid = col.grid)
-  #user defined grapical parameter
-  graphparams.user <- base::list(...)
-  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
-  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
-  #only keep user defined graphical parameters if defined before as default
-  for( i in names_graphparams.user){
-    if(i %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == i)] 
-  }
-  #create default & user graphical parameters list
-  graphparams <- c(graphparams.def, graphparams.user)
-  #save color of the raster and remove it from parameter list
-  gridcol <- graphparams$col.grid
-  graphparams <- graphparams[- base::which(base::names(graphparams) == "col.grid")]
-  #if do.plot is true create a plot
-  if(do.plot){
-    #save current margin settings and define margin as needed
-    def.mar <- graphics::par("mar")
-    graphics::par(mar = c(1.5, 1.5, 2, 4))
-    #plot with parameter list
-    base::do.call(raster::plot, graphparams)
-    #add a rectangle defining the sea
-    graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
-                   border = FALSE)
-    #add the landmasses
-    raster::plot(shape, col = colland, border = FALSE, add = T)
-    #add x-axis and x-axis labels
-    graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    #add y-axis and y-axis labels
-    graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-    graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-    #get metadata from SpatialPolygonsDataFrame
-    shape.info <- .getShapeInfo(shape)
-    #add name, model, age at the top right of the plot
-    graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = shape.info[1], col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-    graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = shape.info[2], col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.5)
-    graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-    #add the raster without legend
-    raster::plot(divraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE)
-    #allow to expand the plot
-    graphics::par(xpd = TRUE)
-    graphics::par(bty = "n")
-    #add legend outside the plot
-    raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                  axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), legend.args = list(text = "diversity", line = 1, side = 3, adj = 0.25, cex = 0.6, col = gridcol[length(gridcol) / 2]))
-    raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                  axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = gridcol[length(gridcol) / 2]))
-    graphics::par(bty = "o")
-    #restore prior margin settings
-    graphics::par(mar = def.mar)
-  }
+  divstack <- raster::stack(divlist)
   #return the raster
-  return(divraster)
+  return(divstack)
 }
 
 
@@ -1476,146 +1552,209 @@ mapdiv <- function(shape, data, unity, rank = "genus", res = 1, fun = mean,
 #'}
 
 
-latdivgrad <- function(shape, data, method, rank = "genus",
-                       res = 1, 
+latdivgrad <- function(data, method, rank = "genus",
+                       res = 1, model="SETON2012",
                        colland = "#66666680", colsea = "#00509010", 
                        colpoints = "#65432190",
-                       rich.col = "#654321", pch = 21, do.plot = TRUE, ...) {
+                       rich.col = "#654321", pch = 21, do.plot = TRUE, save.as="tiff",...) {
   #check the users input data
-  if(!.checkLatLng(data)){
-    stop("Column/s paleolat and/or paleolng are missing in the input data.")
-  }
-  if(!.checkRange(data)){
-    stop("Range of Latitude and/or Longitude is not allowed.")
-  }
-  if(!.checkRank(rank)){
-    stop(base::paste("Rank: \"", rank, "\" is not a valid rank."))
-  }
-  if(!.checkDataRank(data,rank)){
-    if(rank=="species"){
-      stop(base::paste("There is no column matched_name in the data frame.", sep=""))
-    }else{
-      stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
-    }
-  }
-  if(!.checkShape(shape)){
-    stop("Shape is not a SpatialPolygonsDataFrame.")
-  }
-  #define default graphical parameters
-  graphparams.def <- base::list(x = shape, col = "white", border = FALSE
-                                , xlim = c(-180,180), ylim = c(-90,90)
-                                , xaxs = "i", yaxs = "i")
-  #get users input parameters
-  graphparams.user <- base::list(...)
-  names_graphparams.user <- base::as.vector(base::names(graphparams.user))
-  names_graphparams.def <- base::as.vector(base::names(graphparams.def))
-  #if user defines sth. with default value only keep users value
-  for( i in names_graphparams.user){
-    if(i %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == i)] 
-  }
-  #create argument list with default and user values
-  graphparams <- c(graphparams.def, graphparams.user)
-  
-  if(method == "richness"){
-    #filter the data for the taxonomic rank
-    rankdata <-.rfilter(data, rank)
-    #setting min and max value for lat
-    #creating empty richness data frame
-    richn <- NULL
-    #going through lats
-    for(lat in base::seq(-90, 90-res, res)) {
-      if(lat == -90){
-        latocc <- base::subset(rankdata, rankdata$paleolat >= lat)
-        latocc <- base::subset(latocc, latocc$paleolat <= (lat+res))
-        latocc <- base::unique(latocc[ ,3])
-      }else{
-        latocc <- base::subset(rankdata, rankdata$paleolat > lat)
-        latocc <- base::subset(latocc, latocc$paleolat <= (lat + res))
-        latocc <- base::unique(latocc[ ,3])
-      }
-      #count and save the number of different taxa at each latitude
-      richn <- c(richn, base::length(latocc))
-    }
-    #define the magnitude of the richness graph
-    magn <- 140/base::max(richn)
-    #combine min,max lat and richness in a data frame
-    latdiv <- base::data.frame(paleolat = c(base::seq(-90 + (res / 2), 90 - (res / 2), res)), div = richn)
-  }
-  if(method == "shannon"){
-    rankdata <- mapast::spsite(data, unity = "fossilsite", res = res, rank = rank)
+  # if(!.checkLatLng(data)){
+  #   stop("Column/s paleolat and/or paleolng are missing in the input data.")
+  # }
+  # if(!.checkRange(data)){
+  #   stop("Range of Latitude and/or Longitude is not allowed.")
+  # }
+  # if(!.checkRank(rank)){
+  #   stop(base::paste("Rank: \"", rank, "\" is not a valid rank."))
+  # }
+  # if(!.checkDataRank(data,rank)){
+  #   if(rank=="species"){
+  #     stop(base::paste("There is no column matched_name in the data frame.", sep=""))
+  #   }else{
+  #     stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
+  #   }
+  # }
+  # if(!.checkShape(shape)){
+  #   stop("Shape is not a SpatialPolygonsDataFrame.")
+  # }
+  uage <- unique(data$recon_age)
+  latdivlist <- list()
+  numlist <- 1
+  for(age in 1:length(uage)){
+    curma <- uage[age]
     
-    div <- c()
-    for(lat in base::seq(-90, 90 - res, res)){
-      if(lat == -90){
-        latocc <- base::subset(rankdata, rankdata$paleolat >= lat)
-      }else{
-        latocc <- base::subset(rankdata, rankdata$paleolat > lat)
-      }
-      latocc <- base::subset(latocc, latocc$paleolat <= lat + res)
-      drops <- c("paleolat","paleolng")
-      rawocc <- base::data.frame(latocc[, !(base::names(latocc) %in% drops)])
-      sum_occ <- base::colSums(rawocc)
-      div <- c(div , vegan::diversity(sum_occ))
+    subdata <- subset(data, data$recon_age == curma)
+    
+    shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
+    #define default graphical parameters
+    graphparams.def <- base::list(x = shape, col = "white", border = FALSE
+                                  , xlim = c(-180,180), ylim = c(-90,90)
+                                  , xaxs = "i", yaxs = "i")
+    #get users input parameters
+    graphparams.user <- base::list(...)
+    names_graphparams.user <- base::as.vector(base::names(graphparams.user))
+    names_graphparams.def <- base::as.vector(base::names(graphparams.def))
+    #if user defines sth. with default value only keep users value
+    for( i in names_graphparams.user){
+      if(i %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == i)] 
     }
-    #calculate the magnitude by taking the max of the diversity
-    magn <- 140/base::max(div)
-    #create data frame with paleolat and diversity
-    latdiv <- base::data.frame(paleolat = c(base::seq(-90 + (res / 2), 90 - (res / 2), res)), div = div)
-  }
-  
-  #calculate the center of each range
-  centros<- (base::seq(-90, 90 - res, res) + (base::seq(-90, 90 - res, res) + res)) / 2
-  #save the diversity, x and y value for plotting
-  rich<- 180 + (latdiv$div*magn)
-  yrich<- c(180, rich, 180)
-  xrich<- c(-90, centros, 90)
-  #if do.plot is true create a plot
-  if(do.plot){
-    #save current margin settings and define needed margin values 
-    def.mar <- graphics::par("mar")
-    graphics::par(mar = c(1.5,1.5,2,10), xpd = NA)
-    #create a plot with the parameter list
-    do.call(raster::plot, graphparams)
-    #add a rectangle as the sea
-    graphics::rect(xleft = -180, xright = 180, 
-                   ybottom = -90, ytop = 90, col = colsea, 
-                   border = FALSE)
-    #add the landmasses to the plot
-    raster::plot(shape, col = colland, border = FALSE, add = T)
-    #add the fossil occurrences to the plot
-    graphics::points(rankdata$paleolng, rankdata$paleolat, 
-                     pch = pch, col = NA, bg = colpoints)
-    #add x-axis and x-axis labels
-    graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
-    graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
-    #add y-axis and y-axis labels
-    graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-    graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
-    #get metadata from the SpatialPolygonsDataFrame
-    shape.info <- .getShapeInfo(shape)
-    #add name, model and age at the top right of the plot
-    graphics::axis(side = 3, pos = 94, lwd = 0, at = 135, labels = shape.info[1], col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 1)
-    graphics::axis(side = 3, pos = 86, lwd = 0, at = 135, labels = shape.info[2], col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.5)
-    graphics::axis(side = 3, pos = 78, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep=""), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.7)
-    if(!is.nan(base::min(yrich))){
-      #add the richness curve at the right side of the plot
-      graphics::polygon (yrich, xrich, col = rich.col, border = F, xpd = T)
-      #get the parameters for the richness axis
-      ax_seq <- base::seq(base::min(yrich), base::max(yrich), ((base::max(yrich) - base::min(yrich)) / 2))
-      ax_lab <- ax_seq - 180
-      ax_lab <- base::round(ax_lab / magn, 2)
-      #add the richness axes
-      graphics::axis(side = 3, pos = 90, lwd = 1, xpd = TRUE, at = ax_seq, labels = FALSE , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
-      graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
-      graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(length(ax_seq) / 2)], labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)  
+    #create argument list with default and user values
+    graphparams <- c(graphparams.def, graphparams.user)
+    
+    if(method == "richness"){
+      #filter the data for the taxonomic rank
+      rankdata <-.rfilter(subdata, rank)
+      #setting min and max value for lat
+      #creating empty richness data frame
+      richn <- NULL
+      #going through lats
+      for(lat in base::seq(-90, 90-res, res)) {
+        if(lat == -90){
+          latocc <- base::subset(rankdata, rankdata$paleolat >= lat)
+          latocc <- base::subset(latocc, latocc$paleolat <= (lat+res))
+          latocc <- base::unique(latocc[ ,3])
+        }else{
+          latocc <- base::subset(rankdata, rankdata$paleolat > lat)
+          latocc <- base::subset(latocc, latocc$paleolat <= (lat + res))
+          latocc <- base::unique(latocc[ ,3])
+        }
+        #count and save the number of different taxa at each latitude
+        richn <- c(richn, base::length(latocc))
+      }
+      #define the magnitude of the richness graph
+      magn <- 140/base::max(richn)
+      #combine min,max lat and richness in a data frame
+      latdiv <- base::data.frame(paleolat = c(base::seq(-90 + (res / 2), 90 - (res / 2), res)), div = richn)
+    }
+    if(method == "shannon"){
+      # rankdata <- mapast::spsite(data, unity = "fossilsite", res = res, rank = rank)
+      rankdata <- spsite(data, unity = "fossilsite", res = res, rank = rank)
+      rankdata <- rankdata[[1]]
+      div <- c()
+      for(lat in base::seq(-90, 90 - res, res)){
+        if(lat == -90){
+          latocc <- base::subset(rankdata, rankdata$paleolat >= lat)
+        }else{
+          latocc <- base::subset(rankdata, rankdata$paleolat > lat)
+        }
+        latocc <- base::subset(latocc, latocc$paleolat <= lat + res)
+        drops <- c("paleolat","paleolng")
+        rawocc <- base::data.frame(latocc[, !(base::names(latocc) %in% drops)])
+        sum_occ <- base::colSums(rawocc)
+        div <- c(div , vegan::diversity(sum_occ))
+      }
+      #calculate the magnitude by taking the max of the diversity
+      magn <- 140/base::max(div)
+      #create data frame with paleolat and diversity
+      latdiv <- base::data.frame(paleolat = c(base::seq(-90 + (res / 2), 90 - (res / 2), res)), div = div)
     }
     
-    #restore the prior margin settings
-    graphics::par(mar = def.mar)
+    #calculate the center of each range
+    centros<- (base::seq(-90, 90 - res, res) + (base::seq(-90, 90 - res, res) + res)) / 2
+    #save the diversity, x and y value for plotting
+    rich<- 180 + (latdiv$div*magn)
+    yrich<- c(180, rich, 180)
+    xrich<- c(-90, centros, 90)
+    #if do.plot is true create a plot
+    if(do.plot){
+      #save current margin settings and define needed margin values 
+      def.mar <- graphics::par("mar")
+      graphics::par(mar = c(1.5,1.5,2,10), xpd = NA)
+      
+      if(save.as=="tiff"){
+        tiff(paste0("latdivgrad-",curma,"mya_",model,".tiff"), 
+             height = 9, width = 17.5, units = "cm", res = 300)
+        def.mar <- graphics::par("mar")
+        graphics::par(mar = c(1.5,1.5,2,10), xpd = NA)
+        #create a plot with the parameter list
+        do.call(raster::plot, graphparams)
+        #add a rectangle as the sea
+        graphics::rect(xleft = -180, xright = 180, 
+                       ybottom = -90, ytop = 90, col = colsea, 
+                       border = FALSE)
+        #add the landmasses to the plot
+        raster::plot(shape, col = colland, border = FALSE, add = T)
+        #add the fossil occurrences to the plot
+        graphics::points(rankdata$paleolng, rankdata$paleolat, 
+                         pch = pch, col = NA, bg = colpoints)
+        #add x-axis and x-axis labels
+        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
+        #add y-axis and y-axis labels
+        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
+        #add name, model and age at the top right of the plot
+        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        if(!is.nan(base::min(yrich))){
+          #add the richness curve at the right side of the plot
+          graphics::polygon (yrich, xrich, col = rich.col, border = F, xpd = T)
+          #get the parameters for the richness axis
+          ax_seq <- base::seq(base::min(yrich), base::max(yrich), ((base::max(yrich) - base::min(yrich)) / 2))
+          ax_lab <- ax_seq - 180
+          ax_lab <- base::round(ax_lab / magn, 2)
+          #add the richness axes
+          graphics::axis(side = 3, pos = 90, lwd = 1, xpd = TRUE, at = ax_seq, labels = FALSE , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
+          graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
+          graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(length(ax_seq) / 2)], labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)  
+        }
+        dev.off()
+      }
+      if(save.as=="pdf"){
+        filename <- paste0("latdivgrad-",curma,"mya_",model,".pdf")
+        pdf(filename, height = 10, width = 25, paper='special')
+        def.mar <- graphics::par("mar")
+        graphics::par(mar = c(2,0,10,20), xpd = NA)
+        
+        #create a plot with the parameter list
+        map <- do.call(raster::plot, graphparams)
+        #add a rectangle as the sea
+        map <- graphics::rect(xleft = -180, xright = 180, 
+                       ybottom = -90, ytop = 90, col = colsea, 
+                       border = FALSE)
+        #add the landmasses to the plot
+        map <- raster::plot(shape, col = colland, border = FALSE, add = T)
+        #add the fossil occurrences to the plot
+        map <- graphics::points(rankdata$paleolng, rankdata$paleolat, 
+                         pch = pch, col = NA, bg = colpoints)
+        #add x-axis and x-axis labels
+        map <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
+        map <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
+        #add y-axis and y-axis labels
+        map <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        map <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
+        #add name, model and age at the top right of the plot
+        map <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+        map <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        if(!is.nan(base::min(yrich))){
+          #add the richness curve at the right side of the plot
+          map <- graphics::polygon (yrich, xrich, col = rich.col, border = F, xpd = T)
+          #get the parameters for the richness axis
+          map <- ax_seq <- base::seq(base::min(yrich), base::max(yrich), ((base::max(yrich) - base::min(yrich)) / 2))
+          map <- ax_lab <- ax_seq - 180
+          map <- ax_lab <- base::round(ax_lab / magn, 2)
+          #add the richness axes
+          map <- graphics::axis(side = 3, pos = 90, lwd = 1, xpd = TRUE, at = ax_seq, labels = FALSE , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
+          map <- graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
+          map <- graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(length(ax_seq) / 2)], labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)  
+        }
+        print(map)
+        dev.off()
+        
+      }
+      
+      #restore the prior margin settings
+      graphics::par(mar = def.mar)
+    }
+    #return latitudinal richness
+    latdiv <- latdiv[base::length(latdiv$paleolat):1, ]
+    latdivlist[[numlist]] <- latdiv
+    numlist <- numlist + 1
+    
   }
-  #return latitudinal richness
-  latdiv <- latdiv[base::length(latdiv$paleolat):1, ]
-  return(latdiv)
+  
+
+  return(latdivlist)
 }
 
 
