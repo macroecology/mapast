@@ -4,13 +4,11 @@
 \alias{maprich}
 \title{maprich}
 \usage{
-maprich(shape, data, rank = "genus", res = 1, 
-                     colland = "#66666660", colsea = "#00509010", col.grid = mycols(100), 
-                     do.plot = TRUE, ...)
+maprich(data, rank = "genus", res = 1, model="SETON2012", map=NULL, save.as=NULL,
+                    colland = "#66666660",
+                    colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...)
 }
 \arguments{
-\item{shape}{SpatialPolygonsDataFrame. A map which can be created with getmap.}
-
 \item{data}{data.frame. Fossil occurrences data. Can be created with 
 getdata(interval, base_name).}
 
@@ -18,6 +16,13 @@ getdata(interval, base_name).}
 "species", "genus", "family", "order", "class" or "phylum". By default rank="genus".}
 
 \item{res}{numeric. Defining the spatial resolution. Default res = 1.}
+
+\item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
+'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
+
+\item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
+
+\item{save.as}{character. Defines the format the plots should be saved. "tiff" or "pdf".}
 
 \item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
@@ -40,7 +45,7 @@ and makes a plot of the map and richness raster.
 \examples{
 \dontrun{
 
-library(pasta)
+library(mapast)
 
 #get map
 shape <- getmap(interval = "Paleocene", model = "GPlates")
@@ -48,17 +53,6 @@ shape <- getmap(interval = "Paleocene", model = "GPlates")
 data<- getdata(base_name = "Testudines", interval = "Paleocene")
 #calculate the genus richness
 richness<- maprich(shape, data, rank = "genus")
-
-#save plot as pdf file
-pdf("maprich-GPlates_Paleocene-Testudines.pdf")
-maprich(shape, data, rank = "genus")
-dev.off()
-
-#save plot as tiff image
-tiff("maprich-GPlates_Paleocene-Testudines.tiff", 
-      height = 10.5, width = 19, units = "cm", res = 300)
-maprich(shape, data, rank = "genus")
-dev.off()
 
 }
 

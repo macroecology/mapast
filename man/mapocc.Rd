@@ -4,20 +4,26 @@
 \alias{mapocc}
 \title{mapocc}
 \usage{
-mapocc(shape, data, rank = "genus", res = 1,
-                    colland = "#66666660", colsea = "#00509010", col.grid = mycols(100), 
-                    do.plot = TRUE, ...)
+mapocc(data, model="SETON2012",
+                   rank = "genus", map=NULL,
+                   res=1, save.as=NULL,
+                   colland = "#66666660",
+                   colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...)
 }
 \arguments{
-\item{shape}{SpatialPolygonsDataFrame. A map that can be created with getmap.}
+\item{data}{data.frame. Fossil occurrences data.}
 
-\item{data}{data.frame. Fossil occurrences data. Can be created with 
-getdata(interval, base_name).}
+\item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
+'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum".}
 
+\item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
+
 \item{res}{numeric. Defining the spatial resolution. Default res = 1.}
+
+\item{save.as}{character. Defines the format the plots should be saved. "tiff" or "pdf".}
 
 \item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
@@ -40,7 +46,7 @@ occurences by taxonomic rank per cell (a proxy for the sampling effort).
 \examples{
 \dontrun{
 
-library(pasta)
+library(mapast)
 
 #get map
 shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
@@ -49,16 +55,6 @@ data <- getdata(base_name = "Canis", interval = "Quaternary")
 #creasre map with occurrence RasterLayer
 mapocc(shape, data)
 
-#save plot as pdf file
-pdf("mapocc-GPlates_Quaternary-Canis.pdf")
-mapocc(shape, data)
-dev.off()
-
-# save plot as tiff image
-tiff("mapocc-GPlates_Quaternary-Canis.tiff", 
-      height = 10.5, width = 19, units = "cm", res = 300)
-mapocc(shape, data)
-dev.off()
 
 }
 }

@@ -55,7 +55,7 @@ mycols <- colorRampPalette(c("#F5DEB3",
     #save all fossil occurrences where there is a known phylum
     rank.df <- base::subset(data, data$order!="NA")
   }
-  rank.df <- setNames(split(rank.df, seq(nrow(rank.df))), rownames(rank.df))
+  rank.df <- stats::setNames(split(rank.df, seq(nrow(rank.df))), rownames(rank.df))
   rankraster <- base::lapply(rank.df, function(y) {
     #split off paleolat and paleolng
     latlng <- base::split(y, base::paste(y$paleolng, y$paleolat))

@@ -4,16 +4,15 @@
 \alias{latdivgrad}
 \title{latdivgrad}
 \usage{
-latdivgrad (shape, data, method, rank = "genus", res = 1,
-                   colland ="#66666680", colsea = "#00509010", 
-                   colpoints = "#65432190", 
-                   rich.col = "#654321", pch = 21, do.plot = TRUE, ...)
+latdivgrad (data, method, rank = "genus",
+                        res = 1, map = NULL, model = "SETON2012",
+                        colland = "#66666680", colsea = "#00509010", 
+                        colpoints = "#65432190",
+                        rich.col = "#654321", pch = 21, 
+                        do.plot = TRUE, save.as = NULL,...)
 }
 \arguments{
-\item{shape}{SpatialPolygonsDataFrame. A map, which can be created with getmap.}
-
-\item{data}{data.frame. Fossil occurrence data, which can be created with
-getdata(interval, base_name).}
+\item{data}{data.frame. Fossil occurrence data.}
 
 \item{method}{character. Defining the method of diversity measure, method = "shannon" or method = "richness".}
 
@@ -21,6 +20,11 @@ getdata(interval, base_name).}
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".}
 
 \item{res}{numeric. Defining the spatial resolution. Default res = 1.}
+
+\item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
+
+\item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
+'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
 
 \item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
@@ -34,8 +38,12 @@ getdata(interval, base_name).}
 
 \item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
 
+\item{save.as}{character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".}
+
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, 
 such as main = "my own title" or main.col = "red".}
+
+\item{shape}{SpatialPolygonsDataFrame. A map, which can be created with getmap.}
 }
 \value{
 data.frame
@@ -46,7 +54,7 @@ Calculates the latitudinal diversity of taxa (species, genera, families, orders)
 \examples{
 \dontrun{
 
-library(pasta)
+library(mapast)
 
 #get the map and the fossil data
 shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
@@ -56,16 +64,6 @@ shannon <- latdivgrad (shape, data, method = "shannon", rank = "species", res = 
 #calculate the richness
 rich <- latdivgrad (shape, data, method = "richness", rank = "genus", res = 1)
 
-#save plot as pdf file
-pdf("latdivgrad-GPlates_Quaternary-Canis.pdf")
-latdivgrad (shape, data, method = "richness", rank = "genus", res = 1)
-dev.off()
-
-#save plot as tiff image
-tiff("latdivgrad-GPlates_Quaternary-Canis.tiff", 
-      height = 9, width = 17.5, units = "cm", res = 300)
-latdivgrad (shape, data, method = "richness", rank = "genus", res = 1)
-dev.off()
 
 }
 }
