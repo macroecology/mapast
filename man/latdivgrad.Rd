@@ -42,8 +42,6 @@ latdivgrad (data, method, rank = "genus",
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, 
 such as main = "my own title" or main.col = "red".}
-
-\item{shape}{SpatialPolygonsDataFrame. A map, which can be created with getmap.}
 }
 \value{
 data.frame

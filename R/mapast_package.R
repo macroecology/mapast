@@ -32,6 +32,6 @@
 #'\url{http://paleobiodb.org}
 #'
 #' 
-#' @import devtools maptools paleobioDB raster roxygen2 rgdal rjson sp vegan
+#' @import devtools maptools paleobioDB raster roxygen2 rgdal rjson sp stats vegan
 #' 
 NULL

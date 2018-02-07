@@ -5,7 +5,8 @@
 \title{mapdiv}
 \usage{
 mapdiv  (data, unity, rank = "genus", res = 1, map=NULL, fun = mean, model="SETON2012",
-                      colland = "#66666660", colsea = "#00509010", col.grid = mycols(100), 
+                      colland = "#66666660", colsea = "#00509010", 
+                      col.grid = mycols(100), 
                       do.plot = TRUE, save.as=NULL, ...)
 }
 \arguments{

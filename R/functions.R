@@ -36,12 +36,12 @@ formatdata <- function(data, db="pbdb"){
       }
     }
     
-    data <- cbind(data, species, avg_age)
-    data <- data[order(-as.numeric(data$avg_age)), ]
+    data <- base::cbind(data, species, avg_age)
+    data <- data[base::order(-base::as.numeric(data$avg_age)), ]
     
   }
   
-  return(df)
+  return(data)
 }
 
 ################paleocoords##############################
@@ -50,11 +50,12 @@ formatdata <- function(data, db="pbdb"){
 #' 
 #' Descr.
 #'  
-#' @usage paleocoords(data, time = "automatic", timevector=NULL, stepsize=10, model = 'SETON2012')
+#' @usage paleocoords(data, time = "automatic", timevector = NULL, 
+#'                         stepsize = 10, model = 'SETON2012')
 #' 
 #' @param data data.frame. Fossil occurrences data.
 #' @param time character. Defines how the reconstruction time is specified. Can be "automatic", "average" or "timevector". By default time="automatic".
-#' @param timevector. vector. Defining the borders of the time bins. Not allowed to be NULL if time="timevector".
+#' @param timevector vector. Defining the borders of the time bins. Not allowed to be NULL if time="timevector".
 #' @param stepsize numeric. Defining the stepsize of the time bins if time="automatic".
 #' @param model character. Defining the model the map should be created with. 'SETON2012' (default), 
 #' 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.
@@ -102,7 +103,6 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
   
   if(time=="average"){
     uma <- unique(round(data$avg_age))
-
     
     for( i in 1:length(uma)){
       part <- data[round(data$avg_age)==uma[i], ]
@@ -112,7 +112,6 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
       }
       
       pts <- substring(pts, 2)
-
       url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
       paleopts <- rjson::fromJSON(file=url)
       for (k in 1:length(paleopts$coordinates)){
@@ -245,7 +244,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 
 
   data <- cbind(data, paleolng, paleolat)
-  num_reconage <- unique(data.table::na.omit(data$recon_age))
+  num_reconage <- unique(stats::na.omit(data$recon_age))
   if(length(num_reconage)>1){
     ages <- c()
     for(i in 1:length(num_reconage)){
@@ -439,7 +438,7 @@ getmap <- function(ma, model = 'SETON2012', show.plates = FALSE, save.as=NULL, c
         }
         
         if(!is.null(save.as)){
-          dev.off()
+          grDevices::dev.off()
         }
         
       }
@@ -527,7 +526,7 @@ mapast <- function(model="SETON2012", data, map=NULL, do.plot=TRUE, save.as=NULL
   
   #count how many maps will be created
   #print warning
-  num_recon <- length(unique(data.table::na.omit(data$recon_age)))
+  num_recon <- length(unique(stats::na.omit(data$recon_age)))
   print(paste0("You have ", num_recon," reconstruction times (meaning ", num_recon," maps). This is going to take about ",num_recon," minutes."))
   #through revcon_age -> for each one map and the corresponding points#
   #getting the shape file with getmap
@@ -641,7 +640,7 @@ mapast <- function(model="SETON2012", data, map=NULL, do.plot=TRUE, save.as=NULL
         }
           
           if(!is.null(save.as)){
-            dev.off()
+            grDevices::dev.off()
           }
       }
       
@@ -739,7 +738,7 @@ mapocc <- function(data, model="SETON2012",
   
   #count how many maps will be created
   #print warning
-  num_recon <- length(unique(data.table::na.omit(data$recon_age)))
+  num_recon <- length(unique(stats::na.omit(data$recon_age)))
     #through revcon_age -> for each one map and the corresponding points#
   #getting the shape file with getmap
   occraster <- c()
@@ -870,7 +869,7 @@ mapocc <- function(data, model="SETON2012",
       }
         
         if(!is.null(save.as)){
-          dev.off()
+          grDevices::dev.off()
         }
      
       #restore default margin settings
@@ -968,7 +967,7 @@ maprich <- function (data, rank = "genus", res = 1, model="SETON2012", map=NULL,
   
   #count how many maps will be created
   #print warning
-  num_recon <- length(unique(data.table::na.omit(data$recon_age)))
+  num_recon <- length(unique(stats::na.omit(data$recon_age)))
   #through revcon_age -> for each one map and the corresponding points#
   #getting the shape file with getmap
   uage <- unique(data$recon_age)
@@ -1106,7 +1105,7 @@ maprich <- function (data, rank = "genus", res = 1, model="SETON2012", map=NULL,
       }
       
       if(!is.null(save.as)){
-        dev.off()
+        grDevices::dev.off()
       }
       
       #restore prior margin values
@@ -1384,7 +1383,8 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #' whithin the cell) and creates a plot of the map with a RasterLayer of the diversity.
 #' 
 #' @usage mapdiv  (data, unity, rank = "genus", res = 1, map=NULL, fun = mean, model="SETON2012",
-#'                       colland = "#66666660", colsea = "#00509010", col.grid = mycols(100), 
+#'                       colland = "#66666660", colsea = "#00509010", 
+#'                       col.grid = mycols(100), 
 #'                       do.plot = TRUE, save.as=NULL, ...)
 #' 
 #' @param data data.frame. Fossil occurrences data.
@@ -1422,7 +1422,8 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #' }
 
 mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, model="SETON2012",
-                   colland = "#66666660", colsea = "#00509010", col.grid = mycols(100), 
+                   colland = "#66666660", colsea = "#00509010", 
+                   col.grid = mycols(100), 
                    do.plot = TRUE, save.as=NULL, ...) {
   #check user input data
   # if(!.checkShape(shape)){
@@ -1440,7 +1441,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
   
   #count how many maps will be created
   #print warning
-  num_recon <- length(unique(data.table::na.omit(data$recon_age)))
+  num_recon <- length(unique(stats::na.omit(data$recon_age)))
   #through revcon_age -> for each one map and the corresponding points#
   #getting the shape file with getmap
   uage <- unique(data$recon_age)
@@ -1473,7 +1474,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
       #remove lat and lng from data frame
       # drops <- c("paleolat", "paleolng")
       # rawocc <- occ_df_cell[ , !(base::names(occ_df_cell) %in% drops)]
-      rawocc <- subset(occ_df_cell, select = -c(paleolng,paleolat) )
+      rawocc <- subset(occ_df_cell, select = -c("paleolng","paleolat"))
       rawocc <- base::data.frame(base::rep(0, base::length(occ_df_cell$paleolat)), rawocc)
       #calculate the diversity and save diversity, lat and lng in new data frame
       div <- vegan::diversity(rawocc)
@@ -1518,7 +1519,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
       occ_df <- occ_df[[1]]
       # drops <- c("paleolat", "paleolng")
       # rawocc <- base::data.frame(occ_df[ , !(base::names(occ_df) %in% drops)])
-      rawocc <- subset(occ_df, select = -c(paleolng,paleolat) )
+      rawocc <- subset(occ_df, select = -c("paleolng","paleolat"))
       #calculate the diversity from the fossil occurrences
       div <- c()
       if(nrow(rawocc > 1)){
@@ -1665,7 +1666,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
         
       }
         if(!is.null(save.as)){
-          dev.off()
+          grDevices::dev.off()
         }
       #restore prior margin settings
       graphics::par(mar = def.mar)
@@ -1692,7 +1693,6 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
 #'                         rich.col = "#654321", pch = 21, 
 #'                         do.plot = TRUE, save.as = NULL,...)
 #' 
-#' @param shape SpatialPolygonsDataFrame. A map, which can be created with getmap.
 #' @param data data.frame. Fossil occurrence data.
 #' @param method character. Defining the method of diversity measure, method = "shannon" or method = "richness".
 #' @param rank character. Defining the taxonomic rank of interest. 
@@ -1765,7 +1765,7 @@ latdivgrad <- function(data, method, rank = "genus",
   
   #count how many maps will be created
   #print warning
-  num_recon <- length(unique(data.table::na.omit(data$recon_age)))
+  num_recon <- length(unique(stats::na.omit(data$recon_age)))
   #through revcon_age -> for each one map and the corresponding points#
   #getting the shape file with getmap
   uage <- unique(data$recon_age)
@@ -1956,7 +1956,7 @@ latdivgrad <- function(data, method, rank = "genus",
       }
         
         if(!is.null(save.as)){
-          dev.off()
+          grDevices::dev.off()
         }
         
       #restore the prior margin settings

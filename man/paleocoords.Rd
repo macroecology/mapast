@@ -4,19 +4,20 @@
 \alias{paleocoords}
 \title{paleocoords}
 \usage{
-paleocoords(data, time = "automatic", timevector=NULL, stepsize=10, model = 'SETON2012')
+paleocoords(data, time = "automatic", timevector = NULL, 
+                        stepsize = 10, model = 'SETON2012')
 }
 \arguments{
 \item{data}{data.frame. Fossil occurrences data.}
 
 \item{time}{character. Defines how the reconstruction time is specified. Can be "automatic", "average" or "timevector". By default time="automatic".}
 
+\item{timevector}{vector. Defining the borders of the time bins. Not allowed to be NULL if time="timevector".}
+
 \item{stepsize}{numeric. Defining the stepsize of the time bins if time="automatic".}
 
 \item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
-
-\item{timevector.}{vector. Defining the borders of the time bins. Not allowed to be NULL if time="timevector".}
 }
 \value{
 data.frame
