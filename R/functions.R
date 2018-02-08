@@ -332,7 +332,7 @@ getmap <- function(ma, model = 'SETON2012', show.plates = FALSE, save.as=NULL, c
           rgdal::readOGR(plateurl, verbose = FALSE)
         }, error = function(e){
           errplate <- TRUE
-          message(paste0("No Plate Boundaries available for ", ma[ages], " mya in ", model, "model. Please check the spelling, the age and the model you choose."))
+          message(paste0("No Plate Boundaries available for ", ma[ages], " mya in ", model, " model. Please check the spelling, the age and the model you choose."))
           stop()
         }
       )
@@ -519,29 +519,48 @@ mapast <- function(model="SETON2012", data, map=NULL, do.plot=TRUE, save.as=NULL
   #get ages of maps
   mapages <-c()
   if(!is.null(map)){
-    for(i in 1:length(map)){
-      mapages <- c(mapages, map[[i]]@data$age[1])
+    if(class(map)=="list"){
+      for(i in 1:length(map)){
+        mapages <- c(mapages, map[[i]]@data$age[1])
+      }
+    }else{
+      mapages <- c(map@data$age[1])
     }
+    
   }
   
   #count how many maps will be created
   #print warning
   num_recon <- length(unique(stats::na.omit(data$recon_age)))
-  print(paste0("You have ", num_recon," reconstruction times (meaning ", num_recon," maps). This is going to take about ",num_recon," minutes."))
+  # print(paste0("You have ", num_recon," reconstruction times (meaning ", num_recon," maps). This is going to take about ",num_recon," minutes."))
   #through revcon_age -> for each one map and the corresponding points#
   #getting the shape file with getmap
   uage <- unique(data$recon_age)
-  for(age in 1:length(uage)){
+  toload <- 0
+  for(a in 1:length(uage)){
+    if(!uage[a] %in% mapages){
+      toload <- toload+1
+    }
+  }
+  print(paste0("You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+  
+  
+   for(age in 1:length(uage)){
     curma <- uage[age]
     
     subdata <- subset(data, data$recon_age == curma)
     
     if(curma %in% mapages){
-      shape <- map[[match(curma, mapages)]]
+      
+      if(class(map)=="list"){
+        shape <- map[[match(curma, mapages)]]
+      }else{
+        shape <- map
+      }
+      
     }else{
       shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
     }
-   
     #default parameter list for plotting
     graphparams.def <- base::list(x = shape, col = "white", border = FALSE
                                   , xlim = c(-180, 180), ylim = c(-90, 90)
@@ -556,6 +575,8 @@ mapast <- function(model="SETON2012", data, map=NULL, do.plot=TRUE, save.as=NULL
     }
     #create graphparams with default and user parameter for plotting
     graphparams <- c(graphparams.def, graphparams.user)
+    
+    
     #save old mar settings and define plotting margins as we need
     def.mar <- graphics::par("mar")
     graphics::par(mar = c(1.5, 1.5, 2, 1.5))
@@ -636,22 +657,18 @@ mapast <- function(model="SETON2012", data, map=NULL, do.plot=TRUE, save.as=NULL
                            pch = pch, col = colpoints, 
                            cex = cex)
           print(map)
-          
         }
           
           if(!is.null(save.as)){
             grDevices::dev.off()
           }
+          
       }
-      
-
-
       #restore the old margin values
       graphics::par(mar = def.mar)
 
-      
-
     }
+   
   }
 }
 
@@ -731,8 +748,12 @@ mapocc <- function(data, model="SETON2012",
   #get ages of maps
   mapages <-c()
   if(!is.null(map)){
-    for(i in 1:length(map)){
-      mapages <- c(mapages, map[[i]]@data$age[1])
+    if(class(map)=="list"){
+      for(i in 1:length(map)){
+        mapages <- c(mapages, map[[i]]@data$age[1])
+      }
+    }else{
+      mapages <- c(map@data$age[1])
     }
   }
   
@@ -765,7 +786,11 @@ mapocc <- function(data, model="SETON2012",
     occraster <- c(occraster, curoccraster)
     
     if(curma %in% mapages){
-      shape <- map[[match(curma, mapages)]]
+      if(class(map)=="list"){
+        shape <- map[[match(curma, mapages)]]
+      }else{
+        shape <- map
+      }
     }else{
       shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
     }
@@ -960,8 +985,12 @@ maprich <- function (data, rank = "genus", res = 1, model="SETON2012", map=NULL,
   #get ages of maps
   mapages <-c()
   if(!is.null(map)){
-    for(i in 1:length(map)){
-      mapages <- c(mapages, map[[i]]@data$age[1])
+    if(class(map)=="list"){
+      for(i in 1:length(map)){
+        mapages <- c(mapages, map[[i]]@data$age[1])
+      }
+    }else{
+      mapages <- c(map@data$age[1])
     }
   }
   
@@ -991,7 +1020,11 @@ maprich <- function (data, rank = "genus", res = 1, model="SETON2012", map=NULL,
     
     
     if(curma %in% mapages){
-      shape <- map[[match(curma, mapages)]]
+      if(class(map)=="list"){
+        shape <- map[[match(curma, mapages)]]
+      }else{
+        shape <- map
+      }
     }else{
       shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
     }
@@ -1434,8 +1467,12 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
   #get ages of maps
   mapages <-c()
   if(!is.null(map)){
-    for(i in 1:length(map)){
-      mapages <- c(mapages, map[[i]]@data$age[1])
+    if(class(map)=="list"){
+      for(i in 1:length(map)){
+        mapages <- c(mapages, map[[i]]@data$age[1])
+      }
+    }else{
+      mapages <- c(map@data$age[1])
     }
   }
   
@@ -1470,7 +1507,6 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
       # occ_df_cell <- mapast::spsite(subdata, unity = unity, res = res, rank = rank)
       occ_df_cell <- spsite(subdata, unity = unity, res = res, rank = rank)
       occ_df_cell <- occ_df_cell[[1]]
-      print(occ_df_cell)
       #remove lat and lng from data frame
       # drops <- c("paleolat", "paleolng")
       # rawocc <- occ_df_cell[ , !(base::names(occ_df_cell) %in% drops)]
@@ -1559,7 +1595,11 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
     }
     
     if(curma %in% mapages){
-      shape <- map[[match(curma, mapages)]]
+      if(class(map)=="list"){
+        shape <- map[[match(curma, mapages)]]
+      }else{
+        shape <- map
+      }
     }else{
       shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
     }
@@ -1758,8 +1798,12 @@ latdivgrad <- function(data, method, rank = "genus",
   #get ages of maps
   mapages <-c()
   if(!is.null(map)){
-    for(i in 1:length(map)){
-      mapages <- c(mapages, map[[i]]@data$age[1])
+    if(class(map)=="list"){
+      for(i in 1:length(map)){
+        mapages <- c(mapages, map[[i]]@data$age[1])
+      }
+    }else{
+      mapages <- c(map@data$age[1])
     }
   }
   
@@ -1785,7 +1829,11 @@ latdivgrad <- function(data, method, rank = "genus",
     subdata <- subset(data, data$recon_age == curma)
     
     if(curma %in% mapages){
-      shape <- map[[match(curma, mapages)]]
+      if(class(map)=="list"){
+        shape <- map[[match(curma, mapages)]]
+      }else{
+        shape <- map
+      }
     }else{
       shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
     }
