@@ -632,31 +632,31 @@ mapast <- function(model="SETON2012", data, map=NULL, do.plot=TRUE, save.as=NULL
           grDevices::pdf(filename)
           #plot with the parameter list which includes users graphical parameter
           #defines size and axes of the plot
-          map <- base::do.call(sp::plot, graphparams)
+          plotmap <- base::do.call(sp::plot, graphparams)
           #draw the rectangle showing the sea
-          map <- graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
+          plotmap <- graphics::rect(xleft = -180, xright = 180, ybottom = -90, 
                          ytop = 90, col = colsea, 
                          border = FALSE)
           #plot the landmasses on the sea
-          map <- sp::plot(shape, col = colland, border = FALSE, add = TRUE)
+          plotmap <- sp::plot(shape, col = colland, border = FALSE, add = TRUE)
           # add x-axis and x-axis labels
-          map <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-          map <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
           # add y-axis and y-axis labels
-          map <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-          map <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+          plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
           #get metadata from the SpatialPolygonDataFrame
           # shape.info <- .getShapeInfo(shape)
           #add name, model and age at the top right of the plot
-          map <- graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-          map <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = paste0(curma, " mya"), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+          plotmap <- graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+          plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = paste0(curma, " mya"), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
           # graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
           #add the fossil occurrences to the plot
-          map <-graphics::points(subdata$paleolng, 
+          plotmap <-graphics::points(subdata$paleolng, 
                            subdata$paleolat, 
                            pch = pch, col = colpoints, 
                            cex = cex)
-          print(map)
+          print(plotmap)
         }
           
           if(!is.null(save.as)){
@@ -1104,43 +1104,42 @@ maprich <- function (data, rank = "genus", res = 1, model="SETON2012", map=NULL,
         filename <- paste0("maprich-",curma,"mya_",model,".pdf")
         grDevices::pdf(filename)
         #plot with the default and user defined graphical parameter
-        map <- base::do.call(raster::plot, graphparams)
+        plotmap <- base::do.call(raster::plot, graphparams)
         #add a rectangle as the sea
-        map <- graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
+        plotmap <- graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
                        border = FALSE)
         #add the landmasses to the plot
-        map <- raster::plot(shape, col = colland, border = FALSE, add = T, bty = "L")
+        plotmap <- raster::plot(shape, col = colland, border = FALSE, add = T, bty = "L")
         #add x-axis and x-axis labels
-        map <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-        map <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
         #add y-axis and y-axis labels
-        map <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-        map <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
         #get metadata from the shape file
         
         #add name, model and age at the top rigt of the plot
-        map <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-        map <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+        plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
         
         #add the raster without legend
-        map <- raster::plot(richraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
+        plotmap <- raster::plot(richraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
         #allow to draw outside the plot
         graphics::par(xpd = TRUE)
         graphics::par(bty = "n")
         #add raster legend outside the plot
-        map <- raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+        plotmap <- raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
                      axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
                      legend.args = list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, col = col.grid[length(col.grid) / 2]))
-        map <- raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+        plotmap <- raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
                      axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[length(col.grid) / 2]))
         graphics::par(bty = "o")
-        print(map)
+        print(plotmap)
       }
       
       if(!is.null(save.as)){
         grDevices::dev.off()
       }
-      
       #restore prior margin values
       graphics::par(mar = def.mar)
     }
@@ -1274,11 +1273,13 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
         }
       }
       if(pa){
-        occnoloc <- occ[ , 3:length(occ)]
+        cnames <- colnames(occ)
+        occnoloc <- occ[ , 3:base::length(occ)]
         occnoloc[occnoloc > 0] <- 1
         occ <- base::cbind(paleolng = occ$paleolng, paleolat = occ$paleolat, occnoloc)
+        colnames(occ) <- cnames
       }
-      occ <- occ[with(occ, order(paleolng, -paleolat)), ]
+      # occ <- occ[with(occ, order(paleolng, -paleolat)), ]
       dflist[[numdf]] <- occ
       numdf <- numdf + 1
     }
@@ -1391,9 +1392,11 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
         occ[row, curtaxon] <- (occ[row, curtaxon] + 1)
       }
       if(pa){
+        cnames <- colnames(occ)
         occnoloc <- occ[ , 3:base::length(occ)]
         occnoloc[occnoloc > 0] <- 1
         occ <- base::cbind(paleolng = occ$paleolng, paleolat = occ$paleolat, occnoloc)
+        colnames(occ) <- cnames
       }
       dflist[[numdf]] <- (base::as.data.frame(occ))
       numdf <- numdf + 1
@@ -1508,9 +1511,9 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
       occ_df_cell <- spsite(subdata, unity = unity, res = res, rank = rank)
       occ_df_cell <- occ_df_cell[[1]]
       #remove lat and lng from data frame
-      # drops <- c("paleolat", "paleolng")
-      # rawocc <- occ_df_cell[ , !(base::names(occ_df_cell) %in% drops)]
-      rawocc <- subset(occ_df_cell, select = -c("paleolng","paleolat"))
+      drops <- c("paleolat", "paleolng")
+      rawocc <- occ_df_cell[ , !(base::names(occ_df_cell) %in% drops)]
+      # rawocc <- subset(occ_df_cell, select = -c(paleolng,paleolat))
       rawocc <- base::data.frame(base::rep(0, base::length(occ_df_cell$paleolat)), rawocc)
       #calculate the diversity and save diversity, lat and lng in new data frame
       div <- vegan::diversity(rawocc)
@@ -1553,9 +1556,9 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
       # occ_df <- mapast::spsite(subdata, unity = unity, res = res, rank = rank)
       occ_df <- spsite(subdata, unity = unity, res = res, rank = rank)
       occ_df <- occ_df[[1]]
-      # drops <- c("paleolat", "paleolng")
-      # rawocc <- base::data.frame(occ_df[ , !(base::names(occ_df) %in% drops)])
-      rawocc <- subset(occ_df, select = -c("paleolng","paleolat"))
+      drops <- c("paleolat", "paleolng")
+      rawocc <- base::data.frame(occ_df[ , !(base::names(occ_df) %in% drops)])
+      # rawocc <- subset(occ_df, select = -c(paleolng,paleolat))
       #calculate the diversity from the fossil occurrences
       div <- c()
       if(nrow(rawocc > 1)){
@@ -1606,7 +1609,6 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
     #default graphical parameter list
     graphparams.def <- base::list(x = shape, col = "white", border = FALSE
                                   , xlim = c(-180, 180), ylim = c(-90, 90)
-                                  , xlab = "Longitude", ylab = "Latitude"
                                   , xaxs = "i", yaxs = "i", col.grid = col.grid)
     #user defined grapical parameter
     graphparams.user <- base::list(...)
@@ -1625,22 +1627,24 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
     if(do.plot){
       #save current margin settings and define margin as needed
       def.mar <- graphics::par("mar")
-      graphics::par(mar = c(1.5, 1.5, 2, 4))
+
       
       if(!is.null(save.as)){
         if(save.as=="tiff"){
           grDevices::tiff(paste0("mapdiv-",curma,"mya_",model,".tiff"), 
-               height = 10.5, width = 17, units = "cm", res = 300)
+               height = 9.5, width = 17.5, units = "cm", res = 300)
         }
         if(save.as=="jpeg"){
           grDevices::jpeg(paste0("mapdiv-",curma,"mya_",model,".jpeg"), 
-               height = 10.5, width = 17, units = "cm", res = 300)
+               height = 9.5, width = 17.5, units = "cm", res = 300)
         }
         if(save.as=="png"){
           grDevices::png(paste0("mapdiv-",curma,"mya_",model,".png"), 
-               height = 10.5, width = 17, units = "cm", res = 300)
+               height = 9.5, width = 17.5, units = "cm", res = 300)
         }
       }
+      
+      graphics::par(mar = c(1.5, 1.5, 2, 5))
         #plot with parameter list
         base::do.call(raster::plot, graphparams)
         #add a rectangle defining the sea
@@ -1664,6 +1668,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
         graphics::par(xpd = TRUE)
         graphics::par(bty = "n")
         #add legend outside the plot
+        # divraster.range <- c(min(na.omit(divraster@data@values)), max(na.omit(divraster@data@values)))
         raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
                      axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), legend.args = list(text = "diversity", line = 1, side = 3, adj = 0.25, cex = 0.6, col = gridcol[length(gridcol) / 2]))
         raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
@@ -1672,36 +1677,37 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
 
       if(!is.null(save.as) && save.as=="pdf"){
         filename <- paste0("mapdiv-",curma,"mya_",model,".pdf")
-        grDevices::pdf(filename)
+        grDevices::pdf(filename, width= 8.385417, height = 4.291667, pagecentre=F)
+        graphics::par(mar = c(3,0,3,7), xpd = NA)
         
-        map <- base::do.call(raster::plot, graphparams)
+        plotmap <- base::do.call(raster::plot, graphparams)
         #add a rectangle defining the sea
-        map <- graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
+        plotmap <- graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
                        border = FALSE)
         #add the landmasses
-        map <- raster::plot(shape, col = colland, border = FALSE, add = T)
+        plotmap <- raster::plot(shape, col = colland, border = FALSE, add = T)
         #add x-axis and x-axis labels
-        map <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-        map <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
         #add y-axis and y-axis labels
-        map <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-        map <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
         
         #add name, model, age at the top right of the plot
-        map <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-        map <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+        plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
         #add the raster without legend
-        map <- raster::plot(divraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE)
+        plotmap <- raster::plot(divraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE)
         #allow to expand the plot
         graphics::par(xpd = TRUE)
         graphics::par(bty = "n")
         #add legend outside the plot
-        map <- raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+        plotmap <- raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
                      axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), legend.args = list(text = "diversity", line = 1, side = 3, adj = 0.25, cex = 0.6, col = gridcol[length(gridcol) / 2]))
-        map <- raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+        plotmap <- raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
                      axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = gridcol[length(gridcol) / 2]))
         graphics::par(bty = "o")
-        print(map)
+        print(plotmap)
         
         
       }
@@ -1825,6 +1831,7 @@ latdivgrad <- function(data, method, rank = "genus",
   numlist <- 1
   for(age in 1:length(uage)){
     curma <- uage[age]
+
     
     subdata <- subset(data, data$recon_age == curma)
     
@@ -1837,6 +1844,7 @@ latdivgrad <- function(data, method, rank = "genus",
     }else{
       shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
     }
+
     #define default graphical parameters
     graphparams.def <- base::list(x = shape, col = "white", border = FALSE
                                   , xlim = c(-180,180), ylim = c(-90,90)
@@ -1906,28 +1914,32 @@ latdivgrad <- function(data, method, rank = "genus",
     rich<- 180 + (latdiv$div*magn)
     yrich<- c(180, rich, 180)
     xrich<- c(-90, centros, 90)
+    
+    def.mar <- graphics::par("mar")
     #if do.plot is true create a plot
     if(do.plot){
       #save current margin settings and define needed margin values 
-      def.mar <- graphics::par("mar")
-      graphics::par(mar = c(1.5,1.5,2,10), xpd = NA)
+
+      # graphics::par(mar = c(1.5,1.5,2,10), xpd = NA)
       
       if(!is.null(save.as)){
         if(save.as=="tiff"){
           grDevices::tiff(paste0("latdivgrad-",curma,"mya_",model,".tiff"), 
-               height = 10.5, width = 17, units = "cm", res = 300)
+               height = 8.5, width = 17, units = "cm", res = 300)
         }
         if(save.as=="jpeg"){
           grDevices::jpeg(paste0("latdivgrad-",curma,"mya_",model,".jpeg"), 
-               height = 10.5, width = 17, units = "cm", res = 300)
+               height = 8.5, width = 17, units = "cm", res = 300)
         }
         if(save.as=="png"){
           grDevices::png(paste0("latdivgrad-",curma,"mya_",model,".png"), 
-               height = 10.5, width = 17, units = "cm", res = 300)
+               height = 8.5, width = 17, units = "cm", res = 300)
         }
       }
-        def.mar <- graphics::par("mar")
-        graphics::par(mar = c(1.5,1.5,2,10), xpd = NA)
+      
+        # def.mar <- graphics::par("mar")
+        # graphics::par(mar = c(1.5,1.5,2,10), xpd = NA)
+      graphics::par(mar = c(2,2,3,11), xpd = NA)
         #create a plot with the parameter list
         do.call(raster::plot, graphparams)
         #add a rectangle as the sea
@@ -1960,56 +1972,59 @@ latdivgrad <- function(data, method, rank = "genus",
           graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
           graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(length(ax_seq) / 2)], labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)  
         }
+    
+        if(!is.null(save.as) && save.as=="pdf"){
+          # def.mar <- graphics::par("mar")
 
-      if(!is.null(save.as) && save.as=="pdf"){
-        filename <- paste0("latdivgrad-",curma,"mya_",model,".pdf")
-        grDevices::pdf(filename, height = 10, width = 25, paper='special')
-        def.mar <- graphics::par("mar")
-        graphics::par(mar = c(2,0,10,20), xpd = NA)
-        
-        #create a plot with the parameter list
-        map <- do.call(raster::plot, graphparams)
-        #add a rectangle as the sea
-        map <- graphics::rect(xleft = -180, xright = 180, 
-                       ybottom = -90, ytop = 90, col = colsea, 
+          filename <- paste0("latdivgrad-",curma,"mya_",model,".pdf")
+          grDevices::pdf(filename, width= 9.385417, height = 4.291667, pagecentre=F)
+          graphics::par(mar = c(3,0,3,11), xpd = NA)
+          # graphics::par(mar = c(2,0,10,20), xpd = NA)
+          #create a plot with the parameter list
+          plotmap <- do.call(raster::plot, graphparams)
+          #add a rectangle as the sea
+          plotmap <- graphics::rect(xleft = -180, xright = 180,
+                       ybottom = -90, ytop = 90, col = colsea,
                        border = FALSE)
-        #add the landmasses to the plot
-        map <- raster::plot(shape, col = colland, border = FALSE, add = T)
-        #add the fossil occurrences to the plot
-        map <- graphics::points(rankdata$paleolng, rankdata$paleolat, 
+          #add the landmasses to the plot
+          plotmap <- raster::plot(shape, col = colland, border = FALSE, add = T)
+          #add the fossil occurrences to the plot
+          plotmap <- graphics::points(rankdata$paleolng, rankdata$paleolat, 
                          pch = pch, col = NA, bg = colpoints)
-        #add x-axis and x-axis labels
-        map <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
-        map <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
-        #add y-axis and y-axis labels
-        map <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-        map <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
-        #add name, model and age at the top right of the plot
-        map <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-        map <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-        if(!is.nan(base::min(yrich))){
-          #add the richness curve at the right side of the plot
-          map <- graphics::polygon (yrich, xrich, col = rich.col, border = F, xpd = T)
-          #get the parameters for the richness axis
-          map <- ax_seq <- base::seq(base::min(yrich), base::max(yrich), ((base::max(yrich) - base::min(yrich)) / 2))
-          map <- ax_lab <- ax_seq - 180
-          map <- ax_lab <- base::round(ax_lab / magn, 2)
-          #add the richness axes
-          map <- graphics::axis(side = 3, pos = 90, lwd = 1, xpd = TRUE, at = ax_seq, labels = FALSE , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
-          map <- graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
-          map <- graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(length(ax_seq) / 2)], labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)  
+          #add x-axis and x-axis labels
+          plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
+          plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
+          #add y-axis and y-axis labels
+          plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+          plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey",col.axis = "darkgrey", cex.axis = 0.6)
+          #add name, model and age at the top right of the plot
+          plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
+          plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+          if(!is.nan(base::min(yrich))){
+            graphics::par(xpd=TRUE)
+            #add the richness curve at the right side of the plot
+            plotmap <- graphics::polygon (yrich, xrich, col = rich.col, border = F, xpd = T)
+            #get the parameters for the richness axis
+            ax_seq <- base::seq(base::min(yrich), base::max(yrich), ((base::max(yrich) - base::min(yrich)) / 2))
+            ax_lab <- ax_seq - 180
+            ax_lab <- base::round(ax_lab / magn, 2)
+            #add the richness axes
+            plotmap <- graphics::axis(side = 3, pos = 90, lwd = 1, xpd = TRUE, at = ax_seq, labels = FALSE , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
+            plotmap <- graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
+            plotmap <- graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(length(ax_seq) / 2)], labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)
+          }
+          print(plotmap)
         }
-        print(map)
-        
-      }
         
         if(!is.null(save.as)){
           grDevices::dev.off()
         }
         
-      #restore the prior margin settings
-      graphics::par(mar = def.mar)
+
     }
+    #restore the prior margin settings
+    graphics::par(mar = def.mar) 
+    
     #return latitudinal richness
     latdiv <- latdiv[base::length(latdiv$paleolat):1, ]
     latdivlist[[numlist]] <- latdiv
