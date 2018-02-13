@@ -1,35 +1,35 @@
-[![Build Status](https://travis-ci.org/macroecology/pasta.svg)](https://travis-ci.org/macroecology/pasta)
+[![Build Status](https://travis-ci.org/macroecology/mapast.svg)](https://travis-ci.org/macroecology/mapast)
 
-pasta
+mapast
 =======
 
 ### About
 
-`pasta` is a package that combines paleomaps from [GPlates](http://www.gplates.org/), Smith and Golonka with fossil records from [Paleobiology Database](http://paleobiodb.org/). It can be used to download shapefiles with reconstructions of the past configuration of the continents, and to generate paleodiversity maps.
+`mapast` is a package that combines paleomaps from [GPlates](http://www.gplates.org/), Smith and Golonka with fossil records from [Paleobiology Database](http://paleobiodb.org/). It can be used to download shapefiles with reconstructions of the past configuration of the continents, and to generate paleodiversity maps.
 
 ### Quick start
 
 **Install**
 
-Install pasta from CRAN
+Install mapast from CRAN
 
 ```coffee
-install.packages("pasta")
-library(pasta)
+install.packages("mapast")
+library(mapast)
 ```
 
-Install pasta developing version from github
+Install mapast developing version from github
 
 ```coffee
 install.packages("devtools")
 library(devtools)
-install_github("macroecology/pasta")
-library(pasta)
+install_github("macroecology/mapast")
+library(mapast)
 ```
 
 **General overview**
 
-`pasta` version 0.1 has 3 functions for getting and visualising paleogeographical maps and fossil data, 4 functions for constructing diversity rasters (paleorichness and Shannon paleodiversity) and 2 functions for creating diversity matrix (based on localities or cells) and 2 functions for getting latitudinal paleodiversity gradients.
+`mapast` version 0.1 has 3 functions for getting and visualising paleogeographical maps and fossil data, 4 functions for constructing diversity rasters (paleorichness and Shannon paleodiversity) and 2 functions for creating diversity matrix (based on localities or cells) and 2 functions for getting latitudinal paleodiversity gradients.
 
 ## Get and visualise paleogeograhical maps and fossil data
 
@@ -276,25 +276,25 @@ values      : NA, NA  (min, max)
 
 ## Meta
 
-Please report any [issues or  bugs](https://github.com/macroecology/pasta/issues).
+Please report any [issues or  bugs](https://github.com/macroecology/mapast/issues).
 
 License: GPL-2
 
-To cite package `pasta` in publications use:
+To cite package `mapast` in publications use:
 
 ```coffee
-To cite package `pasta` in publications use:
+To cite package `mapast` in publications use:
 
-Sara Varela, K. Sonja Rothkugel (2017). pasta:  combine paleogeography and paleobiodiversity. R package version 0.1. https://github.com/macroecology/pasta
+Sara Varela, K. Sonja Rothkugel (2017). mapast:  combine paleogeography and paleobiodiversity. R package version 0.1. https://github.com/macroecology/mapast
 
 A BibTeX entry for LaTeX users is
 
   @Manual{,
-    title = {pasta:  combine paleogeography and paleobiodiversity},
+    title = {mapast:  combine paleogeography and paleobiodiversity},
     author = {Sara Varela} and {Sonja Rothkugel},
     year = {2016},
     note = {R package version 0.1},
-    base = {https://github.com/macroecology/pasta},
+    base = {https://github.com/macroecology/mapast},
   }
 ```
 

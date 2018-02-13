@@ -1,4 +1,4 @@
-Package: pasta
+Package: mapast
 Description: Download and use paleomaps (GPlates, Smith and Golonka) combined with paleobioDB
     fossil occurrences.
 Encoding: UTF-8
@@ -20,10 +20,11 @@ Imports:
     maptools,
     devtools,
     sp,
+	stats,
 	rgdal,
 	rjson
 Suggests: testthat
-BugReports: https://github.com/macroecology/pasta/issues
-URL: https://github.com/macroecology/pasta.git
+BugReports: https://github.com/macroecology/mapast/issues
+URL: https://github.com/macroecology/mapast.git
 LazyData: TRUE
 RoxygenNote: 6.0.1

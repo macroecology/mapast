@@ -4,13 +4,12 @@
 \alias{mapdiv}
 \title{mapdiv}
 \usage{
-mapdiv  (shape, data, unity, rank = "genus", res = 1, fun = mean,
-                           colland = "#66666660", colsea = "#00509010", 
-                           col.grid = mycols(100), do.plot = TRUE, ...)
+mapdiv  (data, unity, rank = "genus", res = 1, map=NULL, fun = mean, model="SETON2012",
+                      colland = "#66666660", colsea = "#00509010", 
+                      col.grid = mycols(100), 
+                      do.plot = TRUE, save.as=NULL, ...)
 }
 \arguments{
-\item{shape}{SpatialPolygonsDataFrame. A map which can be created with getmap.}
-
 \item{data}{data.frame. Fossil occurrences data.}
 
 \item{unity}{character. Either "fossilsite" or "cell".}
@@ -19,8 +18,13 @@ mapdiv  (shape, data, unity, rank = "genus", res = 1, fun = mean,
 
 \item{res}{numeric. Defining the spatial resolution. Default res = 1.}
 
+\item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
+
 \item{fun}{function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
 You can use functions such as min, max, or mean, or the character value: 'count'.}
+
+\item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
+'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
 
 \item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
@@ -29,6 +33,8 @@ You can use functions such as min, max, or mean, or the character value: 'count'
 \item{col.grid}{character. Defines the color of the raster.}
 
 \item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
+
+\item{save.as}{character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to
 plot, such as main = "my own title" or main.col = "red".}
@@ -44,7 +50,7 @@ whithin the cell) and creates a plot of the map with a RasterLayer of the divers
 \examples{
 \dontrun{
 
-library(pasta)
+library(mapast)
 
 #get GPlates map
 shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
@@ -54,17 +60,6 @@ data <- getdata (base_name = "Canis", interval = "Quaternary")
 div_site <- mapdiv (shape, data, unity = "fossilsite", rank ="genus", res = 1)
 #calculate diversity per cell
 div_cell <- mapdiv (shape, data, unity = "cell", rank = "genus", res = 1)
-
-#save plot as pdf file
-pdf("mapdiv-GPlates_Quaternary-Canis.pdf")
-mapdiv (shape, data, unity = "fossilsite", rank = "genus", res = 1)
-dev.off()
-
-#save plot as tiff image
-tiff("mapdiv-GPlates_Quaternary-Canis.tiff", 
-      height = 10.5, width = 19, units = "cm", res = 300)
-mapdiv (shape, data, unity = "fossilsite", rank = "genus", res = 1)
-dev.off()
 
 }
 }

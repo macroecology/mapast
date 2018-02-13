@@ -7,8 +7,7 @@
 spsite(data, unity, res = 1, rank = "genus", pa = FALSE)
 }
 \arguments{
-\item{data}{data.frame. Fossil occurrences data. Can be created with 
-getdata(interval, base_name).}
+\item{data}{data.frame. Fossil occurrences data.}
 
 \item{unity}{character. unity = "fossilsite" or unity = "cell" defining if the user wants the occurrences per 
 cell or per fossilsite.}
@@ -29,7 +28,7 @@ Generates a diversity data.frame, with the number occurrences of a taxon per loc
 \examples{
 \dontrun{
 
-library(pasta)
+library(mapast)
 
 #get fossil occurrence data
 data <- getdata(base_name = "Canis", interval = "Quaternary")

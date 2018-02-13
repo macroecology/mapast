@@ -4,13 +4,17 @@
 \alias{paleocoords}
 \title{paleocoords}
 \usage{
-paleocoords(occ, recontime=NULL, model='SETON2012')
+paleocoords(data, time = "automatic", timevector = NULL, 
+                        stepsize = 10, model = 'SETON2012')
 }
 \arguments{
-\item{occ}{data.frame. Fossil data, which should at least have the columns lng and lat (if recontime=NULL also early_age and late_age).}
+\item{data}{data.frame. Fossil occurrences data.}
 
-\item{recontime}{numeric. Time of reconstruction in ma. If recontime is null the recnstruction time will be 
-the midpoint of the interval the fossil occurred.}
+\item{time}{character. Defines how the reconstruction time is specified. Can be "automatic", "average" or "timevector". By default time="automatic".}
+
+\item{timevector}{vector. Defining the borders of the time bins. Not allowed to be NULL if time="timevector".}
+
+\item{stepsize}{numeric. Defining the stepsize of the time bins if time="automatic".}
 
 \item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
 'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
@@ -24,7 +28,9 @@ Descr.
 \examples{
 \dontrun{
 
-occ <- madata(minma=0, maxma=10,base_name="Canis", limit=100)
+occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma=0, max_ma=10, 
+show=c("coords", "phylo"), 
+vocab="pbdb", limit=100))
 
 #reconstruct paleocoordinates with midpoint of appearance time
 occ_ma <- paleoocoords(occ, recontime=NULL, model='SETON2012')
