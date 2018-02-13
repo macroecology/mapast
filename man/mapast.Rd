@@ -42,7 +42,7 @@ mapast(model="SETON2012", data, map=NULL, do.plot=TRUE, save.as=NULL,
 Plot
 }
 \description{
-Plots your fossil occurrence data from the paleobioDB onto the map of the selected time interval.
+Plots your fossil occurrence data onto the corresponding map.
 
 We have developed mapast (PAST mAps), an R-package designed to make paleontolgical maps available to
 plot the fossil occurrences from the Paleobiology Database onto paleogeographical maps.

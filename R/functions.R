@@ -48,7 +48,8 @@ formatdata <- function(data, db="pbdb"){
 
 #' paleocoords
 #' 
-#' Descr.
+#' Calculating the paleocoordinates of the fossil data. Either calculating timebins by looking at the early_age and late_age column,
+#' taking the average age of the fossils rounded or by using user defined time bins.
 #'  
 #' @usage paleocoords(data, time = "automatic", timevector = NULL, 
 #'                         stepsize = 10, model = 'SETON2012')
@@ -325,20 +326,26 @@ getmap <- function(ma, model = 'SETON2012', show.plates = FALSE, save.as=NULL, c
     
     errplate <- FALSE
     if(show.plates){
-      #no plate bounds for paleomap
-      plateurl <- paste0("http://gws.gplates.org/topology/plate_boundaries/?time=", ma[ages], "&model=", model)
-      platebounds <- tryCatch(
-        {
-          rgdal::readOGR(plateurl, verbose = FALSE)
-        }, error = function(e){
-          errplate <- TRUE
-          message(paste0("No Plate Boundaries available for ", ma[ages], " mya in ", model, " model. Please check the spelling, the age and the model you choose."))
-          stop()
-        }
-      )
-      platebounds@data$age <- ma[ages]
-      platebounds@data$model <- model
-      plates[[ages]] <- platebounds
+      if(model=="GOLONKA" || model =="PALEOMAP"){
+        warning(paste0("No plate boundaries available for model ", model, "."))
+        errplate <- TRUE
+      }else{
+        #no plate bounds for paleomap
+        plateurl <- paste0("http://gws.gplates.org/topology/plate_boundaries/?time=", ma[ages], "&model=", model)
+        platebounds <- tryCatch(
+          {
+            rgdal::readOGR(plateurl, verbose = FALSE)
+          }, error = function(e){
+            errplate <- TRUE
+            message(paste0("No Plate Boundaries available for ", ma[ages], " mya in ", model, " model. Please check the spelling, the age and the model you choose."))
+            stop()
+          }
+        )
+        platebounds@data$age <- ma[ages]
+        platebounds@data$model <- model
+        plates[[ages]] <- platebounds
+      }
+      
     }
     
     if(!err){
@@ -462,7 +469,7 @@ getmap <- function(ma, model = 'SETON2012', show.plates = FALSE, save.as=NULL, c
 ####################mapast#################################
 #' mapast
 #' 
-#' Plots your fossil occurrence data from the paleobioDB onto the map of the selected time interval.
+#' Plots your fossil occurrence data onto the corresponding map.
 #' 
 #' 
 #' 

@@ -23,7 +23,8 @@ paleocoords(data, time = "automatic", timevector = NULL,
 data.frame
 }
 \description{
-Descr.
+Calculating the paleocoordinates of the fossil data. Either calculating timebins by looking at the early_age and late_age column,
+taking the average age of the fossils rounded or by using user defined time bins.
 }
 \examples{
 \dontrun{
