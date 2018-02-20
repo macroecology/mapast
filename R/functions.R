@@ -106,24 +106,99 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
     uma <- unique(round(data$avg_age))
     
     for( i in 1:length(uma)){
-      part <- data[round(data$avg_age)==uma[i], ]
+      # part <- data[round(data$avg_age)==uma[i], ]
+      # pts <- ""
+      # for( j in 1:length(part$avg_age)){
+      #   pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+      # }
+      # 
+      # pts <- substring(pts, 2)
+      # url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
+      # paleopts <- rjson::fromJSON(file=url)
+      # for (k in 1:length(paleopts$coordinates)){
+      #   if(is.null(paleopts$coordinates[[k]])){
+      #     paleolng <- c(paleolng, NA)
+      #     paleolat <- c(paleolat, NA)
+      #   }else{
+      #     paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+      #     paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+      #   }
+      # }
+      part <- subset(data, data$recon_age==uma[i])
       pts <- ""
-      for( j in 1:length(part$avg_age)){
-        pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+      if(length(part$recon_age) > 200){
+        
+        num <- ceiling(length(part$recon_age)/200)
+        round <- 1
+        while(round <= num){
+          pts <- ""
+          if(round < num){
+            pts <-""
+            part2 <- part[((round-1)*200+1):(round*200),]
+            for( j in 1:length(part2$recon_age)){
+              pts <- paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+            }
+            
+            pts <- substring(pts, 2)
+            url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
+            paleopts <- rjson::fromJSON(file=url)
+            for (k in 1:length(paleopts$coordinates)){
+              if(is.null(paleopts$coordinates[[k]])){
+                paleolng <- c(paleolng, NA)
+                paleolat <- c(paleolat, NA)
+              }else{
+                paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+                paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+              }
+            }
+            
+          }else{
+            pts <-""
+            part2 <- part[((round-1)*200+1):length(part$recon_age),]
+            for( j in 1:length(part2$recon_age)){
+              pts <- paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+            }
+            
+            pts <- substring(pts, 2)
+            url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
+            paleopts <- rjson::fromJSON(file=url)
+            for (k in 1:length(paleopts$coordinates)){
+              if(is.null(paleopts$coordinates[[k]])){
+                paleolng <- c(paleolng, NA)
+                paleolat <- c(paleolat, NA)
+              }else{
+                paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+                paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+              }
+            }
+            
+          }
+          round <- round+1
+          
+        }
+        
+        
+      }else{
+        
+        for( j in 1:length(part$recon_age)){
+          pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+        }
+        
+        pts <- substring(pts, 2)
+        url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
+        paleopts <- rjson::fromJSON(file=url)
+        for (k in 1:length(paleopts$coordinates)){
+          if(is.null(paleopts$coordinates[[k]])){
+            paleolng <- c(paleolng, NA)
+            paleolat <- c(paleolat, NA)
+          }else{
+            paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+            paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+          }
+        }
+        
       }
       
-      pts <- substring(pts, 2)
-      url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
-      paleopts <- rjson::fromJSON(file=url)
-      for (k in 1:length(paleopts$coordinates)){
-        if(is.null(paleopts$coordinates[[k]])){
-          paleolng <- c(paleolng, NA)
-          paleolat <- c(paleolat, NA)
-        }else{
-          paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
-          paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
-        }
-      }
     }
     recon_age <- round(data$avg_age)
     data <- cbind(data, recon_age)
@@ -161,26 +236,101 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
     
     uma <- unique(recon_age)
     for( i in 1:length(uma)){
-      part <- data[data$recon_age==uma[i], ]
+      # part <- data[data$recon_age==uma[i], ]
+      # pts <- ""
+      # for( j in 1:length(part$recon_age)){
+      #   pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+      # }
+      # 
+      # pts <- substring(pts, 2)
+      # 
+      # url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
+      # paleopts <- rjson::fromJSON(file=url)
+      # for (k in 1:length(paleopts$coordinates)){
+      #   if(is.null(paleopts$coordinates[[k]])){
+      #     paleolng <- c(paleolng, NA)
+      #     paleolat <- c(paleolat, NA)
+      #   }else{
+      #     paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+      #     paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+      #   }
+      #   
+      # }
+      part <- subset(data, data$recon_age==uma[i])
       pts <- ""
-      for( j in 1:length(part$recon_age)){
-        pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
-      }
-      
-      pts <- substring(pts, 2)
-      
-      url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
-      paleopts <- rjson::fromJSON(file=url)
-      for (k in 1:length(paleopts$coordinates)){
-        if(is.null(paleopts$coordinates[[k]])){
-          paleolng <- c(paleolng, NA)
-          paleolat <- c(paleolat, NA)
-        }else{
-          paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
-          paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+      if(length(part$recon_age) > 200){
+        
+        num <- ceiling(length(part$recon_age)/200)
+        round <- 1
+        while(round <= num){
+          pts <- ""
+          if(round < num){
+            pts <-""
+            part2 <- part[((round-1)*200+1):(round*200),]
+            for( j in 1:length(part2$recon_age)){
+              pts <- paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+            }
+            
+            pts <- substring(pts, 2)
+            url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
+            paleopts <- rjson::fromJSON(file=url)
+            for (k in 1:length(paleopts$coordinates)){
+              if(is.null(paleopts$coordinates[[k]])){
+                paleolng <- c(paleolng, NA)
+                paleolat <- c(paleolat, NA)
+              }else{
+                paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+                paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+              }
+            }
+            
+          }else{
+            pts <-""
+            part2 <- part[((round-1)*200+1):length(part$recon_age),]
+            for( j in 1:length(part2$recon_age)){
+              pts <- paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+            }
+            
+            pts <- substring(pts, 2)
+            url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
+            paleopts <- rjson::fromJSON(file=url)
+            for (k in 1:length(paleopts$coordinates)){
+              if(is.null(paleopts$coordinates[[k]])){
+                paleolng <- c(paleolng, NA)
+                paleolat <- c(paleolat, NA)
+              }else{
+                paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+                paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+              }
+            }
+            
+          }
+          round <- round+1
+          
+        }
+        
+        
+      }else{
+        
+        for( j in 1:length(part$recon_age)){
+          pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+        }
+        
+        pts <- substring(pts, 2)
+        url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
+        paleopts <- rjson::fromJSON(file=url)
+        for (k in 1:length(paleopts$coordinates)){
+          if(is.null(paleopts$coordinates[[k]])){
+            paleolng <- c(paleolng, NA)
+            paleolat <- c(paleolat, NA)
+          }else{
+            paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+            paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+          }
         }
         
       }
+      
     }
     
   }else if(time=="timevector"){
@@ -217,25 +367,82 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
           paleolat <- c(paleolat, NA)
         }
       }else{
-
+        
         part <- subset(data, data$recon_age==uma[i])
         pts <- ""
-        for( j in 1:length(part$recon_age)){
-          pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+        if(length(part$recon_age) > 200){
+
+          num <- ceiling(length(part$recon_age)/200)
+          round <- 1
+          while(round <= num){
+            pts <- ""
+            if(round < num){
+              pts <-""
+              part2 <- part[((round-1)*200+1):(round*200),]
+              for( j in 1:length(part2$recon_age)){
+                pts <- paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+              }
+              
+              pts <- substring(pts, 2)
+              url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
+              paleopts <- rjson::fromJSON(file=url)
+              for (k in 1:length(paleopts$coordinates)){
+                if(is.null(paleopts$coordinates[[k]])){
+                  paleolng <- c(paleolng, NA)
+                  paleolat <- c(paleolat, NA)
+                }else{
+                  paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+                  paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+                }
+              }
+              
+            }else{
+              pts <-""
+              part2 <- part[((round-1)*200+1):length(part$recon_age),]
+              for( j in 1:length(part2$recon_age)){
+                pts <- paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+              }
+              
+              pts <- substring(pts, 2)
+              url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
+              paleopts <- rjson::fromJSON(file=url)
+              for (k in 1:length(paleopts$coordinates)){
+                if(is.null(paleopts$coordinates[[k]])){
+                  paleolng <- c(paleolng, NA)
+                  paleolat <- c(paleolat, NA)
+                }else{
+                  paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+                  paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+                }
+              }
+              
+            }
+            round <- round+1
+            
+          }
+          
+          
+        }else{
+          
+          for( j in 1:length(part$recon_age)){
+            pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+          }
+          
+          pts <- substring(pts, 2)
+          url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
+          paleopts <- rjson::fromJSON(file=url)
+          for (k in 1:length(paleopts$coordinates)){
+            if(is.null(paleopts$coordinates[[k]])){
+              paleolng <- c(paleolng, NA)
+              paleolat <- c(paleolat, NA)
+            }else{
+              paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
+              paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
+            }
+          }
+          
         }
 
-        pts <- substring(pts, 2)
-        url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
-        paleopts <- rjson::fromJSON(file=url)
-        for (k in 1:length(paleopts$coordinates)){
-          if(is.null(paleopts$coordinates[[k]])){
-            paleolng <- c(paleolng, NA)
-            paleolat <- c(paleolat, NA)
-          }else{
-            paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
-            paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
-          }
-        }
       }
       
     }
@@ -543,7 +750,7 @@ mapast <- function(model="SETON2012", data, map=NULL, do.plot=TRUE, save.as=NULL
   uage <- unique(data$recon_age)
   toload <- 0
   for(a in 1:length(uage)){
-    if(!uage[a] %in% mapages){
+      if(!as.character(uage[a]) %in% mapages){
       toload <- toload+1
     }
   }
@@ -771,7 +978,7 @@ mapocc <- function(data, model="SETON2012",
   uage <- unique(data$recon_age)
   toload <- 0
   for(a in 1:length(uage)){
-    if(!uage[a] %in% mapages){
+      if(!as.character(uage[a]) %in% mapages){
       toload <- toload+1
     }
   }
@@ -1008,7 +1215,7 @@ maprich <- function (data, rank = "genus", res = 1, model="SETON2012", map=NULL,
   uage <- unique(data$recon_age)
   toload <- 0
   for(a in 1:length(uage)){
-    if(!uage[a] %in% mapages){
+      if(!as.character(uage[a]) %in% mapages){
       toload <- toload+1
     }
   }
@@ -1222,7 +1429,7 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
       subdata <- subset(data, data$recon_age == curma)
       
       #filter data for the rank
-      rankdata <- .rfilter(data, rank)
+      rankdata <- .rfilter(subdata, rank)
       #create a data. frame with all the locations once
       latlng <- base::data.frame(paleolng = rankdata$paleolng, paleolat = rankdata$paleolat)
       ulatlng <- base::unique(latlng)
@@ -1351,52 +1558,55 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
         curtaxon <- as.character(subdata[[rankcol]][curocc])
         curlat <- data$paleolat[curocc]
         curlng <- data$paleolng[curocc]
-        if(!(curlat %in% latbord)){
-          if(curlng == 180){
-            if(curlat >= 90 - (res / 2)){
-              row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
-            }else{
-              row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
-            }
-            
-          }else if(curlng == -180){
-            if(curlat >= 90 - (res / 2)){
-              row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res)) * (180 / res)
-            }else{
-              row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
-            }
-            
-          }else{
-            row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res))*(180 / res)
-          }
-        }else{
-          if(curlng == 180){
-            row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res) - 1) * (180 / res)
-          }else if(curlng == -180){
-            if(curlat >= 90 - (res / 2)){
-              row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
-            }else{
-              row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
-            }
-          }else{
-            if(curlat <= -90 + (res / 2)){
-              if(curlng <= -180 + (res / 2)){
-                row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
+        if(!is.na(curlng) && !is.na(curlat)){
+          if(!(curlat %in% latbord)){
+            if(curlng == 180){
+              if(curlat >= 90 - (res / 2)){
+                row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+              }else{
+                row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+              }
+              
+            }else if(curlng == -180){
+              if(curlat >= 90 - (res / 2)){
+                row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res)) * (180 / res)
               }else{
                 row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
-              } 
-            }else if (curlat >= 90 - (res / 2)){
-              row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res)) * (180 / res)
+              }
+              
             }else{
-              row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res)) * (180 / res)
+              row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res))*(180 / res)
+            }
+          }else{
+            if(curlng == 180){
+              row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+            }else if(curlng == -180){
+              if(curlat >= 90 - (res / 2)){
+                row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+              }else{
+                row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+              }
+            }else{
+              if(curlat <= -90 + (res / 2)){
+                if(curlng <= -180 + (res / 2)){
+                  row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
+                }else{
+                  row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
+                } 
+              }else if (curlat >= 90 - (res / 2)){
+                row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res)) * (180 / res)
+              }else{
+                row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res)) * (180 / res)
+              }
             }
           }
+          
+          if(row == 0){
+            row <- 1
+          }
+          occ[row, curtaxon] <- (occ[row, curtaxon] + 1)
         }
-        
-        if(row == 0){
-          row <- 1
-        }
-        occ[row, curtaxon] <- (occ[row, curtaxon] + 1)
+
       }
       if(pa){
         cnames <- colnames(occ)
@@ -1494,7 +1704,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map=NULL, fun = mean, m
   uage <- unique(data$recon_age)
   toload <- 0
   for(a in 1:length(uage)){
-    if(!uage[a] %in% mapages){
+      if(!as.character(uage[a]) %in% mapages){
       toload <- toload+1
     }
   }
@@ -1828,7 +2038,7 @@ latdivgrad <- function(data, method, rank = "genus",
   uage <- unique(data$recon_age)
   toload <- 0
   for(a in 1:length(uage)){
-    if(!uage[a] %in% mapages){
+      if(!as.character(uage[a]) %in% mapages){
       toload <- toload+1
     }
   }
