@@ -8,15 +8,15 @@
 \alias{mapast-package}
 \title{mapast}
 \usage{
-mapast(model="SETON2012", data, map=NULL, do.plot=TRUE, save.as=NULL,
+mapast(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.as = NULL,
                          colland = "#66666660",
                          colsea = "#00509010", 
                          colpoints = "#65432190", 
                          pch = 16, cex = 1, ...)
 }
 \arguments{
-\item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
-'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
+\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+"MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
 \item{data}{data.frame. Fossil occurrences data.}
 
@@ -66,9 +66,10 @@ License: \tab GPL-2\cr
 library(mapast)
 
 #get data
-data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma=0, max_ma=10, 
+data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+min_ma = 0, max_ma = 10, 
 show=c("coords", "phylo"), 
-vocab="pbdb", limit=100))
+vocab="pbdb", limit = 100))
 #create a plot with fossils on the paleogeographical map
 mapast(model = "SETON2012", data)
 

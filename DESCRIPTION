@@ -1,5 +1,5 @@
 Package: mapast
-Description: Download and use paleomaps (GPlates, Smith and Golonka) combined with paleobioDB
+Description: Download and use paleomaps () combined with paleobioDB
     fossil occurrences.
 Encoding: UTF-8
 Type: Package

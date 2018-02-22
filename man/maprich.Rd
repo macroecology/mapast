@@ -4,7 +4,7 @@
 \alias{maprich}
 \title{maprich}
 \usage{
-maprich(data, rank = "genus", res = 1, model="SETON2012", map=NULL, save.as=NULL,
+maprich(data, rank = "genus", res = 1, model = "SETON2012", map = NULL, save.as = NULL,
                     colland = "#66666660",
                     colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...)
 }
@@ -17,8 +17,8 @@ getdata(interval, base_name).}
 
 \item{res}{numeric. Defining the spatial resolution. Default res = 1.}
 
-\item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
-'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
+\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+"MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
 \item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
 

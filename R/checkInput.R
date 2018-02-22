@@ -5,10 +5,11 @@
 ######.checkRank#####
 #.checkRank
 #
-#checks if the chosen rank is correct
+#checks if the chosen rank is correct and if column with this rank exists
 #
 #@keywords internal
 #@param rank string with the rank of interest
+#@param df data frame of fossil data
 #@return boolean if the rank is possible to be chosen
 #@examples
 #\dontrun{
@@ -16,17 +17,18 @@
 #.checkRank(rank)
 #}
 
-.checkRank <- function(rank){
+.checkRank <- function(rank, df){
+  coln <- colnames(df)
   possible_ranks <- c("species", "genus", "family", "order", "class", "phylum")
   
-  return(rank %in% possible_ranks)
+  return(rank %in% possible_ranks && rank %in% coln)
 }
 
 #####.checkLatLng#####
 #.checkLatLng
 #
 #checks if the input data frame has 
-#paleolatitude and paleolongitude as columns
+#paleolatitude, paleolongitude and recon_age as columns
 #
 #@keywords internal
 #@param data a data frame with fossil occurences
@@ -40,7 +42,7 @@
 .checkLatLng <- function(data){
   coln <- base::colnames(data)
   
-  return("paleolat" %in% coln && "paleolng" %in% coln)
+  return("paleolat" %in% coln && "paleolng" %in% coln && "recon_age" %in% coln)
 }
 
 ######.checkDataRank#####
@@ -61,38 +63,9 @@
 
 .checkDataRank <- function(data, rank){
   coln <- base::colnames(data)
-  if(rank=="species"){
-    return("matched_name" %in% coln)
-  }else{
-    return(rank %in% coln)
-  }
+  return(rank %in% coln)
 }
 
-######.checkDataNo#####
-#.checkDataNo
-#
-#checks if the column xy_no corresponding to the rank is inside the data frame
-#
-#
-#@param data a data frame with fossil occurences
-#@param rank a string defning the rank of interest
-#@return boolean of correct columns are inside the data frame
-#@examples 
-#\dontrun{
-#data <- getdata(base_name="Canis", interval="Quaternary")
-#rank <- "species"
-#.checkDataNo(data, rank)
-#} 
-
-.checkDataNo <- function(data, rank){
-  coln <- base::colnames(data)
-  col <- base::paste0(rank, "_no")
-  if(rank=="species"){
-    return("matched_no" %in% coln)
-  }else{
-    return(col %in% coln)
-  }
-}
 
 ######.checkShape#####
 #.checkShape
@@ -109,36 +82,19 @@
 #}
 
 .checkShape <- function(shape){
-  return(base::class(shape)=="SpatialPolygonsDataFrame")
+  if(class(shape)=="list"){
+    shapebool <- TRUE
+    for(i in 1:length(shape)){
+      if(! base::class(shape[[i]])=="SpatialPolygonsDataFrame"){
+        shapebool <- FALSE
+      }
+      return(shapebool)
+    }
+  }else{
+    return(base::class(shape)=="SpatialPolygonsDataFrame")
+  }
+  
 }
-
-######.checkFun#####
-#.checkFun
-#
-#checks if chosen function is allowed for this function
-#
-#@param fun a string defining the function
-#@param fct the fct that is calling this check. 
-#Either pm_latdiv or pm_divraster
-#@return boolean if function is allowed or not
-#@examples
-#\dontrun{
-#fun1 <- mean
-#fct1 <- "pm_latdiv"
-#.checkFun(fun1, fct1)
-#
-#fun2 <- "count"
-#fct2 <- "pm_divraster"
-#.checkFun(fun2, fct2)
-#}
-
-# .checkFun <- function(fun, fct){
-#   if(fct == "pm_latdiv"){
-#     return(base::grep("mean", base::list(fun))==1 || base::identical(fun,mean) || base::identical(fun,max))
-#   }else if(fct == "pm_divraster_loc"){
-#     return(base::grep("mean", base::list(fun))==1 || base::identical(fun, mean) || base::identical(fun,max) || base::identical(fun,min) || base::identical(fun,"count"))
-#   }
-# }
 
 
 ######.checkRange#####
@@ -156,29 +112,92 @@
 .checkRange <- function(df){
   lat <- df$paleolat
   lng <- df$paleolng
-  return(base::min(lat)>=-90 && base::max(lat)<=90 && base::min(lng)>=-180 && base::max(lng)<=180)
+  return(base::min(lat, na.rm=TRUE) >= -90 && base::max(lat, na.rm=TRUE) <= 90 && base::min(lng, na.rm=TRUE) >= -180 && base::max(lng, na.rm=TRUE) <= 180)
 }
 
 
-######.checkRecon#####
-#.checkRecon
+######.checkSaveAs#####
+#.checkSaveAs
 #
-#checks if lat, lng and, if recontime not given, early_age and late age columns exist.
+# check if the input for save.as is correct
 #
-#@param df data frame including 
-#@return boolean if lat and lng are in range
+#@param save.as
+#@return boolean if format is implemented to be saved
 #@examples
 #\dontrun{
-#.checkRecon(df)
+#.checkSaveAs(save.as)
 #}
 
-.checkRecon <- function(df, recontime){
-  coln <- base::colnames(df)
-  if(is.null(recontime)){
-    return("lng" %in% coln && "lat" %in% coln && "early_age" %in% coln && "late_age" %in% coln)
+.checkSaveAS <- function(save.as){
+  formats <- c("pdf", "tiff", "jpeg", "png")
+  if(!is.null(save.as)){
+    return(save.as %in% formats)
   }else{
-    return("lng" %in% coln && "lat" %in% coln)
+    return(TRUE)
   }
   
 }
 
+
+######.checkUnity#####
+#.checkUnity
+#
+# check if unity is fossilsite or cell
+#
+#@param unity
+#@return boolean if unity is fossilsite or cell
+#@examples
+#\dontrun{
+#.checkUnity(unity)
+#}
+
+.checkUnity <- function(unity){
+  unities <- c("fossilsite", "cell")
+  return( unity %in% unities)
+  
+}
+
+
+######.checkPaleocoords#####
+#.checkPaleocoords
+#
+# check data frame for paleocoords
+#
+#@param df
+#@return boolean if needed columns are in df
+#@examples
+#\dontrun{
+#.checkPaleocoords(df)
+#}
+
+.checkPaleocoords <- function(df){
+  dfcols <- colnames(df)
+  columns <- c("recon_age", "lat", "lng", "early_age", "late_age", "avg_age")
+  colbool <- TRUE
+  for(i in 1:base::length(dfcols)){
+    colbool <- colbool && (columns[i] %in% dfcols)
+  }
+  return(colbool)
+}
+
+######.checkFormat#####
+#.checkFormat
+#
+# check if columns needed are inside the df
+#
+#@param df
+#@return boolean if all columns needed are inside the df
+#@examples
+#\dontrun{
+#.checkFormat(df)
+#}
+
+.checkFormat <- function(df){
+  columns <- c("early_age", "late_age", "matched_rank")
+  cols <- colnames(df)
+  colbool <- TRUE
+  for (i in 1:base::length(columns)){
+    colbool <- colbool && (columns[i] %in% cols)
+  }
+  return(colbool)
+}

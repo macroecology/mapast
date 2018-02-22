@@ -4,10 +4,11 @@
 \alias{mapdiv}
 \title{mapdiv}
 \usage{
-mapdiv  (data, unity, rank = "genus", res = 1, map=NULL, fun = mean, model="SETON2012",
+mapdiv  (data, unity, rank = "genus", res = 1, map = NULL, 
+                      fun = mean, model = "SETON2012",
                       colland = "#66666660", colsea = "#00509010", 
                       col.grid = mycols(100), 
-                      do.plot = TRUE, save.as=NULL, ...)
+                      do.plot = TRUE, save.as = NULL, ...)
 }
 \arguments{
 \item{data}{data.frame. Fossil occurrences data.}
@@ -23,8 +24,8 @@ mapdiv  (data, unity, rank = "genus", res = 1, map=NULL, fun = mean, model="SETO
 \item{fun}{function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
 You can use functions such as min, max, or mean, or the character value: 'count'.}
 
-\item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
-'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
+\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+"MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
 \item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 

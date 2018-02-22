@@ -23,8 +23,8 @@ latdivgrad (data, method, rank = "genus",
 
 \item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
 
-\item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
-'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
+\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+"MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
 \item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 

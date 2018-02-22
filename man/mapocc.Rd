@@ -4,17 +4,17 @@
 \alias{mapocc}
 \title{mapocc}
 \usage{
-mapocc(data, model="SETON2012",
-                   rank = "genus", map=NULL,
-                   res=1, save.as=NULL,
+mapocc(data, model = "SETON2012",
+                   rank = "genus", map = NULL,
+                   res = 1, save.as = NULL,
                    colland = "#66666660",
                    colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...)
 }
 \arguments{
 \item{data}{data.frame. Fossil occurrences data.}
 
-\item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
-'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
+\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+"MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum".}

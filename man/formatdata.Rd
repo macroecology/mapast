@@ -4,7 +4,7 @@
 \alias{formatdata}
 \title{formatdata}
 \usage{
-formatdata(data, db="pbdb")
+formatdata(data, db = "pbdb")
 }
 \arguments{
 \item{data}{data.frame. Fossil occurrences data.}
@@ -21,10 +21,11 @@ It also calculates the average age if not already given by the database.
 \examples{
 \dontrun{
 
-data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma=0, max_ma=10, 
-  show=c("coords", "phylo"), 
-  vocab="pbdb", limit=100))
-fdata <- formatdata(data, db="pbdb")
+data  <-  base::data.frame(paleobioDB::pbdb_occurrences(limit = 100, base_name = "Canis", 
+  min_ma = 0, max_ma = 10, 
+  show = c("coords", "phylo"), 
+  vocab = "pbdb"))
+fdata <- formatdata(data, db = "pbdb")
 
 }
 }

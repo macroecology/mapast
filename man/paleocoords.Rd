@@ -5,7 +5,7 @@
 \title{paleocoords}
 \usage{
 paleocoords(data, time = "automatic", timevector = NULL, 
-                        stepsize = 10, model = 'SETON2012')
+                        stepsize = 10, model = "SETON2012")
 }
 \arguments{
 \item{data}{data.frame. Fossil occurrences data.}
@@ -16,8 +16,8 @@ paleocoords(data, time = "automatic", timevector = NULL,
 
 \item{stepsize}{numeric. Defining the stepsize of the time bins if time="automatic".}
 
-\item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
-'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
+\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+"MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 }
 \value{
 data.frame
@@ -34,10 +34,10 @@ show=c("coords", "phylo"),
 vocab="pbdb", limit=100))
 
 #reconstruct paleocoordinates with midpoint of appearance time
-occ_ma <- paleoocoords(occ, recontime=NULL, model='SETON2012')
+occ_ma <- paleoocoords(occ, recontime=NULL, model="SETON2012")
 
 #reconstruct paleocoordinates with specific time
-occ_matime <- paleoocoords(occ, recontime=5, model='SETON2012')
+occ_matime <- paleoocoords(occ, recontime=5, model="SETON2012")
 
                     
 }

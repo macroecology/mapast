@@ -4,15 +4,16 @@
 \alias{getmap}
 \title{getmap}
 \usage{
-getmap(ma, model = 'SETON2012', show.plates = FALSE, save.as=NULL, colland = "#66666660", 
+getmap(ma, model = "SETON2012", show.plates = FALSE, 
+                  save.as = NULL, colland = "#66666660", 
                   colsea = "#00509010", 
                   do.plot = TRUE, ...)
 }
 \arguments{
 \item{ma}{numeric. Age in ma(million years ago). Can also be a vector of ages.}
 
-\item{model}{character. Defining the model the map should be created with. 'SETON2012' (default), 
-'MULLER2016', 'GOLONKA', 'PALEOMAP' or 'MATTHEWS2016'.}
+\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+"MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
 \item{show.plates}{boolean. Defines if the user wants to get the continental plate borders. By default. show.plates = FALSE.}
 
@@ -37,19 +38,19 @@ Available models and ages at https://github.com/GPlates/gplates_web_service_doc/
 \dontrun{
 
 #with continental plates
-map <- getmap(100, model = 'SETON2012', show.plates = T)
+map <- getmap(100, model = "SETON2012", show.plates = T)
 coastlines <- map[[1]]
 plates <- map[[2]]
 
 #without continental plates
-coastlines <- getmap(100, model = 'SETON2012')
+coastlines <- getmap(100, model = "SETON2012")
 
 #save multiple maps in one pdf
 pdf("getmap_multi.pdf")
-par(mfrow=c(2,1))
-getmap(ma=c(1,2))
+par(mfrow = c(2, 1))
+getmap(ma = c(1, 2))
 dev.off()
-par(mfrow=c(1,1))
+par(mfrow = c(1, 1))
 
 
 }
