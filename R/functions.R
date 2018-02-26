@@ -97,7 +97,9 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
   paleolat <- c()
   
   if(time == "average"){
-    uma <- base::unique(base::round(data$avg_age))
+    recon_age <- base::round(data$avg_age)
+    data <- base::cbind(data, recon_age)
+    uma <- base::unique(recon_age)
     
     for( i in 1:base::length(uma)){
       part <- base::subset(data, data$recon_age==uma[i])
@@ -175,8 +177,6 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
       }
       
     }
-    recon_age <- base::round(data$avg_age)
-    data <- base::cbind(data, recon_age)
     
     
   }else if(time == "automatic"){
@@ -1063,7 +1063,12 @@ mapocc <- function(data, model = "SETON2012",
     }
   
   }
-  occstack <- raster::stack(occraster)
+  if(length(occraster) > 1){
+    occstack <- raster::stack(occraster)
+  }else{
+    occstack <- occraster[[1]]
+  }
+  
   #return the raster
   return(occstack)
 }
@@ -1305,7 +1310,12 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
     }
   
   }
-  rasterstack <- raster::stack(richlist)
+  if(length(richlist) > 1){
+    rasterstack <- raster::stack(richlist)
+  }else{
+    rasterstack <- richlist[[1]]
+  }
+ 
   #return the raster
   return(rasterstack)
 }
@@ -1441,7 +1451,12 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
     }
     
     #return the data.frame
-    return(dflist)
+    if(length(dflist) > 1){
+      return(dflist)
+    }else{
+      return(dflist[[1]])
+    }
+
   }
   if(unity == "cell"){
     dflist <- list()
@@ -1562,8 +1577,12 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
       
     }
     
-
-    return(dflist)
+    if(length(dflist) > 1){
+      return(dflist)
+    }else{
+      return(dflist[[1]])
+    }
+    
   }
   
 }
@@ -1670,7 +1689,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
     if(unity == "cell"){
       # occ_df_cell <- mapast::spsite(subdata, unity = unity, res = res, rank = rank)
       occ_df_cell <- spsite(subdata, unity = unity, res = res, rank = rank)
-      occ_df_cell <- occ_df_cell[[1]]
+      # occ_df_cell <- occ_df_cell[[1]]
       #remove lat and lng from data frame
       drops <- c("paleolat", "paleolng")
       rawocc <- occ_df_cell[ , !(base::names(occ_df_cell) %in% drops)]
@@ -1697,7 +1716,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
       # base::colnames(div.df)[5] <- "recon_age"
       # div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
       div_cell <- spsite(div.df, unity = "cell", res = res, rank = "genus")
-      div_cell <- div_cell[[1]]
+      # div_cell <- div_cell[[1]]
       if(base::length(div_cell) > 3){
         div_cell$`0` <- NULL
       }
@@ -1716,7 +1735,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
       
       # occ_df <- mapast::spsite(subdata, unity = unity, res = res, rank = rank)
       occ_df <- spsite(subdata, unity = unity, res = res, rank = rank)
-      occ_df <- occ_df[[1]]
+      # occ_df <- occ_df[[1]]
       drops <- c("paleolat", "paleolng")
       rawocc <- base::data.frame(occ_df[ , !(base::names(occ_df) %in% drops)])
       # rawocc <- subset(occ_df, select = -c(paleolng,paleolat))
@@ -1745,7 +1764,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
       base::colnames(div.df)[5] <- "recon_age"
       # div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
       div_cell <- spsite(div.df, unity = "cell", res = res, rank = "genus")
-      div_cell <- div_cell[[1]]
+      # div_cell <- div_cell[[1]]
       #sort div_cell as r@data@values is sorted
       xyras <- base::data.frame(raster::xyFromCell(divraster, 1:base::length(divraster@data@values)))
       div_cell <- div_cell[base::order(base::match(
@@ -1882,7 +1901,12 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
     divlist <- c(divlist, divraster)
     
   }
-  divstack <- raster::stack(divlist)
+  if(length(divlist) > 1){
+    divstack <- raster::stack(divlist)
+  }else{
+    divstack <- divlist[[1]]
+  }
+  
   #return the raster
   return(divstack)
 }
@@ -2045,7 +2069,7 @@ latdivgrad <- function(data, method, rank = "genus",
     if(method == "shannon"){
       # rankdata <- mapast::spsite(data, unity = "fossilsite", res = res, rank = rank)
       rankdata <- spsite(subdata, unity = "fossilsite", res = res, rank = rank)
-      rankdata <- rankdata[[1]]
+      # rankdata <- rankdata[[1]]
       div <- c()
       for(lat in base::seq(-90, 90 - res, res)){
         if(lat == -90){
@@ -2189,8 +2213,12 @@ latdivgrad <- function(data, method, rank = "genus",
     
   }
   
-
-  return(latdivlist)
+  if(length(latdivlist) > 1){
+    return(latdivlist)
+  }else{
+    return(latdivlist[[1]])
+  }
+  
 }
 
 
