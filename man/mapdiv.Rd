@@ -48,19 +48,3 @@ Calculates the Shannon diversity per cell or locality
 (taking into account relative abundances of all the fossil records 
 whithin the cell) and creates a plot of the map with a RasterLayer of the diversity.
 }
-\examples{
-\dontrun{
-
-library(mapast)
-
-#get GPlates map
-shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
-#get data from the paleobiology DB
-data <- getdata (base_name = "Canis", interval = "Quaternary")
-#calculate diversity per locality
-div_site <- mapdiv (shape, data, unity = "fossilsite", rank ="genus", res = 1)
-#calculate diversity per cell
-div_cell <- mapdiv (shape, data, unity = "cell", rank = "genus", res = 1)
-
-}
-}

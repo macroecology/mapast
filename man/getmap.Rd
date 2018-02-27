@@ -38,12 +38,15 @@ Available models and ages at https://github.com/GPlates/gplates_web_service_doc/
 \dontrun{
 
 #with continental plates
-map <- getmap(100, model = "SETON2012", show.plates = T)
+map <- getmap(ma = 100, model = "SETON2012", show.plates = T)
 coastlines <- map[[1]]
 plates <- map[[2]]
 
 #without continental plates
-coastlines <- getmap(100, model = "SETON2012")
+coastlines <- getmap(ma = 100, model = "SETON2012")
+
+#save map directly as pdf
+getmap(ma = 100, model = "SETON2012", save.as="pdf")
 
 #save multiple maps in one pdf
 pdf("getmap_multi.pdf")

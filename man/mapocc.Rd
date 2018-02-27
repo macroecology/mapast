@@ -43,18 +43,3 @@ RasterLayer
 Creates a RasterLayer, containing the number of occurrences per cell, and a plot of the fossil 
 occurences by taxonomic rank per cell (a proxy for the sampling effort).
 }
-\examples{
-\dontrun{
-
-library(mapast)
-
-#get map
-shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
-#get data from paleobioDB
-data <- getdata(base_name = "Canis", interval = "Quaternary")
-#creasre map with occurrence RasterLayer
-mapocc(shape, data)
-
-
-}
-}

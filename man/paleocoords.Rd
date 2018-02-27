@@ -29,15 +29,15 @@ taking the average age of the fossils rounded or by using user defined time bins
 \examples{
 \dontrun{
 
-occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma=0, max_ma=10, 
-show=c("coords", "phylo"), 
-vocab="pbdb", limit=100))
+occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma = 0, max_ma = 10, 
+                                                     show = c("coords", "phylo"), 
+                                                     vocab = "pbdb", limit = 100))
 
 #reconstruct paleocoordinates with midpoint of appearance time
-occ_ma <- paleoocoords(occ, recontime=NULL, model="SETON2012")
+occ_ma <- paleoocoords(occ, time="automatic", model = "SETON2012")
 
 #reconstruct paleocoordinates with specific time
-occ_matime <- paleoocoords(occ, recontime=5, model="SETON2012")
+occ_matime <- paleoocoords(occ, time ="timevector", timevector = c(0.10), model = "SETON2012")
 
                     
 }

@@ -65,13 +65,24 @@ License: \tab GPL-2\cr
 
 library(mapast)
 
-#get data
+#get data and preprocess it
 data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
-min_ma = 0, max_ma = 10, 
-show=c("coords", "phylo"), 
-vocab="pbdb", limit = 100))
+                                                        min_ma = 0, max_ma = 10, 
+                                                        show = c("coords", "phylo"), 
+                                                        vocab = "pbdb", limit = 100))
+df <- formatdata(data)
+df_auto <- paleocoords(df, time = "automatic")
+                                                        
 #create a plot with fossils on the paleogeographical map
-mapast(model = "SETON2012", data)
+mapast(model = "SETON2012", data = df_auto)
+
+#save the maps before so the function does not need to load them
+maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
+mapast(model = "SETON2012", data = df_auto, map = maps)
+
+#save maps as pdf
+mapast(model = "SETON2012", data = df_auto, map = maps, save.as = "pdf)
+
 
 }
 }

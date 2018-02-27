@@ -66,15 +66,15 @@ formatdata <- function(data, db = "pbdb"){
 #' @examples 
 #' \dontrun{
 #' 
-#' occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma=0, max_ma=10, 
-#' show=c("coords", "phylo"), 
-#' vocab="pbdb", limit=100))
+#' occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma = 0, max_ma = 10, 
+#'                                                      show = c("coords", "phylo"), 
+#'                                                      vocab = "pbdb", limit = 100))
 #' 
 #' #reconstruct paleocoordinates with midpoint of appearance time
-#' occ_ma <- paleoocoords(occ, recontime=NULL, model="SETON2012")
+#' occ_ma <- paleoocoords(occ, time="automatic", model = "SETON2012")
 #' 
 #' #reconstruct paleocoordinates with specific time
-#' occ_matime <- paleoocoords(occ, recontime=5, model="SETON2012")
+#' occ_matime <- paleoocoords(occ, time ="timevector", timevector = c(0.10), model = "SETON2012")
 #' 
 #'                     
 #'}
@@ -84,13 +84,13 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 
   #remove data with lat or lng outside of range
   data2 <- NULL
-  data2 <- base::rbind(data[base::which(data$lng < -180),], data[base::which(data$lng > 180),], data[base::which(data$lat < -90),], data[base::which(data$lat > 90),])
+  data2 <- base::rbind(data[base::which(data$lng < -180), ], data[base::which(data$lng > 180), ], data[base::which(data$lat < -90), ], data[base::which(data$lat > 90), ])
   if(base::nrow(data2) > 0){
-    data2[,"recon_age"] <- NA
-    data2[,"paleolng"] <- NA
-    data2[,"paleolat"] <- NA
-    warning(paste0("There are ", base::length(data2$lng), " points out of the lat long boundaries (-180, 180, -90, 90). Those points can not be projected into the past. Please, check them and correct them in order to be able to project them correctly into the past."))
-    data <- base::rbind(data[base::which(data$lng >= -180),], data[base::which(data$lng < 180),], data[base::which(data$lat >= -90),], data[base::which(data$lat < 90),])
+    data2[ ,"recon_age"] <- NA
+    data2[ ,"paleolng"] <- NA
+    data2[ ,"paleolat"] <- NA
+    print(paste0("There are ", base::length(data2$lng), " points out of the lat long boundaries (-180, 180, -90, 90). Those points can not be projected into the past. Please, check them and correct them in order to be able to project them correctly into the past."))
+    data <- base::rbind(data[base::which(data$lng >= -180), ], data[base::which(data$lng < 180), ], data[base::which(data$lat >= -90), ], data[base::which(data$lat < 90), ])
   }
   
   paleolng <- c()
@@ -101,27 +101,27 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
     data <- base::cbind(data, recon_age)
     uma <- base::unique(recon_age)
     
-    for( i in 1:base::length(uma)){
-      part <- base::subset(data, data$recon_age==uma[i])
+    for( curma in 1:base::length(uma)){
+      part <- base::subset(data, data$recon_age == uma[curma])
       pts <- ""
       if(base::length(part$recon_age) > 200){
         
-        num <- base::ceiling(base::length(part$recon_age)/200)
+        num <- base::ceiling(base::length(part$recon_age) / 200)
         round <- 1
         while(round <= num){
           pts <- ""
           if(round < num){
-            pts <-""
-            part2 <- part[((round-1)*200+1):(round*200),]
+            pts <- ""
+            part2 <- part[((round - 1) * 200 + 1):(round * 200), ]
             for( j in 1:base::length(part2$recon_age)){
-              pts <- base::paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+              pts <- base::paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
             }
             
-            pts <- substring(pts, 2)
-            url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
-            paleopts <- rjson::fromJSON(file=url)
+            pts <- base::base::substring(pts, 2)
+            url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[curma], "&model=", model, "&return_null_points")
+            paleopts <- rjson::fromJSON(file = url)
             for (k in 1:base::length(paleopts$coordinates)){
-              if(is.null(paleopts$coordinates[[k]])){
+              if(base::is.null(paleopts$coordinates[[k]])){
                 paleolng <- c(paleolng, NA)
                 paleolat <- c(paleolat, NA)
               }else{
@@ -131,17 +131,17 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
             }
             
           }else{
-            pts <-""
-            part2 <- part[((round-1)*200+1):length(part$recon_age),]
-            for( j in 1:length(part2$recon_age)){
-              pts <- paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+            pts <- ""
+            part2 <- part[((round - 1) * 200 + 1):base::length(part$recon_age), ]
+            for( j in 1:base::length(part2$recon_age)){
+              pts <- paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
             }
             
-            pts <- substring(pts, 2)
-            url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=",pts,"&time=",uma[i], "&model=",model, "&return_null_points")
-            paleopts <- rjson::fromJSON(file=url)
-            for (k in 1:length(paleopts$coordinates)){
-              if(is.null(paleopts$coordinates[[k]])){
+            pts <- base::substring(pts, 2)
+            url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[curma], "&model=", model, "&return_null_points")
+            paleopts <- rjson::fromJSON(file = url)
+            for (k in 1:base::length(paleopts$coordinates)){
+              if(base::is.null(paleopts$coordinates[[k]])){
                 paleolng <- c(paleolng, NA)
                 paleolat <- c(paleolat, NA)
               }else{
@@ -158,14 +158,14 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
       }else{
         
         for( j in 1:base::length(part$recon_age)){
-          pts <- base::paste0(pts,",", part$lng[j], ",", part$lat[j])
+          pts <- base::paste0(pts, ",", part$lng[j], ",", part$lat[j])
         }
         
-        pts <- substring(pts, 2)
-        url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
-        paleopts <- rjson::fromJSON(file=url)
+        pts <- base::substring(pts, 2)
+        url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[curma], "&model=", model, "&return_null_points")
+        paleopts <- rjson::fromJSON(file = url)
         for (k in 1:base::length(paleopts$coordinates)){
-          if(is.null(paleopts$coordinates[[k]])){
+          if(base::is.null(paleopts$coordinates[[k]])){
             paleolng <- c(paleolng, NA)
             paleolat <- c(paleolat, NA)
           }else{
@@ -192,13 +192,13 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
       ages <- c(min, max)
     }
     #check if the max age is missing and add it to the ages for max border of last bin
-    if((max-min)/stepsize != base::round((max-min)/stepsize)){
+    if((max - min) / stepsize != base::round((max - min) / stepsize)){
       ages <- c(ages, max)
     }
-    bin_age <- ages[-length(ages)] + diff(ages)/2
+    bin_age <- ages[-base::length(ages)] + diff(ages) / 2
     bin_ages <- c()
     for(i in 1:base::length(data$avg_age)){
-      for(j in 1:base::length(ages)-1){
+      for(j in 1:(base::length(ages) - 1)){
         #check if >= ages j and <= ages j+1 --> then it is in bin_age[j] -> add bin_age[j] to bin_ages
         if(data$avg_age[i] >= ages[j] && data$avg_age[i] <= ages[j+1]){
           bin_ages <- c(bin_ages, bin_age[j])
@@ -211,7 +211,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
     
     uma <- base::unique(recon_age)
     for( i in 1:base::length(uma)){
-      part <- base::subset(data, data$recon_age==uma[i])
+      part <- base::subset(data, data$recon_age == uma[i])
       pts <- ""
       if(base::length(part$recon_age) > 200){
         
@@ -221,16 +221,16 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
           pts <- ""
           if(round < num){
             pts <-""
-            part2 <- part[((round-1)*200+1):(round*200),]
+            part2 <- part[((round - 1) * 200 + 1):(round * 200), ]
             for( j in 1:base::length(part2$recon_age)){
-              pts <- base::paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+              pts <- base::paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
             }
             
-            pts <- substring(pts, 2)
+            pts <- base::substring(pts, 2)
             url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
-            paleopts <- rjson::fromJSON(file=url)
+            paleopts <- rjson::fromJSON(file = url)
             for (k in 1:base::length(paleopts$coordinates)){
-              if(is.null(paleopts$coordinates[[k]])){
+              if(base::is.null(paleopts$coordinates[[k]])){
                 paleolng <- c(paleolng, NA)
                 paleolat <- c(paleolat, NA)
               }else{
@@ -241,16 +241,16 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
             
           }else{
             pts <-""
-            part2 <- part[((round-1)*200+1):length(part$recon_age),]
+            part2 <- part[((round - 1) * 200 + 1):base::length(part$recon_age), ]
             for( j in 1:base::length(part2$recon_age)){
-              pts <- base::paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+              pts <- base::paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
             }
             
-            pts <- substring(pts, 2)
+            pts <- base::substring(pts, 2)
             url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
-            paleopts <- rjson::fromJSON(file=url)
+            paleopts <- rjson::fromJSON(file = url)
             for (k in 1:base::length(paleopts$coordinates)){
-              if(is.null(paleopts$coordinates[[k]])){
+              if(base::is.null(paleopts$coordinates[[k]])){
                 paleolng <- c(paleolng, NA)
                 paleolat <- c(paleolat, NA)
               }else{
@@ -268,14 +268,14 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
       }else{
         
         for( j in 1:base::length(part$recon_age)){
-          pts <- paste0(pts,",", part$lng[j], ",", part$lat[j])
+          pts <- paste0(pts, ",", part$lng[j], ",", part$lat[j])
         }
         
-        pts <- substring(pts, 2)
+        pts <- base::substring(pts, 2)
         url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
-        paleopts <- rjson::fromJSON(file=url)
+        paleopts <- rjson::fromJSON(file = url)
         for (k in 1:base::length(paleopts$coordinates)){
-          if(is.null(paleopts$coordinates[[k]])){
+          if(base::is.null(paleopts$coordinates[[k]])){
             paleolng <- c(paleolng, NA)
             paleolat <- c(paleolat, NA)
           }else{
@@ -293,15 +293,15 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
     #separate df into sets belonging to bins
     #calc for each bin
     
-    bin_age <- timevector[-length(timevector)] + diff(timevector) / 2
+    bin_age <- timevector[-base::length(timevector)] + diff(timevector) / 2
     bin_ages <- c()
     for(i in 1:base::length(data$avg_age)){
       if(data$avg_age[i] < min(timevector) || data$avg_age[i] > max(timevector)){
         bin_ages <- c(bin_ages, NA)
       }else{
-        for(j in 1:(base::length(timevector)-1)){
+        for(j in 1:(base::length(timevector) - 1)){
           #check if >= ages j and <= ages j+1 --> then it is in bin_age[j] -> add bin_age[j] to bin_ages
-          if(data$avg_age[i] >= timevector[j] && data$avg_age[i] <= timevector[j+1]){
+          if(data$avg_age[i] >= timevector[j] && data$avg_age[i] <= timevector[j + 1]){
             bin_ages <- c(bin_ages, bin_age[j])
           }
         }
@@ -323,26 +323,26 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
         }
       }else{
         
-        part <- base::subset(data, data$recon_age==uma[i])
+        part <- base::subset(data, data$recon_age == uma[i])
         pts <- ""
         if(base::length(part$recon_age) > 200){
 
-          num <- base::ceiling(base::length(part$recon_age)/200)
+          num <- base::ceiling(base::length(part$recon_age) / 200)
           round <- 1
           while(round <= num){
             pts <- ""
             if(round < num){
-              pts <-""
-              part2 <- part[((round-1)*200+1):(round*200),]
+              pts <- ""
+              part2 <- part[((round - 1) * 200 + 1):(round * 200), ]
               for( j in 1:base::length(part2$recon_age)){
-                pts <- paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+                pts <- paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
               }
               
-              pts <- substring(pts, 2)
+              pts <- base::substring(pts, 2)
               url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
-              paleopts <- rjson::fromJSON(file=url)
+              paleopts <- rjson::fromJSON(file = url)
               for (k in 1:base::length(paleopts$coordinates)){
-                if(is.null(paleopts$coordinates[[k]])){
+                if(base::is.null(paleopts$coordinates[[k]])){
                   paleolng <- c(paleolng, NA)
                   paleolat <- c(paleolat, NA)
                 }else{
@@ -352,17 +352,17 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
               }
               
             }else{
-              pts <-""
-              part2 <- part[((round-1)*200+1):length(part$recon_age),]
+              pts <- ""
+              part2 <- part[((round - 1) * 200 + 1):base::length(part$recon_age), ]
               for( j in 1:base::length(part2$recon_age)){
-                pts <- base::paste0(pts,",", part2$lng[j], ",", part2$lat[j])
+                pts <- base::paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
               }
               
-              pts <- substring(pts, 2)
+              pts <- base::substring(pts, 2)
               url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
-              paleopts <- rjson::fromJSON(file=url)
+              paleopts <- rjson::fromJSON(file = url)
               for (k in 1:base::length(paleopts$coordinates)){
-                if(is.null(paleopts$coordinates[[k]])){
+                if(base::is.null(paleopts$coordinates[[k]])){
                   paleolng <- c(paleolng, NA)
                   paleolat <- c(paleolat, NA)
                 }else{
@@ -380,14 +380,14 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
         }else{
           
           for( j in 1:base::length(part$recon_age)){
-            pts <- base::paste0(pts,",", part$lng[j], ",", part$lat[j])
+            pts <- base::paste0(pts, ",", part$lng[j], ",", part$lat[j])
           }
           
-          pts <- substring(pts, 2)
+          pts <- base::substring(pts, 2)
           url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
-          paleopts <- rjson::fromJSON(file=url)
+          paleopts <- rjson::fromJSON(file = url)
           for (k in 1:base::length(paleopts$coordinates)){
-            if(is.null(paleopts$coordinates[[k]])){
+            if(base::is.null(paleopts$coordinates[[k]])){
               paleolng <- c(paleolng, NA)
               paleolat <- c(paleolat, NA)
             }else{
@@ -413,9 +413,9 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
     for(i in 1:base::length(num_reconage)){
       ages <- base::paste0(ages, ", ", num_reconage[i], "mya ")
     }
-    warning(base::paste0("You can not plot all of these points in a single map. You have ", base::length(num_reconage), " different maps, which are ", substring(ages, 2), "."))
+    print(base::paste0("You can not plot all of these points in a single map. You have ", base::length(num_reconage), " different maps, which are ", base::substring(ages, 2), "."))
   }
-  if(base::nrow(data2)>0){
+  if(base::nrow(data2) > 0){
     data <- base::rbind(data, data2)
   }
 
@@ -449,12 +449,15 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 #' \dontrun{
 #' 
 #' #with continental plates
-#' map <- getmap(100, model = "SETON2012", show.plates = T)
+#' map <- getmap(ma = 100, model = "SETON2012", show.plates = T)
 #' coastlines <- map[[1]]
 #' plates <- map[[2]]
 #' 
 #' #without continental plates
-#' coastlines <- getmap(100, model = "SETON2012")
+#' coastlines <- getmap(ma = 100, model = "SETON2012")
+#' 
+#' #save map directly as pdf
+#' getmap(ma = 100, model = "SETON2012", save.as="pdf")
 #' 
 #' #save multiple maps in one pdf
 #' pdf("getmap_multi.pdf")
@@ -490,7 +493,7 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
     errplate <- FALSE
     if(show.plates){
       if(model == "GOLONKA" || model == "PALEOMAP"){
-        warning(base::paste0("No plate boundaries available for model ", model, "."))
+        base::warning(base::paste0("No plate boundaries available for model ", model, "."))
         errplate <- TRUE
       }else{
         #no plate bounds for paleomap
@@ -500,7 +503,7 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
             rgdal::readOGR(plateurl, verbose = FALSE)
           }, error = function(e){
             errplate <- TRUE
-            message(base::paste0("No Plate Boundaries available for ", ma[ages], " mya in ", model, " model. Please check the spelling, the age and the model you chose."))
+            base::warning(base::paste0("No Plate Boundaries available for ", ma[ages], " mya in ", model, " model. Please check the spelling, the age and the model you chose."))
             stop()
           }
         )
@@ -529,7 +532,7 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
       graphparams <- c(graphparams.def, graphparams.user)
       # if user does not set plot=FALSE plot the shape file
       if (do.plot) {
-        if(!is.null(save.as)){
+        if(!base::is.null(save.as)){
           if(save.as == "tiff"){
             grDevices::tiff(base::paste0("getmap-", ma[ages], "mya_", model, ".tiff"), 
                  height = 10.5, width = 17, units = "cm", res = 300)
@@ -557,20 +560,26 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
                        ytop = 90, col = colsea, 
                        border = FALSE)
         #add x-axis and x-axis label
-        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0 , labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0 , labels = "Longitude", col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6)
         #add y-axis and y-axis label
-        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-        graphics::axis(side = 2, pos = -178, lwd = 0, at = 0 , labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        graphics::axis(side = 2, pos = -178, lwd = 0, at = 0 , labels = "Latitude", col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6)
         #add model and age info top right of the plot
-        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = base::paste(ma[ages], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 1)
+        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = base::paste(ma[ages], " mya", sep = ""), 
+                       col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
         #add the landmasses to the plot
         sp::plot(shape, col = colland, border = FALSE, add = TRUE)
         #restore the former graphical mar parameters
         graphics::par(mar = def.mar)
         
-        if(!is.null(save.as) && save.as == "pdf"){
+        if(!base::is.null(save.as) && save.as == "pdf"){
           filename <- base::paste0("getmap-", ma[ages], "mya_", model, ".pdf")
           grDevices::pdf(filename, width= 6.885417, height = 4.291667)
           #define the size of the margin of the plot and save the former definition
@@ -585,14 +594,20 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
                          ytop = 90, col = colsea, 
                          border = FALSE)
           #add x-axis and x-axis label
-          plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-          plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0 , labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", 
+                                    col.axis = "darkgrey", cex.axis = 0.6)
+          plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0 , labels = "Longitude", col.ticks = "darkgrey", 
+                                    col.axis = "darkgrey", cex.axis = 0.6)
           #add y-axis and y-axis label
-          plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-          plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0 , labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", 
+                                    col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+          plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0 , labels = "Latitude", col.ticks = "darkgrey", 
+                                    col.axis = "darkgrey", cex.axis = 0.6)
           #add model and age info top right of the plot
-          plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-          plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(ma[ages], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+          plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", 
+                                    col.axis = "darkgrey", cex.axis = 1)
+          plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(ma[ages], " mya", sep = ""), 
+                                    col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
           #add the landmasses to the plot
           plotmap <- sp::plot(shape, col = colland, border = FALSE, add = TRUE)
           print(plotmap)
@@ -600,7 +615,7 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
           graphics::par(mar = def.mar)
         }
         
-        if(!is.null(save.as)){
+        if(!base::is.null(save.as)){
           grDevices::dev.off()
         }
         
@@ -655,13 +670,24 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
 #' 
 #' library(mapast)
 #' 
-#' #get data
+#' #get data and preprocess it
 #' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
-#' min_ma = 0, max_ma = 10, 
-#' show=c("coords", "phylo"), 
-#' vocab="pbdb", limit = 100))
+#'                                                         min_ma = 0, max_ma = 10, 
+#'                                                         show = c("coords", "phylo"), 
+#'                                                         vocab = "pbdb", limit = 100))
+#' df <- formatdata(data)
+#' df_auto <- paleocoords(df, time = "automatic")
+#'                                                         
 #' #create a plot with fossils on the paleogeographical map
-#' mapast(model = "SETON2012", data)
+#' mapast(model = "SETON2012", data = df_auto)
+#' 
+#' #save the maps before so the function does not need to load them
+#' maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
+#' mapast(model = "SETON2012", data = df_auto, map = maps)
+#' 
+#' #save maps as pdf
+#' mapast(model = "SETON2012", data = df_auto, map = maps, save.as = "pdf)
+#' 
 #' 
 #'}
 
@@ -685,7 +711,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
 
   #get ages of maps
   mapages <-c()
-  if(!is.null(map)){
+  if(!base::is.null(map)){
     if(class(map) == "list"){
       for(i in 1:base::length(map)){
         mapages <- c(mapages, map[[i]]@data$age[1])
@@ -718,14 +744,14 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
     
     if(curma %in% mapages){
       
-      if(class(map)=="list"){
+      if(class(map) == "list"){
         shape <- map[[match(curma, mapages)]]
       }else{
         shape <- map
       }
       
     }else{
-      shape <- mapast::getmap(ma=curma, model = model, show.plates = FALSE, do.plot = FALSE)
+      shape <- mapast::getmap(ma = curma, model = model, show.plates = FALSE, do.plot = FALSE)
     }
     #default parameter list for plotting
     graphparams.def <- base::list(x = shape, col = "white", border = FALSE
@@ -749,7 +775,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
     #input data needs to be a data frame
     if (base::class(data) == "data.frame") {
       if(do.plot){
-        if(!is.null(save.as)){
+        if(!base::is.null(save.as)){
           if(save.as == "tiff"){
             grDevices::tiff(base::paste0("mapast-", curma, "mya_", model, ".tiff"), 
                  height = 10.5, width = 17, units = "cm", res = 300)
@@ -774,25 +800,28 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
           #plot the landmasses on the sea
           sp::plot(shape, col = colland, border = FALSE, add = TRUE)
           # add x-axis and x-axis labels
-          graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-          graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", 
+                         col.axis = "darkgrey", cex.axis = 0.6)
+          graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", 
+                         col.axis = "darkgrey", cex.axis = 0.6)
           # add y-axis and y-axis labels
-          graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-          graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", 
+                         col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+          graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", 
+                         col.axis = "darkgrey", cex.axis = 0.6)
           #add model and age at the top right of the plot
-          graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-          graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = base::paste0(curma, " mya"), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-          # graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+          graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = model, col.ticks = "darkgrey", 
+                         col.axis = "darkgrey", cex.axis = 1)
+          graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = base::paste0(curma, " mya"), 
+                         col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
           #add the fossil occurrences to the plot
           graphics::points(subdata$paleolng, 
                            subdata$paleolat, 
                            pch = pch, col = colpoints, 
                            cex = cex)
-          
-
-        if(!is.null(save.as) && save.as == "pdf"){
+        if(!base::is.null(save.as) && save.as == "pdf"){
           filename <- paste0("mapast-", curma, "mya_", model, ".pdf")
-          grDevices::pdf(filename, width= 6.885417, height = 4.291667)
+          grDevices::pdf(filename, width = 6.885417, height = 4.291667)
           graphics::par(mar = c(1.5, 2, 2, 1.5))
           #plot with the parameter list which includes users graphical parameter
           #defines size and axes of the plot
@@ -804,15 +833,19 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
           #plot the landmasses on the sea
           plotmap <- sp::plot(shape, col = colland, border = FALSE, add = TRUE)
           # add x-axis and x-axis labels
-          plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-          plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+          plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", 
+                                    col.axis = "darkgrey", cex.axis = 0.6)
+          plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", 
+                                    col.axis = "darkgrey", cex.axis = 0.6)
           # add y-axis and y-axis labels
-          plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+          plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", 
+                                    col.axis = "darkgrey", cex.axis = 0.6, las = 1)
           plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
           #add model and age at the top right of the plot
-          plotmap <- graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-          plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = base::paste0(curma, " mya"), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-          # graphics::axis(side = 3, pos = 81, lwd = 0, at = 135, labels = paste(shape.info[3], " - ", shape.info[4], " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+          plotmap <- graphics::axis(side = 3, pos = 97, lwd = 0, at = 135, labels = model, col.ticks = "darkgrey", 
+                                    col.axis = "darkgrey", cex.axis = 1)
+          plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135, labels = base::paste0(curma, " mya"), 
+                                    col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
           #add the fossil occurrences to the plot
           plotmap <-graphics::points(subdata$paleolng, 
                            subdata$paleolat, 
@@ -821,7 +854,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
           print(plotmap)
         }
           
-          if(!is.null(save.as)){
+          if(!base::is.null(save.as)){
             grDevices::dev.off()
           }
           
@@ -867,12 +900,23 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
 #' 
 #' library(mapast)
 #' 
-#' #get map
-#' shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
-#' #get data from paleobioDB
-#' data <- getdata(base_name = "Canis", interval = "Quaternary")
-#' #creasre map with occurrence RasterLayer
-#' mapocc(shape, data)
+#' #get data and preprocess it
+#' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+#'                                                         min_ma = 0, max_ma = 10, 
+#'                                                         show = c("coords", "phylo"), 
+#'                                                         vocab = "pbdb", limit = 100))
+#' df <- formatdata(data)
+#' df_auto <- paleocoords(df, time = "automatic")
+#'                                                         
+#' #create a plot with fossils on the paleogeographical map
+#' occras <- mapocc(data = df_auto, model = "SETON2012", rank = "species")
+#' 
+#' #save the maps before so the function does not need to load them
+#' maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
+#' mapocc(data = df_auto, model = "SETON2012", rank = "species", map = maps)
+#' 
+#' #save maps as pdf
+#' mapocc(data = df_auto, model = "SETON2012", rank = "species", map = maps, save.as = "pdf")
 #' 
 #' 
 #'}
@@ -905,7 +949,7 @@ mapocc <- function(data, model = "SETON2012",
   
   #get ages of maps
   mapages <-c()
-  if(!is.null(map)){
+  if(!base::is.null(map)){
     if(class(map) == "list"){
       for(i in 1:base::length(map)){
         mapages <- c(mapages, map[[i]]@data$age[1])
@@ -975,7 +1019,7 @@ mapocc <- function(data, model = "SETON2012",
     if(do.plot){
       #save old margin values and define needed margin values
       def.mar <- graphics::par("mar")
-      if(!is.null(save.as)){
+      if(!base::is.null(save.as)){
         if(save.as == "tiff"){
           grDevices::tiff(base::paste0("mapocc-", curma, "mya_", model, ".tiff"), 
                height = 10.5, width = 17, units = "cm", res = 300)
@@ -998,14 +1042,19 @@ mapocc <- function(data, model = "SETON2012",
         #plot the landmasses on the sea
         raster::plot(shape, col = colland, border = FALSE, add = T)
         #add x-axis and x-axis labels
-        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6)
         #add y-axis and y-axis labels
-        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6, las = 1)
         graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
         #
-        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = base::paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 1)
+        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = base::paste(curma, " mya", sep = ""), 
+                       col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
         #add the raster to the plot without legend
         raster::plot(curoccraster, add = T,axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
         #allow the plot to expand the borders
@@ -1013,13 +1062,16 @@ mapocc <- function(data, model = "SETON2012",
         graphics::par(bty = "n")
         #add the raster legend outside the plot
         raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA),
-                     legend.args = list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, col = col.grid[length(col.grid) / 2]))
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, 
+                                      cex.lab = 0.5, cex.axis = 0.5, col.axis = NA),
+                     legend.args = list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, 
+                                        col = col.grid[base::length(col.grid) / 2]))
         raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[length(col.grid) / 2]))
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, 
+                                      cex.axis = 0.5, col.axis = col.grid[base::length(col.grid) / 2]))
         graphics::par(bty = "o")
 
-      if(!is.null(save.as) && save.as == "pdf"){
+      if(!base::is.null(save.as) && save.as == "pdf"){
         filename <- base::paste0("mapocc-", curma, "mya_", model, ".pdf")
         grDevices::pdf(filename, width= 8.385417, height = 4.791667)
         graphics::par(mar = c(1.5, 2, 2, 4))
@@ -1031,14 +1083,19 @@ mapocc <- function(data, model = "SETON2012",
         #plot the landmasses on the sea
         plotmap <- raster::plot(shape, col = colland, border = FALSE, add = T)
         #add x-axis and x-axis labels
-        plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-        plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey",
+                                  col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 0.6)
         #add y-axis and y-axis labels
-        plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-        plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-        #
-        plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-        plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = base::paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 1)
+        plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = base::paste(curma, " mya", sep = ""), 
+                                  col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
         #add the raster to the plot without legend
         plotmap <- raster::plot(curoccraster, add = T,axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
         #allow the plot to expand the borders
@@ -1046,15 +1103,18 @@ mapocc <- function(data, model = "SETON2012",
         graphics::par(bty = "n")
         #add the raster legend outside the plot
         plotmap <- raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA),
-                     legend.args = list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, col = col.grid[length(col.grid) / 2]))
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, 
+                                      cex.axis = 0.5, col.axis = NA),
+                     legend.args = list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, 
+                                        col = col.grid[base::length(col.grid) / 2]))
         plotmap <- raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[length(col.grid) / 2]))
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, 
+                                      cex.axis = 0.5, col.axis = col.grid[base::length(col.grid) / 2]))
         graphics::par(bty = "o")
         print(plotmap)
       }
         
-        if(!is.null(save.as)){
+        if(!base::is.null(save.as)){
           grDevices::dev.off()
         }
      
@@ -1063,7 +1123,7 @@ mapocc <- function(data, model = "SETON2012",
     }
   
   }
-  if(length(occraster) > 1){
+  if(base::length(occraster) > 1){
     occstack <- raster::stack(occraster)
   }else{
     occstack <- occraster[[1]]
@@ -1105,12 +1165,23 @@ mapocc <- function(data, model = "SETON2012",
 #' 
 #' library(mapast)
 #' 
-#' #get map
-#' shape <- getmap(interval = "Paleocene", model = "GPlates")
-#' #get the data from the paleobioDB
-#' data<- getdata(base_name = "Testudines", interval = "Paleocene")
-#' #calculate the genus richness
-#' richness<- maprich(shape, data, rank = "genus")
+#' #get data and preprocess it
+#' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+#'                                                         min_ma = 0, max_ma = 10, 
+#'                                                         show = c("coords", "phylo"), 
+#'                                                         vocab = "pbdb", limit = 100))
+#' df <- formatdata(data)
+#' df_auto <- paleocoords(df, time = "automatic")
+#'                                                         
+#' #create a plot with fossils on the paleogeographical map
+#' rich <- maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012")
+#' 
+#' #save the maps before so the function does not need to load them
+#' maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
+#' maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012", map = maps)
+#' 
+#' #save maps as pdf
+#' maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012", map = maps, save.as = "pdf")
 #' 
 #'}
 #'
@@ -1146,7 +1217,7 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
   
   #get ages of maps
   mapages <-c()
-  if(!is.null(map)){
+  if(!base::is.null(map)){
     if(class(map) == "list"){
       for(i in 1:base::length(map)){
         mapages <- c(mapages, map[[i]]@data$age[1])
@@ -1216,7 +1287,7 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
     if(do.plot){
       #save current margin values and define it as needed
       def.mar <- graphics::par("mar")
-      if(!is.null(save.as)){
+      if(!base::is.null(save.as)){
         if(save.as == "tiff"){
           grDevices::tiff(base::paste0("maprich-", curma, "mya_", model, ".tiff"), 
                height = 10.5, width = 17, units = "cm", res = 300)
@@ -1239,16 +1310,22 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
         #add the landmasses to the plot
         raster::plot(shape, col = colland, border = FALSE, add = T, bty = "L")
         #add x-axis and x-axis labels
-        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6)
         #add y-axis and y-axis labels
-        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-        graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6)
         #get metadata from the shape file
         
         #add name, model and age at the top rigt of the plot
-        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = base::paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 1)
+        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = base::paste(curma, " mya", sep = ""), 
+                       col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
         
         #add the raster without legend
         raster::plot(richraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
@@ -1257,14 +1334,17 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
         graphics::par(bty = "n")
         #add raster legend outside the plot
         raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
-                     legend.args = list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, col = col.grid[length(col.grid) / 2]))
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5,
+                                      cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
+                     legend.args = list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, 
+                                        col = col.grid[base::length(col.grid) / 2]))
         raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[length(col.grid) / 2]))
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, 
+                                      cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[base::length(col.grid) / 2]))
         graphics::par(bty = "o")
         
         
-      if(!is.null(save.as) && save.as == "pdf"){
+      if(!base::is.null(save.as) && save.as == "pdf"){
         filename <- base::paste0("maprich-", curma, "mya_", model, ".pdf")
         grDevices::pdf(filename, width = 8.385417, height = 4.791667)
         graphics::par(mar = c(1, 2, 2, 4))
@@ -1276,16 +1356,22 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
         #add the landmasses to the plot
         plotmap <- raster::plot(shape, col = colland, border = FALSE, add = T, bty = "L")
         #add x-axis and x-axis labels
-        plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-        plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey",
+                                  col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 0.6)
         #add y-axis and y-axis labels
-        plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-        plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90, -90, 4), col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 0.6)
         #get metadata from the shape file
         
         #add name, model and age at the top rigt of the plot
-        plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-        plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 1)
+        plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), 
+                                  col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
         
         #add the raster without legend
         plotmap <- raster::plot(richraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
@@ -1294,15 +1380,18 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
         graphics::par(bty = "n")
         #add raster legend outside the plot
         plotmap <- raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
-                     legend.args = list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, col = col.grid[length(col.grid) / 2]))
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, 
+                                      cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
+                     legend.args = list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, 
+                                        col = col.grid[base::length(col.grid) / 2]))
         plotmap <- raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[length(col.grid) / 2]))
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, 
+                                      cex.axis = 0.5, col.axis = col.grid[base::length(col.grid) / 2]))
         graphics::par(bty = "o")
         print(plotmap)
       }
       
-      if(!is.null(save.as)){
+      if(!base::is.null(save.as)){
         grDevices::dev.off()
       }
       #restore prior margin values
@@ -1310,7 +1399,7 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
     }
   
   }
-  if(length(richlist) > 1){
+  if(base::length(richlist) > 1){
     rasterstack <- raster::stack(richlist)
   }else{
     rasterstack <- richlist[[1]]
@@ -1341,12 +1430,18 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
 #' 
 #' library(mapast)
 #' 
-#' #get fossil occurrence data
-#' data <- getdata(base_name = "Canis", interval = "Quaternary")
-#' #get thediversity per locality
-#' result <- spsite(data, unity = "fossilsite", rank = "genus")
-#' #get the diversity per cell
-#' result_cell <- spsite(data, unity="cell", rank = "genus")
+#' #get data and preprocess it
+#' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+#'                                                         min_ma = 0, max_ma = 10, 
+#'                                                         show = c("coords", "phylo"), 
+#'                                                         vocab = "pbdb", limit = 100))
+#' df <- formatdata(data)
+#' df_auto <- paleocoords(df, time = "automatic")
+#'                                                         
+#' #create a plot with fossils on the paleogeographical map
+#' sp_fossilsite <- spsite(data = df_auto, unity = "fossilsite", rank = "species", res = 10)
+#' sp_cell <- spsite(data = df_auto, unity = "cell", rank = "species", res = 10)
+#' 
 #' 
 #'}
 
@@ -1451,7 +1546,7 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
     }
     
     #return the data.frame
-    if(length(dflist) > 1){
+    if(base::length(dflist) > 1){
       return(dflist)
     }else{
       return(dflist[[1]])
@@ -1462,7 +1557,7 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
     dflist <- list()
     numdf <- 1
     uage <- unique(data$recon_age)
-    for(age in 1:length(uage)){
+    for(age in 1:base::length(uage)){
       curma <- uage[age]
       
       subdata <- subset(data, data$recon_age == curma)
@@ -1501,31 +1596,31 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
       #define lat/lng sequence using the resolution
       lat <- base::seq(-90 + (res / 2) , 90 - (res / 2), res)
       long <- base::seq(-180 + (res / 2), 180 - (res / 2), res)
-      occ <- base::expand.grid (long, lat)
-      base::colnames(occ) <- c ("paleolng", "paleolat")
+      occ <- base::expand.grid(long, lat)
+      base::colnames(occ) <- c("paleolng", "paleolat")
       occ <- occ[with(occ, order(paleolng, -paleolat)), ]
       #fill with default values 0 and add lat, lng and column names
-      def.values <- base::matrix(0, nrow = base::nrow (occ), ncol = base::length(urank))
+      def.values <- base::matrix(0, nrow = base::nrow(occ), ncol = base::length(urank))
       occ <- base::cbind(occ, def.values)
-      base::colnames(occ) <- c ("paleolng", "paleolat", urank)
+      base::colnames(occ) <- c("paleolng", "paleolat", urank)
       rankcol <- rank
       #getting the number of occurrences of a taxa for each locality
       latbord <- seq(90, -90, -res)
-      for(curocc in 1:length(subdata$paleolng)){
+      for(curocc in 1:base::length(subdata$paleolng)){
         curtaxon <- as.character(subdata[[rankcol]][curocc])
         curlat <- data$paleolat[curocc]
         curlng <- data$paleolng[curocc]
         if(!is.na(curlng) && !is.na(curlat)){
           if(!(curlat %in% latbord)){
             if(curlng == 180){
-              if(curlat >= 90 - (res / 2)){
+              if(curlat >= (90 - (res / 2))){
                 row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
               }else{
                 row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
               }
               
             }else if(curlng == -180){
-              if(curlat >= 90 - (res / 2)){
+              if(curlat >= (90 - (res / 2))){
                 row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res)) * (180 / res)
               }else{
                 row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
@@ -1577,7 +1672,7 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
       
     }
     
-    if(length(dflist) > 1){
+    if(base::length(dflist) > 1){
       return(dflist)
     }else{
       return(dflist[[1]])
@@ -1625,14 +1720,26 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #' 
 #' library(mapast)
 #' 
-#' #get GPlates map
-#' shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
-#' #get data from the paleobiology DB
-#' data <- getdata (base_name = "Canis", interval = "Quaternary")
-#' #calculate diversity per locality
-#' div_site <- mapdiv (shape, data, unity = "fossilsite", rank ="genus", res = 1)
-#' #calculate diversity per cell
-#' div_cell <- mapdiv (shape, data, unity = "cell", rank = "genus", res = 1)
+#' #get data and preprocess it
+#' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+#'                                                         min_ma = 0, max_ma = 10, 
+#'                                                         show = c("coords", "phylo"), 
+#'                                                         vocab = "pbdb", limit = 100))
+#' df <- formatdata(data)
+#' df_auto <- paleocoords(df, time = "automatic")
+#'                                                         
+#' #create a plot with fossils on the paleogeographical map
+#' div_fossilsite <- mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10, fun = mean, model = "SETON2012")
+#' div_cell <- mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, fun = mean, model = "SETON2012")
+#' 
+#' #save the maps before so the function does not need to load them
+#' maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
+#' mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10, map = maps, fun = mean, model = "SETON2012")
+#' mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, map = maps, fun = mean, model = "SETON2012")
+#' 
+#' #save maps as pdf
+#' mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10, map = maps, fun = mean, model = "SETON2012", save.as = "pdf")
+#' mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, map = maps, fun = mean, model = "SETON2012", save.as = "pdf")
 #' 
 #' }
 
@@ -1648,7 +1755,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
   
   #get ages of maps
   mapages <-c()
-  if(!is.null(map)){
+  if(!base::is.null(map)){
     if(class(map) == "list"){
       for(i in 1:base::length(map)){
         mapages <- c(mapages, map[[i]]@data$age[1])
@@ -1680,7 +1787,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
   ras <- raster::raster(spatialext, res = res)
  
   divlist <- c()
-  for(age in 1:length(uage)){
+  for(age in 1:base::length(uage)){
     curma <- uage[age]
     
     subdata <- subset(data, data$recon_age == curma)
@@ -1712,11 +1819,11 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
         occurrences <- occ_df_cell[ , 3]
       }
       occurrences[occurrences > 0] <- 1
-      div.df <- base::data.frame(paleolat = occ_df_cell$paleolat, paleolng = occ_df_cell$paleolng, genus = occurrences, recon_age= base::rep(1, base::length(occ_df_cell$paleolng)))
+      div.df <- base::data.frame(paleolat = occ_df_cell$paleolat, paleolng = occ_df_cell$paleolng, 
+                                 genus = occurrences, recon_age= base::rep(1, base::length(occ_df_cell$paleolng)))
       # base::colnames(div.df)[5] <- "recon_age"
       # div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
       div_cell <- spsite(div.df, unity = "cell", res = res, rank = "genus")
-      # div_cell <- div_cell[[1]]
       if(base::length(div_cell) > 3){
         div_cell$`0` <- NULL
       }
@@ -1735,10 +1842,8 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
       
       # occ_df <- mapast::spsite(subdata, unity = unity, res = res, rank = rank)
       occ_df <- spsite(subdata, unity = unity, res = res, rank = rank)
-      # occ_df <- occ_df[[1]]
       drops <- c("paleolat", "paleolng")
       rawocc <- base::data.frame(occ_df[ , !(base::names(occ_df) %in% drops)])
-      # rawocc <- subset(occ_df, select = -c(paleolng,paleolat))
       #calculate the diversity from the fossil occurrences
       div <- c()
       if(nrow(rawocc > 1)){
@@ -1764,7 +1869,6 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
       base::colnames(div.df)[5] <- "recon_age"
       # div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
       div_cell <- spsite(div.df, unity = "cell", res = res, rank = "genus")
-      # div_cell <- div_cell[[1]]
       #sort div_cell as r@data@values is sorted
       xyras <- base::data.frame(raster::xyFromCell(divraster, 1:base::length(divraster@data@values)))
       div_cell <- div_cell[base::order(base::match(
@@ -1778,13 +1882,13 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
     }
     
     if(curma %in% mapages){
-      if(class(map)=="list"){
+      if(class(map) == "list"){
         shape <- map[[match(curma, mapages)]]
       }else{
         shape <- map
       }
     }else{
-      shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
+      shape <- getmap(ma = curma, model = model, show.plates = FALSE, do.plot = FALSE)
     }
     #default graphical parameter list
     graphparams.def <- base::list(x = shape, col = "white", border = FALSE
@@ -1809,16 +1913,16 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
       def.mar <- graphics::par("mar")
 
       
-      if(!is.null(save.as)){
-        if(save.as=="tiff"){
+      if(!base::is.null(save.as)){
+        if(save.as == "tiff"){
           grDevices::tiff(paste0("mapdiv-",curma,"mya_",model,".tiff"), 
                height = 9.5, width = 17.5, units = "cm", res = 300)
         }
-        if(save.as=="jpeg"){
+        if(save.as == "jpeg"){
           grDevices::jpeg(paste0("mapdiv-",curma,"mya_",model,".jpeg"), 
                height = 9.5, width = 17.5, units = "cm", res = 300)
         }
-        if(save.as=="png"){
+        if(save.as == "png"){
           grDevices::png(paste0("mapdiv-",curma,"mya_",model,".png"), 
                height = 9.5, width = 17.5, units = "cm", res = 300)
         }
@@ -1833,15 +1937,21 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
         #add the landmasses
         raster::plot(shape, col = colland, border = FALSE, add = T)
         #add x-axis and x-axis labels
-        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6)
         #add y-axis and y-axis labels
-        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-        graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 0.6)
         
         #add name, model, age at the top right of the plot
-        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", 
+                       col.axis = "darkgrey", cex.axis = 1)
+        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), 
+                       col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
         #add the raster without legend
         raster::plot(divraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE)
         #allow to expand the plot
@@ -1850,14 +1960,18 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
         #add legend outside the plot
         # divraster.range <- c(min(na.omit(divraster@data@values)), max(na.omit(divraster@data@values)))
         raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), legend.args = list(text = "diversity", line = 1, side = 3, adj = 0.25, cex = 0.6, col = gridcol[length(gridcol) / 2]))
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, 
+                                      cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
+                    legend.args = list(text = "diversity", line = 1, side = 3, adj = 0.25, 
+                                                         cex = 0.6, col = gridcol[base::length(gridcol) / 2]))
         raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = gridcol[length(gridcol) / 2]))
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, 
+                                      cex.lab = 0.5, cex.axis = 0.5, col.axis = gridcol[base::length(gridcol) / 2]))
         graphics::par(bty = "o")
 
-      if(!is.null(save.as) && save.as=="pdf"){
+      if(!base::is.null(save.as) && save.as == "pdf"){
         filename <- paste0("mapdiv-",curma,"mya_",model,".pdf")
-        grDevices::pdf(filename, width= 8.385417, height = 4.291667, pagecentre=F)
+        grDevices::pdf(filename, width = 8.385417, height = 4.291667, pagecentre = F)
         graphics::par(mar = c(3,0,3,7), xpd = NA)
         
         plotmap <- base::do.call(raster::plot, graphparams)
@@ -1867,15 +1981,21 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
         #add the landmasses
         plotmap <- raster::plot(shape, col = colland, border = FALSE, add = T)
         #add x-axis and x-axis labels
-        plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-        plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 0.6)
         #add y-axis and y-axis labels
-        plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-        plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+        plotmap <- graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+        plotmap <- graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 0.6)
         
         #add name, model, age at the top right of the plot
-        plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
-        plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
+        plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", 
+                                  col.axis = "darkgrey", cex.axis = 1)
+        plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), 
+                                  col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
         #add the raster without legend
         plotmap <- raster::plot(divraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE)
         #allow to expand the plot
@@ -1883,15 +2003,19 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
         graphics::par(bty = "n")
         #add legend outside the plot
         plotmap <- raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), legend.args = list(text = "diversity", line = 1, side = 3, adj = 0.25, cex = 0.6, col = gridcol[length(gridcol) / 2]))
+                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, 
+                                      cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
+                     legend.args = list(text = "diversity", line = 1, side = 3, adj = 0.25, cex = 0.6, 
+                                        col = gridcol[base::length(gridcol) / 2]))
         plotmap <- raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = gridcol[length(gridcol) / 2]))
+                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, 
+                                      cex.lab = 0.5, cex.axis = 0.5, col.axis = gridcol[base::length(gridcol) / 2]))
         graphics::par(bty = "o")
         print(plotmap)
         
         
       }
-        if(!is.null(save.as)){
+        if(!base::is.null(save.as)){
           grDevices::dev.off()
         }
       #restore prior margin settings
@@ -1901,7 +2025,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
     divlist <- c(divlist, divraster)
     
   }
-  if(length(divlist) > 1){
+  if(base::length(divlist) > 1){
     divstack <- raster::stack(divlist)
   }else{
     divstack <- divlist[[1]]
@@ -1948,13 +2072,26 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
 #' 
 #' library(mapast)
 #' 
-#' #get the map and the fossil data
-#' shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
-#' data <- getdata (base_name = "Canis", interval = "Quaternary")
-#' #calculate the shannon diversity
-#' shannon <- latdivgrad (shape, data, method = "shannon", rank = "species", res = 1)
-#' #calculate the richness
-#' rich <- latdivgrad (shape, data, method = "richness", rank = "genus", res = 1)
+#' #get data and preprocess it
+#' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+#'                                                         min_ma = 0, max_ma = 10, 
+#'                                                         show = c("coords", "phylo"), 
+#'                                                         vocab = "pbdb", limit = 100))
+#' df <- formatdata(data)
+#' df_auto <- paleocoords(df, time = "automatic")
+#'                                                         
+#' #create a plot with fossils on the paleogeographical map
+#' latrich <- latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, model = "SETON2012")
+#' latdiv <- latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, model = "SETON2012")
+#' 
+#' #save the maps before so the function does not need to load them
+#' maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
+#' latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, map = maps, model = "SETON2012")
+#' latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps, model = "SETON2012")
+#' 
+#' #save maps as pdf
+#' latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, map = maps, model = "SETON2012", save.as = "pdf")
+#' latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps, model = "SETON2012", save.as = "pdf")
 #' 
 #' 
 #'}
@@ -1982,9 +2119,9 @@ latdivgrad <- function(data, method, rank = "genus",
   }
   #get ages of maps
   mapages <-c()
-  if(!is.null(map)){
+  if(!base::is.null(map)){
     if(class(map)=="list"){
-      for(i in 1:length(map)){
+      for(i in 1:base::length(map)){
         mapages <- c(mapages, map[[i]]@data$age[1])
       }
     }else{
@@ -1994,12 +2131,12 @@ latdivgrad <- function(data, method, rank = "genus",
   
   #count how many maps will be created
   #print warning
-  num_recon <- length(unique(stats::na.omit(data$recon_age)))
+  num_recon <- base::length(unique(stats::na.omit(data$recon_age)))
   #through revcon_age -> for each one map and the corresponding points#
   #getting the shape file with getmap
   uage <- unique(data$recon_age)
   toload <- 0
-  for(a in 1:length(uage)){
+  for(a in 1:base::length(uage)){
       if(!as.character(uage[a]) %in% mapages){
       toload <- toload+1
     }
@@ -2010,7 +2147,7 @@ latdivgrad <- function(data, method, rank = "genus",
 
   latdivlist <- list()
   numlist <- 1
-  for(age in 1:length(uage)){
+  for(age in 1:base::length(uage)){
     curma <- uage[age]
 
     
@@ -2103,7 +2240,7 @@ latdivgrad <- function(data, method, rank = "genus",
 
       # graphics::par(mar = c(1.5,1.5,2,10), xpd = NA)
       
-      if(!is.null(save.as)){
+      if(!base::is.null(save.as)){
         if(save.as=="tiff"){
           grDevices::tiff(paste0("latdivgrad-",curma,"mya_",model,".tiff"), 
                height = 8.5, width = 17, units = "cm", res = 300)
@@ -2149,12 +2286,16 @@ latdivgrad <- function(data, method, rank = "genus",
           ax_lab <- ax_seq - 180
           ax_lab <- base::round(ax_lab / magn, 2)
           #add the richness axes
-          graphics::axis(side = 3, pos = 90, lwd = 1, xpd = TRUE, at = ax_seq, labels = FALSE , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
-          graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
-          graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(length(ax_seq) / 2)], labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)  
+          graphics::axis(side = 3, pos = 90, lwd = 1, xpd = TRUE, at = ax_seq, labels = FALSE , col.ticks = rich.col ,
+                         col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
+          graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , col.ticks = rich.col ,
+                         col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
+          graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(base::length(ax_seq) / 2)], 
+                         labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, 
+                         cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)  
         }
     
-        if(!is.null(save.as) && save.as=="pdf"){
+        if(!base::is.null(save.as) && save.as == "pdf"){
           # def.mar <- graphics::par("mar")
 
           filename <- paste0("latdivgrad-",curma,"mya_",model,".pdf")
@@ -2190,14 +2331,20 @@ latdivgrad <- function(data, method, rank = "genus",
             ax_lab <- ax_seq - 180
             ax_lab <- base::round(ax_lab / magn, 2)
             #add the richness axes
-            plotmap <- graphics::axis(side = 3, pos = 90, lwd = 1, xpd = TRUE, at = ax_seq, labels = FALSE , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
-            plotmap <- graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
-            plotmap <- graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(length(ax_seq) / 2)], labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)
+            plotmap <- graphics::axis(side = 3, pos = 90, lwd = 1, xpd = TRUE, at = ax_seq, labels = FALSE , 
+                                      col.ticks = rich.col ,col.axis = rich.col , col = rich.col , 
+                                      cex.axis = 0.6, tck = -0.01)
+            plotmap <- graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , 
+                                      col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, 
+                                      tck = -0.01)
+            plotmap <- graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(base::length(ax_seq) / 2)], 
+                                      labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, 
+                                      cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)
           }
           print(plotmap)
         }
         
-        if(!is.null(save.as)){
+        if(!base::is.null(save.as)){
           grDevices::dev.off()
         }
         
@@ -2213,7 +2360,7 @@ latdivgrad <- function(data, method, rank = "genus",
     
   }
   
-  if(length(latdivlist) > 1){
+  if(base::length(latdivlist) > 1){
     return(latdivlist)
   }else{
     return(latdivlist[[1]])

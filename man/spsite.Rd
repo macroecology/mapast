@@ -30,12 +30,18 @@ Generates a diversity data.frame, with the number occurrences of a taxon per loc
 
 library(mapast)
 
-#get fossil occurrence data
-data <- getdata(base_name = "Canis", interval = "Quaternary")
-#get thediversity per locality
-result <- spsite(data, unity = "fossilsite", rank = "genus")
-#get the diversity per cell
-result_cell <- spsite(data, unity="cell", rank = "genus")
+#get data and preprocess it
+data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+                                                        min_ma = 0, max_ma = 10, 
+                                                        show = c("coords", "phylo"), 
+                                                        vocab = "pbdb", limit = 100))
+df <- formatdata(data)
+df_auto <- paleocoords(df, time = "automatic")
+                                                        
+#create a plot with fossils on the paleogeographical map
+sp_fossilsite <- spsite(data = df_auto, unity = "fossilsite", rank = "species", res = 10)
+sp_cell <- spsite(data = df_auto, unity = "cell", rank = "species", res = 10)
+
 
 }
 }

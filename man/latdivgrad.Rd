@@ -49,19 +49,3 @@ data.frame
 \description{
 Calculates the latitudinal diversity of taxa (species, genera, families, orders) and creates a plot of the continental masses with the fossil occurrences and the latitudinal diversity.
 }
-\examples{
-\dontrun{
-
-library(mapast)
-
-#get the map and the fossil data
-shape <- getmap(interval = "Quaternary", model = "GPlates", do.plot = FALSE)
-data <- getdata (base_name = "Canis", interval = "Quaternary")
-#calculate the shannon diversity
-shannon <- latdivgrad (shape, data, method = "shannon", rank = "species", res = 1)
-#calculate the richness
-rich <- latdivgrad (shape, data, method = "richness", rank = "genus", res = 1)
-
-
-}
-}

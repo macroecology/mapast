@@ -42,18 +42,3 @@ RasterLayer
 Creates a RasterLayer of taxon richness
 and makes a plot of the map and richness raster.
 }
-\examples{
-\dontrun{
-
-library(mapast)
-
-#get map
-shape <- getmap(interval = "Paleocene", model = "GPlates")
-#get the data from the paleobioDB
-data<- getdata(base_name = "Testudines", interval = "Paleocene")
-#calculate the genus richness
-richness<- maprich(shape, data, rank = "genus")
-
-}
-
-}
