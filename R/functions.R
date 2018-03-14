@@ -117,7 +117,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
               pts <- base::paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
             }
             
-            pts <- base::base::substring(pts, 2)
+            pts <- base::substring(pts, 2)
             url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[curma], "&model=", model, "&return_null_points")
             paleopts <- rjson::fromJSON(file = url)
             for (k in 1:base::length(paleopts$coordinates)){
