@@ -17,12 +17,12 @@ mapdiv  (data, unity, rank = "genus", res = 1, map = NULL,
 
 \item{rank}{character. Taxnomic rank. By default rank = "genus".}
 
-\item{res}{numeric. Defining the spatial resolution. Default res = 1.}
+\item{res}{numeric. Defining the spatial resolution. By default res = 1.}
 
 \item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
 
 \item{fun}{function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
-You can use functions such as min, max, or mean, or the character value: 'count'.}
+You can use functions such as min, max, or mean, or the character value 'count'.}
 
 \item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
@@ -44,7 +44,41 @@ plot, such as main = "my own title" or main.col = "red".}
 RasterLayer
 }
 \description{
-Calculates the Shannon diversity per cell or locality 
+Calculates the Shannon diversity per cell or fossilsite 
 (taking into account relative abundances of all the fossil records 
 whithin the cell) and creates a plot of the map with a RasterLayer of the diversity.
+}
+\examples{
+\dontrun{
+
+library(mapast)
+
+#get data and preprocess it
+data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+                                                        min_ma = 0, max_ma = 10, 
+                                                        show = c("coords", "phylo"), 
+                                                        vocab = "pbdb", limit = 100))
+df <- formatdata(data)
+df_auto <- paleocoords(df, time = "automatic")
+                                                        
+#create a plot with fossils on the paleogeographical map
+div_fossilsite <- mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10,
+                      fun = mean, model = "SETON2012")
+div_cell <- mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, fun = mean,
+                      model = "SETON2012")
+
+#save the maps before so the function does not need to load them
+maps <- getmap(ma = 2.5, model = "SETON2012", do.plot = FALSE)
+mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10, map = maps,
+                      fun = mean, model = "SETON2012")
+mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, map = maps, fun = mean,
+                      model = "SETON2012")
+
+#save maps as pdf
+mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10, map = maps, fun = mean,
+                      model = "SETON2012", save.as = "pdf")
+mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, map = maps, fun = mean,
+                      model = "SETON2012", save.as = "pdf")
+
+}
 }

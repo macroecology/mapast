@@ -7,16 +7,16 @@
 formatdata(data, db = "pbdb")
 }
 \arguments{
-\item{data}{data.frame. Fossil occurrences data.}
+\item{data}{data.frame. Fossil occurrences dat, from the Paleoiology Database.}
 
-\item{db}{character. Name of the database where the data is from.}
+\item{db}{character. Name of the database where the data is from. Only db = "pbdb" possible.}
 }
 \value{
 data.frame
 }
 \description{
-Changes columns names of your data.frame from a fossil database to the names needed for the functions in this package.
-It also calculates the average age if not already given by the database.
+Changes and adds columns of your data.frame from the Paleobiology Database to the names needed for the functions in this package.
+It also calculates the average age of the fossil occurrences from given early_age and late_age parameter.
 }
 \examples{
 \dontrun{

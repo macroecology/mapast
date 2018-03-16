@@ -21,9 +21,9 @@ mapocc(data, model = "SETON2012",
 
 \item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
 
-\item{res}{numeric. Defining the spatial resolution. Default res = 1.}
+\item{res}{numeric. Defining the spatial resolution. By default res = 1.}
 
-\item{save.as}{character. Defines the format the plots should be saved. "tiff" or "pdf".}
+\item{save.as}{character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".}
 
 \item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
@@ -41,5 +41,30 @@ RasterLayer
 }
 \description{
 Creates a RasterLayer, containing the number of occurrences per cell, and a plot of the fossil 
-occurences by taxonomic rank per cell (a proxy for the sampling effort).
+occurrences by taxonomic rank per cell (a proxy for the sampling effort).
+}
+\examples{
+\dontrun{
+
+library(mapast)
+
+# get data and preprocess it
+data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+                                                        min_ma = 0, max_ma = 10, 
+                                                        show = c("coords", "phylo"), 
+                                                        vocab = "pbdb", limit = 100))
+df <- formatdata(data)
+df_auto <- paleocoords(df, time = "automatic")
+                                                        
+# create a plot with fossils on the paleogeographical map
+occras <- mapocc(data = df_auto, model = "SETON2012", rank = "species")
+
+# save the maps before so the function does not need to load them
+maps <- getmap(ma = 2.5, model = "SETON2012", do.plot = FALSE)
+mapocc(data = df_auto, model = "SETON2012", rank = "species", map = maps)
+
+# save maps as pdf
+mapocc(data = df_auto, model = "SETON2012", rank = "species", map = maps, save.as = "pdf")
+
+}
 }

@@ -15,9 +15,10 @@ getmap(ma, model = "SETON2012", show.plates = FALSE,
 \item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
-\item{show.plates}{boolean. Defines if the user wants to get the continental plate borders. By default. show.plates = FALSE.}
+\item{show.plates}{boolean. Defines if the user wants to get the continental plate borders. By default show.plates = FALSE.}
 
-\item{save.as}{character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".}
+\item{save.as}{character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png". 
+By default save.as = NULL, plots are only shown not saved automatically as a file.}
 
 \item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
@@ -25,14 +26,14 @@ getmap(ma, model = "SETON2012", show.plates = FALSE,
 
 \item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
 
-\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"}
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title" or main.col="red".}
 }
 \value{
 SpatialPolygonsDataFrame
 }
 \description{
-Gets a map of a specific age from a model specified by the user.
-Available models and ages at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models .
+Downloads a map of a specific age from a model specified by the user.
+Available models and ages can be found at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models .
 }
 \examples{
 \dontrun{

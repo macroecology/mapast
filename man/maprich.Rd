@@ -9,20 +9,19 @@ maprich(data, rank = "genus", res = 1, model = "SETON2012", map = NULL, save.as 
                     colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...)
 }
 \arguments{
-\item{data}{data.frame. Fossil occurrences data. Can be created with 
-getdata(interval, base_name).}
+\item{data}{data.frame. Fossil occurrences data.}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank="genus".}
 
-\item{res}{numeric. Defining the spatial resolution. Default res = 1.}
+\item{res}{numeric. Defining the spatial resolution. By default res = 1.}
 
 \item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
 \item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
 
-\item{save.as}{character. Defines the format the plots should be saved. "tiff" or "pdf".}
+\item{save.as}{character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".}
 
 \item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
@@ -40,5 +39,31 @@ RasterLayer
 }
 \description{
 Creates a RasterLayer of taxon richness
-and makes a plot of the map and richness raster.
+and makes a plot of the map and the richness raster.
+}
+\examples{
+\dontrun{
+
+library(mapast)
+
+#get data and preprocess it
+data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+                                                        min_ma = 0, max_ma = 10, 
+                                                        show = c("coords", "phylo"), 
+                                                        vocab = "pbdb", limit = 100))
+df <- formatdata(data)
+df_auto <- paleocoords(df, time = "automatic")
+                                                        
+#create a plot with fossils on the paleogeographical map
+rich <- maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012")
+
+#save the maps before so the function does not need to load them
+maps <- getmap(ma = 2.5, model = "SETON2012", do.plot = FALSE)
+maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012", map = maps)
+
+#save maps as pdf
+maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012", map = maps,
+                      save.as = "pdf")
+
+}
 }

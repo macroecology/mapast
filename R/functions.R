@@ -2,13 +2,13 @@
 
 #' formatdata
 #' 
-#' Changes columns names of your data.frame from a fossil database to the names needed for the functions in this package.
-#' It also calculates the average age if not already given by the database.
+#' Changes and adds columns of your data.frame from the Paleobiology Database to the names needed for the functions in this package.
+#' It also calculates the average age of the fossil occurrences from given early_age and late_age parameter.
 #' 
 #' @usage formatdata(data, db = "pbdb")
 #' 
-#' @param data data.frame. Fossil occurrences data.
-#' @param db character. Name of the database where the data is from.
+#' @param data data.frame. Fossil occurrences dat, from the Paleoiology Database.
+#' @param db character. Name of the database where the data is from. Only db = "pbdb" possible.
 #' @return data.frame
 #' @export
 #' @examples 
@@ -50,15 +50,15 @@ formatdata <- function(data, db = "pbdb"){
 #' paleocoords
 #' 
 #' Calculating the paleocoordinates of the fossil data. Either calculating timebins by looking at the early_age and late_age column,
-#' taking the average age of the fossils rounded or by using user defined time bins.
+#' taking the rounded average age (avg_age) of the fossils or by using user defined time bins.
 #'  
 #' @usage paleocoords(data, time = "automatic", timevector = NULL, 
 #'                         stepsize = 10, model = "SETON2012")
 #' 
 #' @param data data.frame. Fossil occurrences data.
-#' @param time character. Defines how the reconstruction time is specified. Can be "automatic", "average" or "timevector". By default time="automatic".
-#' @param timevector vector. Defining the borders of the time bins. Not allowed to be NULL if time="timevector".
-#' @param stepsize numeric. Defining the stepsize of the time bins if time="automatic".
+#' @param time character. Defines how the reconstruction time is specified. Can be "automatic", "average" or "timevector". By default time = "automatic".
+#' @param timevector vector. Defining the borders of the time bins. Not allowed to be NULL if time = "timevector".
+#' @param stepsize numeric. Defining the stepsize of the time bins if time = "automatic".
 #' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
 #' @return data.frame
@@ -74,7 +74,7 @@ formatdata <- function(data, db = "pbdb"){
 #' occ_ma <- paleoocoords(occ, time="automatic", model = "SETON2012")
 #' 
 #' #reconstruct paleocoordinates with specific time
-#' occ_matime <- paleoocoords(occ, time ="timevector", timevector = c(0.10), model = "SETON2012")
+#' occ_matime <- paleoocoords(occ, time = "timevector", timevector = c(0.10), model = "SETON2012")
 #' 
 #'                     
 #'}
@@ -426,8 +426,8 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 
 #' getmap
 #' 
-#' Gets a map of a specific age from a model specified by the user.
-#' Available models and ages at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models .
+#' Downloads a map of a specific age from a model specified by the user.
+#' Available models and ages can be found at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models .
 #' 
 #' @usage getmap(ma, model = "SETON2012", show.plates = FALSE, 
 #'                   save.as = NULL, colland = "#66666660", 
@@ -437,12 +437,13 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 #' @param ma numeric. Age in ma(million years ago). Can also be a vector of ages.
 #' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
-#' @param show.plates boolean. Defines if the user wants to get the continental plate borders. By default. show.plates = FALSE.
-#' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
+#' @param show.plates boolean. Defines if the user wants to get the continental plate borders. By default show.plates = FALSE.
+#' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png". 
+#' By default save.as = NULL, plots are only shown not saved automatically as a file.
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title" or main.col="red".
 #' @return SpatialPolygonsDataFrame
 #' @export
 #' @examples
@@ -641,7 +642,7 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
 ####################mapast#################################
 #' mapast
 #' 
-#' Plots your fossil occurrence data onto the corresponding map.
+#' Plots your fossil occurrence data onto the corresponding MAp of the PAST.
 #' 
 #' 
 #' 
@@ -662,7 +663,7 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
 #' @param colpoints character. Defines the color of the occurrence-points. By default colpoints = "#65432190".
 #' @param pch numeric. Point symbol for plotting the occurences. By default pch = 16 (filled circle).
 #' @param cex numeric. Size of the points. By default cex = 1.
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title", main.col="red"
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title" or main.col="red".
 #' @return Plot
 #' @export 
 #' @examples 
@@ -871,7 +872,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
 #' mapocc
 #' 
 #' Creates a RasterLayer, containing the number of occurrences per cell, and a plot of the fossil 
-#' occurences by taxonomic rank per cell (a proxy for the sampling effort).
+#' occurrences by taxonomic rank per cell (a proxy for the sampling effort).
 #' 
 #' @usage mapocc(data, model = "SETON2012",
 #'                    rank = "genus", map = NULL,
@@ -885,8 +886,8 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum".
 #' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.
-#' @param res numeric. Defining the spatial resolution. Default res = 1. 
-#' @param save.as character. Defines the format the plots should be saved. "tiff" or "pdf".
+#' @param res numeric. Defining the spatial resolution. By default res = 1. 
+#' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
 #' @param col.grid character. Defines the color of the raster.
@@ -900,7 +901,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
 #' 
 #' library(mapast)
 #' 
-#' #get data and preprocess it
+#' # get data and preprocess it
 #' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
 #'                                                         min_ma = 0, max_ma = 10, 
 #'                                                         show = c("coords", "phylo"), 
@@ -908,16 +909,15 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
 #' df <- formatdata(data)
 #' df_auto <- paleocoords(df, time = "automatic")
 #'                                                         
-#' #create a plot with fossils on the paleogeographical map
+#' # create a plot with fossils on the paleogeographical map
 #' occras <- mapocc(data = df_auto, model = "SETON2012", rank = "species")
 #' 
-#' #save the maps before so the function does not need to load them
-#' maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
+#' # save the maps before so the function does not need to load them
+#' maps <- getmap(ma = 2.5, model = "SETON2012", do.plot = FALSE)
 #' mapocc(data = df_auto, model = "SETON2012", rank = "species", map = maps)
 #' 
-#' #save maps as pdf
+#' # save maps as pdf
 #' mapocc(data = df_auto, model = "SETON2012", rank = "species", map = maps, save.as = "pdf")
-#' 
 #' 
 #'}
 
@@ -926,8 +926,8 @@ mapocc <- function(data, model = "SETON2012",
                          res = 1, save.as = NULL,
                          colland = "#66666660",
                          colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...) {
-  #check user input
-  #check if data has latitude and longitude columns
+  # check user input
+  # check if data has latitude and longitude columns
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
@@ -1137,21 +1137,20 @@ mapocc <- function(data, model = "SETON2012",
 #' maprich
 #' 
 #' Creates a RasterLayer of taxon richness
-#' and makes a plot of the map and richness raster.
+#' and makes a plot of the map and the richness raster.
 #' 
 #' @usage maprich(data, rank = "genus", res = 1, model = "SETON2012", map = NULL, save.as = NULL,
 #'                     colland = "#66666660",
 #'                     colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...)
 #' 
-#' @param data data.frame. Fossil occurrences data. Can be created with 
-#' getdata(interval, base_name).
+#' @param data data.frame. Fossil occurrences data.
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank="genus".
-#' @param res numeric. Defining the spatial resolution. Default res = 1. 
+#' @param res numeric. Defining the spatial resolution. By default res = 1. 
 #' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
 #' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.
-#' @param save.as character. Defines the format the plots should be saved. "tiff" or "pdf".
+#' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
@@ -1177,14 +1176,14 @@ mapocc <- function(data, model = "SETON2012",
 #' rich <- maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012")
 #' 
 #' #save the maps before so the function does not need to load them
-#' maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
+#' maps <- getmap(ma = 2.5, model = "SETON2012", do.plot = FALSE)
 #' maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012", map = maps)
 #' 
 #' #save maps as pdf
-#' maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012", map = maps, save.as = "pdf")
+#' maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012", map = maps,
+#'                       save.as = "pdf")
 #' 
 #'}
-#'
 
 maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = NULL, save.as = NULL,
                            colland = "#66666660",
@@ -1412,7 +1411,7 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
 ########spsite###################
 #' spsite
 #' 
-#' Generates a diversity data.frame, with the number occurrences of a taxon per locality.
+#' Generates a diversity data.frame, with the number occurrences of a taxon per locality or a presence/absence data.frame.
 #' 
 #' @usage spsite(data, unity, res = 1, rank = "genus", pa = FALSE)
 #' 
@@ -1422,7 +1421,7 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
 #' @param res numeric. Defining the spatial resolution. By default res = 1. Only used if unity = "cell".
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
-#' @param pa boolean. Defines if the user wants presence absence or counted data. By default pa = FALSE.
+#' @param pa boolean. Defines if the user wants presence/absence or counted data. By default pa = FALSE.
 #' @return data.frame
 #' @export 
 #' @examples 
@@ -1687,7 +1686,7 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #####################mapdiv####################
 #' mapdiv
 #' 
-#' Calculates the Shannon diversity per cell or locality 
+#' Calculates the Shannon diversity per cell or fossilsite 
 #' (taking into account relative abundances of all the fossil records 
 #' whithin the cell) and creates a plot of the map with a RasterLayer of the diversity.
 #' 
@@ -1700,10 +1699,10 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #' @param data data.frame. Fossil occurrences data.
 #' @param unity character. Either "fossilsite" or "cell".
 #' @param rank character. Taxnomic rank. By default rank = "genus".
-#' @param res numeric. Defining the spatial resolution. Default res = 1. 
+#' @param res numeric. Defining the spatial resolution. By default res = 1. 
 #' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.
 #' @param fun function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
-#' You can use functions such as min, max, or mean, or the character value: 'count'. 
+#' You can use functions such as min, max, or mean, or the character value 'count'. 
 #' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
@@ -1729,17 +1728,23 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #' df_auto <- paleocoords(df, time = "automatic")
 #'                                                         
 #' #create a plot with fossils on the paleogeographical map
-#' div_fossilsite <- mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10, fun = mean, model = "SETON2012")
-#' div_cell <- mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, fun = mean, model = "SETON2012")
+#' div_fossilsite <- mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10,
+#'                       fun = mean, model = "SETON2012")
+#' div_cell <- mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, fun = mean,
+#'                       model = "SETON2012")
 #' 
 #' #save the maps before so the function does not need to load them
-#' maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
-#' mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10, map = maps, fun = mean, model = "SETON2012")
-#' mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, map = maps, fun = mean, model = "SETON2012")
+#' maps <- getmap(ma = 2.5, model = "SETON2012", do.plot = FALSE)
+#' mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10, map = maps,
+#'                       fun = mean, model = "SETON2012")
+#' mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, map = maps, fun = mean,
+#'                       model = "SETON2012")
 #' 
 #' #save maps as pdf
-#' mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10, map = maps, fun = mean, model = "SETON2012", save.as = "pdf")
-#' mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, map = maps, fun = mean, model = "SETON2012", save.as = "pdf")
+#' mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10, map = maps, fun = mean,
+#'                       model = "SETON2012", save.as = "pdf")
+#' mapdiv(data = df_auto, unity = "cell", rank = "species", res = 10, map = maps, fun = mean,
+#'                       model = "SETON2012", save.as = "pdf")
 #' 
 #' }
 
@@ -2052,13 +2057,13 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
 #' @param method character. Defining the method of diversity measure, method = "shannon" or method = "richness".
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".
-#' @param res numeric. Defining the spatial resolution. Default res = 1. 
+#' @param res numeric. Defining the spatial resolution. By default res = 1. 
 #' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.
 #' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param colpoints character. Defines the color of the occurrence-points. By default colpoints = "#65432190". 
+#' @param colpoints character. Defines the color of the fossil occurrence-points. By default colpoints = "#65432190". 
 #' @param rich.col character. Defines the color of the richness curve. By default rich.col = "#654321".
 #' @param pch numeric. Point symbol for plotting the occurences. By default pch = 21.
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
@@ -2066,8 +2071,8 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, 
 #' such as main = "my own title" or main.col = "red".
 #' @return data.frame 
-#' @export 
-#' @examples 
+#' @export
+#' @examples
 #' \dontrun{
 #' 
 #' library(mapast)
@@ -2081,18 +2086,23 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
 #' df_auto <- paleocoords(df, time = "automatic")
 #'                                                         
 #' #create a plot with fossils on the paleogeographical map
-#' latrich <- latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, model = "SETON2012")
-#' latdiv <- latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, model = "SETON2012")
+#' latrich <- latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1,
+#'                       model = "SETON2012")
+#' latdiv <- latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1,
+#'                       model = "SETON2012")
 #' 
 #' #save the maps before so the function does not need to load them
-#' maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
-#' latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, map = maps, model = "SETON2012")
-#' latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps, model = "SETON2012")
+#' maps <- getmap(ma = 2.5, model = "SETON2012", do.plot = FALSE)
+#' latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, map = maps,
+#'                       model = "SETON2012")
+#' latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps,
+#'                       model = "SETON2012")
 #' 
 #' #save maps as pdf
-#' latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, map = maps, model = "SETON2012", save.as = "pdf")
-#' latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps, model = "SETON2012", save.as = "pdf")
-#' 
+#' latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, map = maps,
+#'                       model = "SETON2012", save.as = "pdf")
+#' latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps,
+#'                       model = "SETON2012", save.as = "pdf")
 #' 
 #'}
 

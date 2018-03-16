@@ -17,13 +17,13 @@ cell or per fossilsite.}
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"}
 
-\item{pa}{boolean. Defines if the user wants presence absence or counted data. By default pa = FALSE.}
+\item{pa}{boolean. Defines if the user wants presence/absence or counted data. By default pa = FALSE.}
 }
 \value{
 data.frame
 }
 \description{
-Generates a diversity data.frame, with the number occurrences of a taxon per locality.
+Generates a diversity data.frame, with the number occurrences of a taxon per locality or a presence/absence data.frame.
 }
 \examples{
 \dontrun{

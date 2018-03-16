@@ -1,6 +1,5 @@
 Package: mapast
-Description: Download and use paleomaps () combined with paleobioDB
-    fossil occurrences.
+Description: mapast: MAp the PAST. Visualize and analyse fossil occurrences on their corresponding paleogeographical maps.
 Encoding: UTF-8
 Type: Package
 License: GPL-2

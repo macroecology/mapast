@@ -1,16 +1,12 @@
-
-#'We have developed mapast (PAST mAps), an R-package designed to make paleontolgical maps available to
-#'plot the fossil occurrences from the Paleobiology Database onto paleogeographical maps.
-#'
-#'
-#'We programmed functions for getting the SpatialPolygonsDaraFrame of the paleontological maps, 
-#'functions to get a data.frame of fossil occurrences from the Paleobilogy Database, analysing the diversity of the past 
-#'and plotting this data on the maps.
-#'
-#' @name mapast
-#' @title mapast (PAST mAps):  An R-package for getting and using paleogeographical maps.
-#' @aliases mapast-package
 #' @docType package
+#' @name mapast R-package
+#' @title mapast: MAp the PAST.
+#' @description We have developed mapast (MAp the PAST), an R-package designed to make paleontolgical maps available to 
+#' visualise the fossil occurrences from the Paleobiology Database onto their corresponding maps and analyse them.
+#' We programmed functions for getting the SpatialPolygonsDaraFrame of the paleontological maps, 
+#' functions to get a data.frame of fossil occurrences from the Paleobilogy Database, analysing the diversity of the past 
+#' and plotting this data on the maps.
+#' @aliases mapast-package
 #' @author Sonja Rothkugel \email{rothkugelsonja@@aol.de}
 #' @author Sara Varela \email{svarela@@paleobiogeography.org}
 #' 

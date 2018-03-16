@@ -19,7 +19,7 @@ latdivgrad (data, method, rank = "genus",
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".}
 
-\item{res}{numeric. Defining the spatial resolution. Default res = 1.}
+\item{res}{numeric. Defining the spatial resolution. By default res = 1.}
 
 \item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
 
@@ -30,7 +30,7 @@ latdivgrad (data, method, rank = "genus",
 
 \item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{character. Defines the color of the occurrence-points. By default colpoints = "#65432190".}
+\item{colpoints}{character. Defines the color of the fossil occurrence-points. By default colpoints = "#65432190".}
 
 \item{rich.col}{character. Defines the color of the richness curve. By default rich.col = "#654321".}
 
@@ -48,4 +48,38 @@ data.frame
 }
 \description{
 Calculates the latitudinal diversity of taxa (species, genera, families, orders) and creates a plot of the continental masses with the fossil occurrences and the latitudinal diversity.
+}
+\examples{
+\dontrun{
+
+library(mapast)
+
+#get data and preprocess it
+data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+                                                        min_ma = 0, max_ma = 10, 
+                                                        show = c("coords", "phylo"), 
+                                                        vocab = "pbdb", limit = 100))
+df <- formatdata(data)
+df_auto <- paleocoords(df, time = "automatic")
+                                                        
+#create a plot with fossils on the paleogeographical map
+latrich <- latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1,
+                      model = "SETON2012")
+latdiv <- latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1,
+                      model = "SETON2012")
+
+#save the maps before so the function does not need to load them
+maps <- getmap(ma = 2.5, model = "SETON2012", do.plot = FALSE)
+latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, map = maps,
+                      model = "SETON2012")
+latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps,
+                      model = "SETON2012")
+
+#save maps as pdf
+latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, map = maps,
+                      model = "SETON2012", save.as = "pdf")
+latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps,
+                      model = "SETON2012", save.as = "pdf")
+
+}
 }
