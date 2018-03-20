@@ -413,7 +413,8 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
     for(i in 1:base::length(num_reconage)){
       ages <- base::paste0(ages, ", ", num_reconage[i], "mya ")
     }
-    print(base::paste0("You can not plot all of these points in a single map. You have ", base::length(num_reconage), " different maps, which are ", base::substring(ages, 2), "."))
+    printstr <- base::paste0("[NOTE]: You can not plot all of these points in a single map. You have ", base::length(num_reconage), " different maps, which are ", base::substring(ages, 2), ".")
+    print(printstr)
   }
   if(base::nrow(data2) > 0){
     data <- base::rbind(data, data2)
@@ -735,7 +736,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
     }
   }
   if(toload > 0){
-    print(paste0("You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    print(paste0("[NOTE]: You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
   }
   
    for(age in 1:base::length(uage)){
@@ -973,7 +974,7 @@ mapocc <- function(data, model = "SETON2012",
     }
   }
   if(toload > 0){
-    print(paste0("You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    print(base::paste0("[NOTE]: You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
   }
   
   for(age in 1:base::length(uage)){
@@ -1239,7 +1240,7 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
     }
   }
   if(toload > 0){
-    print(base::paste0("You have ", num_recon, " reconstruction times (meaning ", num_recon, " maps). ", toload, " map(s) need(s) to get loaded. This is going to take about ", toload, " minutes for loading."))
+    print(base::paste0("[NOTE]: You have ", num_recon, " reconstruction times (meaning ", num_recon, " maps). ", toload, " map(s) need(s) to get loaded. This is going to take about ", toload, " minutes for loading."))
   }
   
   #creating a raster in size of the shape file
@@ -1783,7 +1784,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
     }
   }
   if(toload > 0){
-    print(paste0("You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    print(base::paste0("[NOTE]: You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
   }
   
   
@@ -2152,7 +2153,7 @@ latdivgrad <- function(data, method, rank = "genus",
     }
   }
   if(toload > 0){
-    print(paste0("You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    print(base::paste0("[NOTE]: You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
   }
 
   latdivlist <- list()

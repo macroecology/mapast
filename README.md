@@ -253,12 +253,20 @@ Returns a RasterLayer of richness and a map with the raster on it.
 
 ```coffee
 
-> maprich (shape, data, rank="species")
-
+> maprich_SETON2012 <- maprich(df_coords_SETON2012, model = "SETON2012", rank = "genus", map = maps_SETON2012, res = 10)
+> maprich_SETON2012
+class       : RasterStack 
+dimensions  : 18, 36, 648, 5  (nrow, ncol, ncell, nlayers)
+resolution  : 10, 10  (x, y)
+extent      : -180, 180, -90, 90  (xmin, xmax, ymin, ymax)
+coord. ref. : NA 
+names       : layer.1, layer.2, layer.3, layer.4, layer.5 
+min values  :       1,       1,       1,       1,       1 
+max values  :      82,     387,     475,     150,     102 
 
 ```
 
-![plot of chunk map]() 
+![plot of chunk map](figure/SETON2012_maprich.png) 
 
 ## Paleodiversity
 
@@ -266,36 +274,63 @@ Returns a RasterLayer of richness and a map with the raster on it.
 Returns a dataframe of taxa occurrences vs. localities (unity="fossilsite) or cells(unity="cell") (~ sites/cells per taxa matrix)
 
 ```coffee
-> data <- getdata(base_name = "Canis", interval = "Quaternary")
-> result <- spsite(data, unity="fossilsite", rank = "genus")
-> head(result)
+> fossilsite_SETON2012 <- spsite(data = df_coords_SETON2012, unity = "fossilsite", rank = "genus")
+> fossilsite_SETON2012[1][[1]][1:2,]
+  paleolng paleolat Helcura Ancyropus Amblypus Episcopopus Australochelys Kayentachelys Indochelys
+1    -9.79    23.44       3         0        0           0              0             0          0
+4    -9.90    23.13       0         1        0           0              0             0          0
+  Condorchelys Xinjiangchelys Plesiochelys Siamochelys Heckerochelys Bashuchelys Chengyuchelys
+1            0              0            0           0             0           0             0
+4            0              0            0           0             0           0             0
+  Protoxinjiangchelys Chuannanchelys Sichuanchelys Eileanchelys Annemys Toxocheloides Sinaspideretes
+1                   0              0             0            0       0             0              0
+4                   0              0             0            0       0             0              0
+  Tienfuchelys Notoemys Yaxartemys Glyptops Chelonipus Thalassemys Tropidemys Platychelys Peltochelys
+1            0        0          0        0          0           0          0           0           0
+4            0        0          0        0          0           0          0           0           0
+  Undjulemys Hongkongochelys Chelonichnium Solnhofia Selenemys Craspedochelys Jurassichelon Chelonides
+1          0               0             0         0         0              0             0          0
+4          0               0             0         0         0              0             0          0
+  Eurysternum Idiochelys Enaliochelys Portlandemys Achelonia Hydropelta Stylemys Pelobatochelys Dinochelys
+1           0          0            0            0         0          0        0              0          0
+4           0          0            0            0         0          0        0              0          0
+  Dorsetochelys Uluops Pleurosternon Palaeomedusa Neusticemys Hylaeochelys Owadowia Parachelys Acichelys
+1             0      0             0            0           0            0        0          0         0
+4             0      0             0            0           0            0        0          0         0
+  Tacuarembemys Riodevemys Basilochelys Phunoichelys
+1             0          0            0            0
+4             0          0            0            0
 ``` 
 
 ```coffee
-    paleolng paleolat Canis
-612  -170.38    63.70     1
-611  -170.05    66.03     1
-610  -169.90    66.05     1
-69   -161.94    66.88     1
-83   -147.67    65.10     2
-160  -140.00    68.20     1
+> cell_SETON2012 <- spsite(data = df_coords_SETON2012, unity = "cell", res = 10, rank = "genus")
+> cell_SETON2012[1][[1]][1:2,]
+    paleolng paleolat Helcura Ancyropus Amblypus Episcopopus Australochelys Kayentachelys Indochelys
+613     -175       85       0         0        0           0              0             0          0
+577     -175       75       0         0        0           0              0             0          0
+    Condorchelys Xinjiangchelys Plesiochelys Siamochelys Heckerochelys Bashuchelys Chengyuchelys
+613            0              0            0           0             0           0             0
+577            0              0            0           0             0           0             0
+    Protoxinjiangchelys Chuannanchelys Sichuanchelys Eileanchelys Annemys Toxocheloides Sinaspideretes
+613                   0              0             0            0       0             0              0
+577                   0              0             0            0       0             0              0
+    Tienfuchelys Notoemys Yaxartemys Glyptops Chelonipus Thalassemys Tropidemys Platychelys Peltochelys
+613            0        0          0        0          0           0          0           0           0
+577            0        0          0        0          0           0          0           0           0
+    Undjulemys Hongkongochelys Chelonichnium Solnhofia Selenemys Craspedochelys Jurassichelon Chelonides
+613          0               0             0         0         0              0             0          0
+577          0               0             0         0         0              0             0          0
+    Eurysternum Idiochelys Enaliochelys Portlandemys Achelonia Hydropelta Stylemys Pelobatochelys Dinochelys
+613           0          0            0            0         0          0        0              0          0
+577           0          0            0            0         0          0        0              0          0
+    Dorsetochelys Uluops Pleurosternon Palaeomedusa Neusticemys Hylaeochelys Owadowia Parachelys Acichelys
+613             0      0             0            0           0            0        0          0         0
+577             0      0             0            0           0            0        0          0         0
+    Tacuarembemys Riodevemys Basilochelys Phunoichelys
+613             0          0            0            0
+577             0          0            0            0
 ``` 
 
-```coffee
-> data <- getdata(base_name = "Canis", interval = "Quaternary")
-> result_cell <- spsite(data, unity="cell", rank = "genus")
-> head(result)
-``` 
-
-```coffee
-      paleolng paleolat Canis
-64441   -179.5     89.5     0
-64081   -179.5     88.5     0
-63721   -179.5     87.5     0
-63361   -179.5     86.5     0
-63001   -179.5     85.5     0
-62641   -179.5     84.5     0
-```
 
 
 **mapdiv**
@@ -304,81 +339,64 @@ Returns a dataframe of taxa occurrences vs. localities (unity="fossilsite) or ce
 or number of unique localities per cell
 
 ```coffee
-> data<- getdata (base_name="Canis", interval="Quaternary")
-> div_site <- mapdiv (shape, data, unity="fossilsite", rank="genus", res=1)
-``` 
-
-```coffee
-class       : RasterLayer 
-dimensions  : 180, 360, 64800  (nrow, ncol, ncell)
-resolution  : 1, 1  (x, y)
+> mapdiv_cell_SETON2012 <- mapdiv(data = df_coords_SETON2012, unity = "cell", map=maps_SETON2012, res = 10, rank = "genus")
+> mapdiv_cell_SETON2012
+class       : RasterStack 
+dimensions  : 18, 36, 648, 5  (nrow, ncol, ncell, nlayers)
+resolution  : 10, 10  (x, y)
 extent      : -180, 180, -90, 90  (xmin, xmax, ymin, ymax)
 coord. ref. : NA 
-data source : in memory
-names       : layer 
-values      : NA, NA  (min, max)
+names       :   layer.1,   layer.2,   layer.3,   layer.4,   layer.5 
+min values  : 0.6365142, 0.6931472, 0.5004024, 0.6365142, 0.6365142 
+max values  :  2.682016,  3.575652,  4.089226,  3.218349,  3.115633 
 ``` 
-![plot of chunk map](figure/diversity.png) 
+![plot of chunk map](figure/SETON2012_mapdiv_cell.png) 
 
 ```coffee
-> data<- getdata (base_name="Canis", interval="Quaternary")
-> div_cell <- mapdiv (shape, data, unity="cell", rank="genus", res=1)
-``` 
-
-```coffee
-class       : RasterLayer 
-dimensions  : 180, 360, 64800  (nrow, ncol, ncell)
-resolution  : 1, 1  (x, y)
+> mapdiv_site_SETON2012 <- mapdiv(data = df_coords_SETON2012, unity = "fossilsite", map=maps_SETON2012, res = 10, rank = "genus")
+> mapdiv_site_SETON2012
+class       : RasterStack 
+dimensions  : 18, 36, 648, 5  (nrow, ncol, ncell, nlayers)
+resolution  : 10, 10  (x, y)
 extent      : -180, 180, -90, 90  (xmin, xmax, ymin, ymax)
 coord. ref. : NA 
-data source : in memory
-names       : layer 
-values      : NA, NA  (min, max)
-
+names       :    layer.1,    layer.2,    layer.3,    layer.4,    layer.5 
+min values  : 0.06931472, 0.05776227, 0.09372252, 0.08154673, 0.06931472 
+max values  :   0.558745,   1.332179,   1.713454,   1.098612,   1.906155 
 ``` 
 
-![plot of chunk map](figure/diversity_cell.png) 
+![plot of chunk map](figure/SETON2012_mapdiv_fossilsite.png) 
 
 
 **latdivgrad**
  calculates latitudinal diversity (either shannon or richness) of taxa (species, genera, families, orders)
 
 ```coffee
-> shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-> data<- getdata (base_name="Canis", interval="Quaternary")
-> rich <- latdivgrad (shape, data, method="richness", rank = "genus", res=1)
-> head(rich)
-```
-```coffee
+> latrich_SETON2012 <- latdivgrad(data = df_coords_SETON2012, method = "richness", map= maps_SETON2012, rank = "genus")
+> latrich_SETON2012[[1]][1:5,]
     paleolat div
 180     89.5   0
 179     88.5   0
 178     87.5   0
 177     86.5   0
 176     85.5   0
-175     84.5   0
 ```
 
-![plot of chunk map](figure/lat_rich.png) 
+![plot of chunk map](figure/SETON2012_latdivgrad_richness.png) 
 
 ```coffee
-> shape<- getmap(interval="Quaternary", model="GPlates", do.plot=FALSE)
-> data<- getdata (base_name="Canis", interval="Quaternary")
-> shannon <- latdivgrad (shape, data, method="shannon", rank = "species", res=1)
-> head(shannon)
-```
-
-```coffee
+> latdiv_SETON2012 <- latdivgrad(data = df_coords_SETON2012, method = "shannon", map= maps_SETON2012, rank = "genus")
+> latdiv_SETON2012[[1]][1:5,]
     paleolat div
 180     89.5   0
 179     88.5   0
 178     87.5   0
 177     86.5   0
 176     85.5   0
-175     84.5   0
+
 ```
 
-![plot of chunk map](figure/lat_div.png) 
+![plot of chunk map](figure/SETON2012_latdivgrad_shannon.png) 
 
 
 ## Meta
@@ -392,14 +410,14 @@ To cite package `mapast` in publications use:
 ```coffee
 To cite package `mapast` in publications use:
 
-Sara Varela, K. Sonja Rothkugel (2017). mapast:  combine paleogeography and paleobiodiversity. R package version 0.1. https://github.com/macroecology/mapast
+Sara Varela, K. Sonja Rothkugel (2018). mapast:  combine paleogeography and paleobiodiversity. R package version 0.1. https://github.com/macroecology/mapast
 
 A BibTeX entry for LaTeX users is
 
   @Manual{,
     title = {mapast:  combine paleogeography and paleobiodiversity},
     author = {Sara Varela} and {Sonja Rothkugel},
-    year = {2016},
+    year = {2018},
     note = {R package version 0.1},
     base = {https://github.com/macroecology/mapast},
   }
