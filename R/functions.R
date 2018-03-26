@@ -23,12 +23,16 @@
 #' }
 
 formatdata <- function(data, db = "pbdb"){
-  
+  # check if paleobiodb is given as database
+  # at the moment only pbdb possible
   if(db == "pbdb"){
-  
+    #calculate the average age from early_age and late_age of the fossils
     avg_age <- (data$early_age + data$late_age) / 2
     
+    #create a species column (not given by paleobiodb)
     species <- c()
+    #go through matched_rank, if it is species add the matched name to the species column
+    #if mathced rank is not species, species of the fossil is not known -> add NA
     for(rank in 1:base::length(data$matched_rank)){
       if(data$matched_rank[rank] == "species"){
         species <- c(species, as.character(data$matched_name[rank][[1]]))
@@ -37,11 +41,17 @@ formatdata <- function(data, db = "pbdb"){
       }
     }
     
+    #add average_age of the fossil and species to the data.frame
     data <- base::cbind(data, species, avg_age)
+    #sort data.frame by average age
     data <- data[base::order(-base::as.numeric(data$avg_age)), ]
     
+  }else{
+    # if user types in other db -> print message that at the moment only paleobiodb is possible
+    print("Sorry, function is at the moment only available for db = \"pbdb\".")
   }
   
+  #return the data.frame with species and average_age columns
   return(data)
 }
 
@@ -83,29 +93,40 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
   
 
   #remove data with lat or lng outside of range
+  #data2: data.frame for saving occurrences with lat/lng outside of range
   data2 <- NULL
   data2 <- base::rbind(data[base::which(data$lng < -180), ], data[base::which(data$lng > 180), ], data[base::which(data$lat < -90), ], data[base::which(data$lat > 90), ])
+  # count number of fossils with incorrect lat/lng and print note for user
   if(base::nrow(data2) > 0){
     data2[ ,"recon_age"] <- NA
     data2[ ,"paleolng"] <- NA
     data2[ ,"paleolat"] <- NA
     print(paste0("There are ", base::length(data2$lng), " points out of the lat long boundaries (-180, 180, -90, 90). Those points can not be projected into the past. Please, check them and correct them in order to be able to project them correctly into the past."))
+    #save only fossils with lat/lng inside range to go on with reconstructing the paleocoordinates
     data <- base::rbind(data[base::which(data$lng >= -180), ], data[base::which(data$lng < 180), ], data[base::which(data$lat >= -90), ], data[base::which(data$lat < 90), ])
   }
-  
+  #vectors for saving paleolat and paleolng
   paleolng <- c()
   paleolat <- c()
-  
+  #time = "average"
+  #take the rounded average_age as reconstruction time
+  #rounded to reduce number of maps
   if(time == "average"){
+    #calculate the reconstruction age: rounded average age of the fossil
     recon_age <- base::round(data$avg_age)
+    #add the reconstruction age to the data.frame
     data <- base::cbind(data, recon_age)
+    #list of reconstruction ages
     uma <- base::unique(recon_age)
     
+    #go through the reconstruction ages
     for( curma in 1:base::length(uma)){
+      #take all fossils with the current reconstruction age
       part <- base::subset(data, data$recon_age == uma[curma])
+      #pts: string for saving the paleolat and paleolng of the fossils
       pts <- ""
+      #if there are more  than 200 fossils for the current reconstruction age split the request into several requests
       if(base::length(part$recon_age) > 200){
-        
         num <- base::ceiling(base::length(part$recon_age) / 200)
         round <- 1
         while(round <= num){
@@ -116,11 +137,13 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
             for( j in 1:base::length(part2$recon_age)){
               pts <- base::paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
             }
-            
+            #save lat and lng of fossils in string and create request url for api with current reconstruction age
             pts <- base::substring(pts, 2)
             url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[curma], "&model=", model, "&return_null_points")
+            #read in reconstructed paleocoordinates and save them to paleolat and paleolng
             paleopts <- rjson::fromJSON(file = url)
             for (k in 1:base::length(paleopts$coordinates)){
+              #if point can't be reconstructed: save NA
               if(base::is.null(paleopts$coordinates[[k]])){
                 paleolng <- c(paleolng, NA)
                 paleolat <- c(paleolat, NA)
@@ -156,7 +179,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
         }
         
       }else{
-        
+        #if not more than 200 fossils: calculate all paleocoordinates in one step and save them
         for( j in 1:base::length(part$recon_age)){
           pts <- base::paste0(pts, ",", part$lng[j], ",", part$lat[j])
         }
@@ -474,10 +497,16 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL, colland = "#66666660", 
                    colsea = "#00509010", 
                    do.plot = TRUE, ...) {
+  #create empty list of shapes and plates
   shapes <- list()
   plates <- list()
+  #go through the ages given by the user
   for(ages in 1:base::length(ma)){
+    #url for api request
     url <- base::paste0("http://gws.gplates.org/reconstruct/coastlines/?time=", ma[ages], "&model=", model)
+    #try to get the requested map of the model
+    #print error message if map is not available
+    #err: boolean if there was an error getting the map
     err <- FALSE
     shape <- tryCatch(
       {
@@ -488,17 +517,23 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
         stop()
       }
     )
+    #add metadata to the shape file
+    #age and model
     shape@data$age <- ma[ages]
     shape@data$model <- model
+    #save shape in list of shapes
     shapes[[ages]] <- shape
     
+    #errplate: boolean if there was an error getting the plates
     errplate <- FALSE
+    #if user wants to get the plates
     if(show.plates){
+      #check if model is golonka or paleomap: they dont have plates
       if(model == "GOLONKA" || model == "PALEOMAP"){
         base::warning(base::paste0("No plate boundaries available for model ", model, "."))
         errplate <- TRUE
       }else{
-        #no plate bounds for paleomap
+      #create url for api request and try to get plates
         plateurl <- base::paste0("http://gws.gplates.org/topology/plate_boundaries/?time=", ma[ages], "&model=", model)
         platebounds <- tryCatch(
           {
@@ -509,13 +544,16 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
             stop()
           }
         )
+        #add metadata to plates
         platebounds@data$age <- ma[ages]
         platebounds@data$model <- model
+        #save plate in list of plates
         plates[[ages]] <- platebounds
       }
       
     }
     
+    #if there was no error getting the map, create parameter for plotting and plot the map
     if(!err){
       #getting final parameter list for plot
       #default parameter list for plotting
@@ -534,6 +572,7 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
       graphparams <- c(graphparams.def, graphparams.user)
       # if user does not set plot=FALSE plot the shape file
       if (do.plot) {
+        #if user specifies save.as, save the plot
         if(!base::is.null(save.as)){
           if(save.as == "tiff"){
             grDevices::tiff(base::paste0("getmap-", ma[ages], "mya_", model, ".tiff"), 
@@ -626,10 +665,11 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
   }
 
   }
-  # return the shape file
+  # return the shape file/ list of shapes
   if(!errplate && show.plates){
     return(list(shapes, plates))
   }else{
+    #if there is only one map: return the SpatialPolygonDataFrame instead of a list of SpatialPolygonsDataFrames
     if(base::length(shapes)==1){
       return(shapes[[1]])
     }else{
@@ -721,31 +761,33 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
     }else{
       mapages <- c(map@data$age[1])
     }
-    
   }
   
   #count how many maps will be created
   #print warning
+  #uage: unique list of reconstructions ages
   num_recon <- base::length(base::unique(stats::na.omit(data$recon_age)))
-  #getting the shape file with getmap
   uage <- base::unique(data$recon_age)
+  #toload: number of maps that need to get loaded
   toload <- 0
+  #go through unique reconstruction ages and see if map of the age is available. If not add 1 to toload.
   for(a in 1:base::length(uage)){
       if(!as.character(uage[a]) %in% mapages){
       toload <- toload + 1
     }
   }
+  #if toload is not 0, give user a note how many maps need to get loaded.
   if(toload > 0){
     print(paste0("[NOTE]: You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
   }
-  
+  #go through the reconstruction ages
    for(age in 1:base::length(uage)){
+     #save all fossils with the current reconstruction age in subdata
     curma <- uage[age]
-    
     subdata <- base::subset(data, data$recon_age == curma)
-    
+
     if(curma %in% mapages){
-      
+      #if the corresponding map of the reconstruction age is given save it as shape
       if(class(map) == "list"){
         shape <- map[[match(curma, mapages)]]
       }else{
@@ -753,6 +795,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
       }
       
     }else{
+      #if map not given load map
       shape <- mapast::getmap(ma = curma, model = model, show.plates = FALSE, do.plot = FALSE)
     }
     #default parameter list for plotting

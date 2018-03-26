@@ -19,9 +19,9 @@ Imports:
     maptools,
     devtools,
     sp,
-	stats,
-	rgdal,
-	rjson
+    stats,
+    rgdal,
+    rjson
 Suggests: testthat
 BugReports: https://github.com/macroecology/mapast/issues
 URL: https://github.com/macroecology/mapast.git
