@@ -148,19 +148,22 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
                 paleolng <- c(paleolng, NA)
                 paleolat <- c(paleolat, NA)
               }else{
+                #otherwise save reconstructed paleolat and paleolng
                 paleolng <- c(paleolng, paleopts$coordinates[[k]][1])
                 paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
               }
             }
             
           }else{
+            #pass the last points of the subsets for one reconstruction age to the api
             pts <- ""
             part2 <- part[((round - 1) * 200 + 1):base::length(part$recon_age), ]
             for( j in 1:base::length(part2$recon_age)){
               pts <- paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
             }
-            
+            #remove comma before first point
             pts <- base::substring(pts, 2)
+            #create url with points, areconstruction age and model
             url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[curma], "&model=", model, "&return_null_points")
             paleopts <- rjson::fromJSON(file = url)
             for (k in 1:base::length(paleopts$coordinates)){
@@ -174,6 +177,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
             }
             
           }
+          #increase number of rounds to get next subset of points for current reconstruction age
           round <- round + 1
           
         }
@@ -183,10 +187,13 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
         for( j in 1:base::length(part$recon_age)){
           pts <- base::paste0(pts, ",", part$lng[j], ",", part$lat[j])
         }
-        
+        #remove comma before first point
         pts <- base::substring(pts, 2)
+        #create url for api with points, reconstruction time and model
         url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[curma], "&model=", model, "&return_null_points")
+        #read in reconstructed points
         paleopts <- rjson::fromJSON(file = url)
+        #save reconstructed plaeocoordinates or save NA if point couldn't be reconstructed
         for (k in 1:base::length(paleopts$coordinates)){
           if(base::is.null(paleopts$coordinates[[k]])){
             paleolng <- c(paleolng, NA)
@@ -200,25 +207,28 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
       }
       
     }
-    
-    
   }else if(time == "automatic"){
     #take min/max from early/late age as min and max from time bin (abgerundet/aufgerundet)
     #separate into bins of size stepsize
     #separate df into bins and take bin_age as request parameter.
     #set avg age to bin avg age
+    #get the latest age
     min <- base::floor(base::min(data$late_age))
+    #get the earliest age
     max <- base::ceiling(base::max(data$early_age))
+    #create a sequence from latest to earliest age with steps of the defined stepsize (default = 10)
     ages <- base::seq(min, max, stepsize)
     #check if the stepsize is too big for min&max, if stepsize is not possible, just take min and max as borders and create one bin
     if(base::length(ages) == 1){
       ages <- c(min, max)
     }
-    #check if the max age is missing and add it to the ages for max border of last bin
+    #check if the max age is missing in the bin and add it to the age sequence for max border of last bin
     if((max - min) / stepsize != base::round((max - min) / stepsize)){
       ages <- c(ages, max)
     }
+    #bin_age: vector of midpoints of the age sequence
     bin_age <- ages[-base::length(ages)] + diff(ages) / 2
+    #bin_ages: vector to save for each average age in which bin it is
     bin_ages <- c()
     for(i in 1:base::length(data$avg_age)){
       for(j in 1:(base::length(ages) - 1)){
@@ -228,30 +238,40 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
         }
       }
     }
-
+    #recon_age is the age of the bin where the avg_age is inside.
     recon_age <- bin_ages
+    #add recon_age to the data.frame
     data <- base::cbind(data, recon_age)
-    
+    #uma: unique reconstruction ages
     uma <- base::unique(recon_age)
+    #go through reconsruction ages
     for( i in 1:base::length(uma)){
+      #subset of data with fossils that have the current reconstruction age
       part <- base::subset(data, data$recon_age == uma[i])
+      #pts: string for saving the points (lat and lng)
       pts <- ""
+      #if there are more than 200 fossils with the current reconstruction age we need to separate them into several sets
       if(base::length(part$recon_age) > 200){
-        
+        #get number of rounds/subsets with max 200 fossils
         num <- base::ceiling(base::length(part$recon_age) / 200)
         round <- 1
         while(round <= num){
           pts <- ""
           if(round < num){
+            #num-1 rounds, take subsets of 200 fossils
+            #save points as string separated by commas
             pts <-""
             part2 <- part[((round - 1) * 200 + 1):(round * 200), ]
             for( j in 1:base::length(part2$recon_age)){
               pts <- base::paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
             }
-            
+            #remove comma before first point
             pts <- base::substring(pts, 2)
+            #create url for api request with points, recconstruction age and model
             url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
+            #get reconstructed paleolat and paleolng
             paleopts <- rjson::fromJSON(file = url)
+            #save reconstructed paleocoordinates in paleolat and paleolng or save NA if point couldn't be reconstructed
             for (k in 1:base::length(paleopts$coordinates)){
               if(base::is.null(paleopts$coordinates[[k]])){
                 paleolng <- c(paleolng, NA)
@@ -261,17 +281,21 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
                 paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
               }
             }
-            
+            #for the last subset it is the rest of the fossils for this reconstruction age
           }else{
+            #create string with lng and lat of the fossils
             pts <-""
             part2 <- part[((round - 1) * 200 + 1):base::length(part$recon_age), ]
             for( j in 1:base::length(part2$recon_age)){
               pts <- base::paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
             }
-            
+            #remove comma before first point
             pts <- base::substring(pts, 2)
+            #create url for api request with points, reconstruction age and model
             url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
+            #get the reconstructed paleocoordinates
             paleopts <- rjson::fromJSON(file = url)
+            #save paleolat and paleolng or NA if point couldn't be reconstructed
             for (k in 1:base::length(paleopts$coordinates)){
               if(base::is.null(paleopts$coordinates[[k]])){
                 paleolng <- c(paleolng, NA)
@@ -281,22 +305,23 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
                 paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
               }
             }
-            
           }
+          #count round up
           round <- round + 1
-          
         }
-        
-        
+      #if it is not more than 200 build request for all fossils for the current reconstruction age
       }else{
-        
+        #save string with lng lat for each fossil
         for( j in 1:base::length(part$recon_age)){
           pts <- paste0(pts, ",", part$lng[j], ",", part$lat[j])
         }
-        
+        #remove comma before first point
         pts <- base::substring(pts, 2)
+        #create url for api request with points, reconstruction age and model
         url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
+        #get reconstructed paleocoordinates from api
         paleopts <- rjson::fromJSON(file = url)
+        #save paleolat and paleolng or NA if point couldn't be reconstructed
         for (k in 1:base::length(paleopts$coordinates)){
           if(base::is.null(paleopts$coordinates[[k]])){
             paleolng <- c(paleolng, NA)
@@ -306,22 +331,23 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
             paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
           }
         }
-        
       }
-      
     }
-    
   }else if(time == "timevector"){
     #take midpoints of user specified bins for reconstruction
     #separate df into sets belonging to bins
     #calc for each bin
-    
+    #bin_age: midpoints of the time bins (reconstruction times)
     bin_age <- timevector[-base::length(timevector)] + diff(timevector) / 2
+    #bin_ages: vector for saving the reconstruction age for the fossils
     bin_ages <- c()
+    #go through the average ages of the fossils
     for(i in 1:base::length(data$avg_age)){
+      #if average age is bigger than ne max age given or the minimum age given put a NA in reconstruction age. This point will not be reconstructed
       if(data$avg_age[i] < min(timevector) || data$avg_age[i] > max(timevector)){
         bin_ages <- c(bin_ages, NA)
       }else{
+        #look in which timebin the avg_age falls and save this age in bin_ages as reconstruction age
         for(j in 1:(base::length(timevector) - 1)){
           #check if >= ages j and <= ages j+1 --> then it is in bin_age[j] -> add bin_age[j] to bin_ages
           if(data$avg_age[i] >= timevector[j] && data$avg_age[i] <= timevector[j + 1]){
@@ -331,39 +357,47 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
       }
 
     }
+    #save the bin_ages as recon_age in the data.frame
     recon_age <- bin_ages
     data <- base::cbind(data, recon_age)
-    
+    #uma: unique reconstruction ages
     uma <- base::unique(recon_age)
+    #go through the reconstruction ages
     for( i in 1:base::length(uma)){
+      #for all fossils which are not in the time range of the reconstruction ages save NA as paleolat and paleolng
       if(base::is.na(uma[i])){
-
         part <- base::subset(data, base::is.na(data$recon_age))
-
-        for( na in 1:base::length(part$recon_age)){
+        for(na in 1:base::length(part$recon_age)){
           paleolng <- c(paleolng, NA)
           paleolat <- c(paleolat, NA)
         }
       }else{
-        
+        #for points which fall into a time bin get subset with points of one reconstruction age
         part <- base::subset(data, data$recon_age == uma[i])
+        #pts: string for saving coordinates for api request
         pts <- ""
+        # if there are more tha 200 fossils with same reconstruction age create subsets for reconstructing
         if(base::length(part$recon_age) > 200){
-
+          #num: number of subsets with max 200 fossils
           num <- base::ceiling(base::length(part$recon_age) / 200)
           round <- 1
           while(round <= num){
             pts <- ""
             if(round < num){
+              # first num-1 rounds
               pts <- ""
               part2 <- part[((round - 1) * 200 + 1):(round * 200), ]
+              #save points of current subset with this reconstruction age
               for( j in 1:base::length(part2$recon_age)){
                 pts <- paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
               }
-              
+              #remove comma before points
               pts <- base::substring(pts, 2)
+              #create url for api request with points, reconstruction age and model
               url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
+              #get paleocoordinates
               paleopts <- rjson::fromJSON(file = url)
+              #save reconstructed coordinates in paleolat and paleolng or save NA if int couldn't be reconstructed
               for (k in 1:base::length(paleopts$coordinates)){
                 if(base::is.null(paleopts$coordinates[[k]])){
                   paleolng <- c(paleolng, NA)
@@ -373,17 +407,21 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
                   paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
                 }
               }
-              
             }else{
+              #last part of the subset
               pts <- ""
               part2 <- part[((round - 1) * 200 + 1):base::length(part$recon_age), ]
+              #save points in string
               for( j in 1:base::length(part2$recon_age)){
                 pts <- base::paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
               }
-              
+              #remove comma before first point
               pts <- base::substring(pts, 2)
+              #create url for api request with points, reconstruction time and model
               url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
+              #get paleocoordinates
               paleopts <- rjson::fromJSON(file = url)
+              #save them to paleolat and paleolng or save NA if point not reconstructed
               for (k in 1:base::length(paleopts$coordinates)){
                 if(base::is.null(paleopts$coordinates[[k]])){
                   paleolng <- c(paleolng, NA)
@@ -393,22 +431,21 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
                   paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
                 }
               }
-              
             }
             round <- round + 1
-            
           }
-          
-          
         }else{
-          
+          #if there are not more than 200 fossils in one time bin do one request for this reconstruction age
           for( j in 1:base::length(part$recon_age)){
             pts <- base::paste0(pts, ",", part$lng[j], ",", part$lat[j])
           }
-          
+          # remove comma before first point
           pts <- base::substring(pts, 2)
+          #create url for api request with lng,lat points, reconstrcution age and model
           url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[i], "&model=", model, "&return_null_points")
+          #get paleocoordinates
           paleopts <- rjson::fromJSON(file = url)
+          #save paleocoordinates or NA if point couldn't get reconstructed
           for (k in 1:base::length(paleopts$coordinates)){
             if(base::is.null(paleopts$coordinates[[k]])){
               paleolng <- c(paleolng, NA)
@@ -418,31 +455,30 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
               paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
             }
           }
-          
         }
-
       }
-      
     }
-    
-    
   }
-
-
+  #add reconstructed paleocoordinates to the data.frame
   data <- base::cbind(data, paleolng, paleolat)
+  #get the number of different reconstruction ages
   num_reconage <- unique(stats::na.omit(data$recon_age))
+  #if there is more than one reconstruction age, save list of reconstruction ages and give the user a note that there are several ages
   if(base::length(num_reconage)>1){
+    #ages: list of different reconstruction ages
     ages <- c()
     for(i in 1:base::length(num_reconage)){
       ages <- base::paste0(ages, ", ", num_reconage[i], "mya ")
     }
+    #string for giving the user a note
     printstr <- base::paste0("[NOTE]: You can not plot all of these points in a single map. You have ", base::length(num_reconage), " different maps, which are ", base::substring(ages, 2), ".")
     print(printstr)
   }
+  #if there where points that werent reconstructed because they where not in a time bin add them to the data.frame again
   if(base::nrow(data2) > 0){
     data <- base::rbind(data, data2)
   }
-
+  #return the data frame with the reconstructed ages
   return(data)
 }
 
@@ -528,7 +564,7 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
     errplate <- FALSE
     #if user wants to get the plates
     if(show.plates){
-      #check if model is golonka or paleomap: they dont have plates
+      #check if model is golonka or paleomap: they dont have plates. Throw warning.
       if(model == "GOLONKA" || model == "PALEOMAP"){
         base::warning(base::paste0("No plate boundaries available for model ", model, "."))
         errplate <- TRUE
@@ -537,22 +573,22 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
         plateurl <- base::paste0("http://gws.gplates.org/topology/plate_boundaries/?time=", ma[ages], "&model=", model)
         platebounds <- tryCatch(
           {
+            #load the SpatialPolygonsDataFrame
             rgdal::readOGR(plateurl, verbose = FALSE)
           }, error = function(e){
             errplate <- TRUE
+            #if cannot be loaded throw a warning that there was a problem loading the map
             base::warning(base::paste0("No Plate Boundaries available for ", ma[ages], " mya in ", model, " model. Please check the spelling, the age and the model you chose."))
             stop()
           }
         )
-        #add metadata to plates
+        #add metadata to plates, the age and the model
         platebounds@data$age <- ma[ages]
         platebounds@data$model <- model
         #save plate in list of plates
         plates[[ages]] <- platebounds
       }
-      
     }
-    
     #if there was no error getting the map, create parameter for plotting and plot the map
     if(!err){
       #getting final parameter list for plot
@@ -587,12 +623,13 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
                  height = 10.5, width = 17, units = "cm", res = 300)
           }
         }
-        
         #define the size of the margin of the plot and save the former definition
         def.mar <- graphics::par("mar")
+        #define the margin size
         graphics::par(mar = c(2, 2, 2, 2))
         #do a first plot with the graphical parameters set by the user
         base::do.call(sp::plot, graphparams)
+        #if the user set show.plates true and there was no problem loading the plates add the plates to the plot
         if(!errplate && show.plates){
           sp::plot(platebounds, add = T, col = "#66666680")
         }
@@ -619,7 +656,7 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
         sp::plot(shape, col = colland, border = FALSE, add = TRUE)
         #restore the former graphical mar parameters
         graphics::par(mar = def.mar)
-        
+        #if the user wants to have the maps as pdf
         if(!base::is.null(save.as) && save.as == "pdf"){
           filename <- base::paste0("getmap-", ma[ages], "mya_", model, ".pdf")
           grDevices::pdf(filename, width= 6.885417, height = 4.291667)
@@ -655,17 +692,15 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
           #restore the former graphical mar parameters
           graphics::par(mar = def.mar)
         }
-        
+        #if the user wanted to save the plot close the device after plotting
         if(!base::is.null(save.as)){
           grDevices::dev.off()
         }
-        
       }
-    
-  }
-
+    }
   }
   # return the shape file/ list of shapes
+  # if there was/were plate/s also return plate/s
   if(!errplate && show.plates){
     return(list(shapes, plates))
   }else{
@@ -675,7 +710,6 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
     }else{
       return(shapes)
     }
-    
   }
 }
 
@@ -750,8 +784,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
   if(!.checkShape(map)){
     stop("Maps need to be SpatialPolygonsDataFrames.")
   }
-
-  #get ages of maps
+  #get ages of input maps
   mapages <-c()
   if(!base::is.null(map)){
     if(class(map) == "list"){
@@ -762,9 +795,9 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
       mapages <- c(map@data$age[1])
     }
   }
-  
   #count how many maps will be created
   #print warning
+  #num_recon: number of different reconstruction ages
   #uage: unique list of reconstructions ages
   num_recon <- base::length(base::unique(stats::na.omit(data$recon_age)))
   uage <- base::unique(data$recon_age)
@@ -783,17 +816,16 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
   #go through the reconstruction ages
    for(age in 1:base::length(uage)){
      #save all fossils with the current reconstruction age in subdata
-    curma <- uage[age]
-    subdata <- base::subset(data, data$recon_age == curma)
-
+    #curma: current reconstruction age
+     curma <- uage[age]
+     subdata <- base::subset(data, data$recon_age == curma)
     if(curma %in% mapages){
-      #if the corresponding map of the reconstruction age is given save it as shape
+      #if the corresponding map of the reconstruction age is given save it in shape
       if(class(map) == "list"){
         shape <- map[[match(curma, mapages)]]
       }else{
         shape <- map
       }
-      
     }else{
       #if map not given load map
       shape <- mapast::getmap(ma = curma, model = model, show.plates = FALSE, do.plot = FALSE)
@@ -807,19 +839,19 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
     names_graphparams.user <- base::as.vector(base::names(graphparams.user))
     names_graphparams.def <- base::as.vector(base::names(graphparams.def))
     #remove default parameter from list if user specified the same parameter different
-    for( param in names_graphparams.user){
+    for(param in names_graphparams.user){
       if(param %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == param)] 
     }
     #create graphparams with default and user parameter for plotting
     graphparams <- c(graphparams.def, graphparams.user)
-    
-    
     #save old mar settings and define plotting margins as we need
     def.mar <- graphics::par("mar")
     #plotting the map and the data
     #input data needs to be a data frame
     if (base::class(data) == "data.frame") {
+      #if the user wants to have the plot
       if(do.plot){
+        #if the user wants to have the plot saved directly start graphic device
         if(!base::is.null(save.as)){
           if(save.as == "tiff"){
             grDevices::tiff(base::paste0("mapast-", curma, "mya_", model, ".tiff"), 
@@ -834,6 +866,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
                  height = 10.5, width = 17, units = "cm", res = 300)
           }
         }
+        #set margin
         graphics::par(mar = c(1.5, 2, 2, 1.5))
           #plot with the parameter list which includes users graphical parameter
           #defines size and axes of the plot
@@ -864,6 +897,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
                            subdata$paleolat, 
                            pch = pch, col = colpoints, 
                            cex = cex)
+          #if user wants to have plot saved as pdf start pdf device
         if(!base::is.null(save.as) && save.as == "pdf"){
           filename <- paste0("mapast-", curma, "mya_", model, ".pdf")
           grDevices::pdf(filename, width = 6.885417, height = 4.291667)
@@ -898,17 +932,14 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
                            cex = cex)
           print(plotmap)
         }
-          
-          if(!base::is.null(save.as)){
+          #if user wanted to save the plot close graphic device after creating the plot
+        if(!base::is.null(save.as)){
             grDevices::dev.off()
-          }
-          
+        }
       }
       #restore the old margin values
       graphics::par(mar = def.mar)
-
     }
-   
   }
 }
 
@@ -990,8 +1021,7 @@ mapocc <- function(data, model = "SETON2012",
   if(!.checkShape(map)){
     stop("Map is/ Maps are not SpatialPolygonsDataFrame.")
   }
-  
-  #get ages of maps
+  #get ages of input maps
   mapages <-c()
   if(!base::is.null(map)){
     if(class(map) == "list"){
@@ -1002,37 +1032,43 @@ mapocc <- function(data, model = "SETON2012",
       mapages <- c(map@data$age[1])
     }
   }
-  
-  #count how many maps will be created
+  #count how many maps need to get loaded
   #print warning
   num_recon <- base::length(base::unique(stats::na.omit(data$recon_age)))
-    #through revcon_age -> for each one map and the corresponding points#
   #getting the shape file with getmap
+  #occraster: for saving the occurrences raster
   occraster <- c()
+  #uage: unique recnstruction ages
   uage <- base::unique(data$recon_age)
+  #toload: count how many maps need to get loaded because there was no input
   toload <- 0
   for(a in 1:base::length(uage)){
       if(!as.character(uage[a]) %in% mapages){
       toload <- toload + 1
     }
   }
+  #if map/s need to get loaded print a note for the user how many maps need to get loaded.
   if(toload > 0){
     print(base::paste0("[NOTE]: You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
   }
-  
+  #go through the reconstruction ages
   for(age in 1:base::length(uage)){
+    #save the current reconstruction age in curma
     curma <- uage[age]
-    
+    #subdata: subset of the data with all fossils that have the current reconstrcution age
     subdata <- base::subset(data, data$recon_age == curma)
     #filter data for rank
     rankdata <- .rfilter(subdata, rank)
     #creating a raster in the size of the shape
     spatialext <- raster::extent(c(-180, 180, -90, 90))
+    #create a raster with the dimensions of a map and the resolution (default res = 1)
     ras <- raster::raster(spatialext, res = res)
     #create a raster of the occurences (sampling effort)
+    #curoccraster: occurrence raster of the current reconstruction age
     curoccraster <- raster::rasterize(rankdata[ , c("paleolng", "paleolat")], ras, field = rankdata[ ,rank], fun = "count")
+    #save the current raster in occraster
     occraster <- c(occraster, curoccraster)
-    
+    #if the map corrsponding to the current reconstruction age is given save it in shape, otherwise load it with getmap
     if(curma %in% mapages){
       if(class(map) == "list"){
         shape <- map[[match(curma, mapages)]]
@@ -1063,6 +1099,7 @@ mapocc <- function(data, model = "SETON2012",
     if(do.plot){
       #save old margin values and define needed margin values
       def.mar <- graphics::par("mar")
+      #if user wants to have plot saved start graphic device
       if(!base::is.null(save.as)){
         if(save.as == "tiff"){
           grDevices::tiff(base::paste0("mapocc-", curma, "mya_", model, ".tiff"), 
@@ -1077,44 +1114,44 @@ mapocc <- function(data, model = "SETON2012",
                height = 10.5, width = 17, units = "cm", res = 300)
         }
       }
-        graphics::par(mar = c(1.5, 2, 2, 4))
-        #create a plot with the users parameters
-        base::do.call(raster::plot, graphparams)
-        #create a rectangle showing the sea
-        graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
+      #define margins
+      graphics::par(mar = c(1.5, 2, 2, 4))
+      #create a plot with the users parameters
+      base::do.call(raster::plot, graphparams)
+      #create a rectangle showing the sea
+      graphics::rect(xleft = -180, xright = 180, ybottom = -90, ytop = 90, col = colsea, 
                        border = FALSE)
-        #plot the landmasses on the sea
-        raster::plot(shape, col = colland, border = FALSE, add = T)
-        #add x-axis and x-axis labels
-        graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", 
-                       col.axis = "darkgrey", cex.axis = 0.6)
-        graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", 
-                       col.axis = "darkgrey", cex.axis = 0.6)
-        #add y-axis and y-axis labels
-        graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", 
-                       col.axis = "darkgrey", cex.axis = 0.6, las = 1)
-        graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
-        #
-        graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", 
+      #plot the landmasses on the sea
+      raster::plot(shape, col = colland, border = FALSE, add = T)
+      #add x-axis and x-axis labels
+      graphics::axis(side = 1, pos = -84, lwd = 0, xaxp = c(180, -180, 4), col.ticks = "darkgrey", 
+                     col.axis = "darkgrey", cex.axis = 0.6)
+      graphics::axis(side = 1, pos = -89, lwd = 0, at = 0, labels = "Longitude", col.ticks = "darkgrey", 
+                     col.axis = "darkgrey", cex.axis = 0.6)
+      #add y-axis and y-axis labels
+      graphics::axis(side = 2, pos = -175, lwd = 0, yaxp = c(90,-90,4), col.ticks = "darkgrey", 
+                     col.axis = "darkgrey", cex.axis = 0.6, las = 1)
+      graphics::axis(side = 2, pos = -178, lwd = 0, at = 0, labels = "Latitude", col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.6)
+      graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", 
                        col.axis = "darkgrey", cex.axis = 1)
-        graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = base::paste(curma, " mya", sep = ""), 
+      graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = base::paste(curma, " mya", sep = ""), 
                        col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-        #add the raster to the plot without legend
-        raster::plot(curoccraster, add = T,axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
-        #allow the plot to expand the borders
-        graphics::par(xpd = TRUE)
-        graphics::par(bty = "n")
-        #add the raster legend outside the plot
-        raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+      #add the raster to the plot without legend
+      raster::plot(curoccraster, add = T,axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
+      #allow the plot to expand the borders
+      graphics::par(xpd = TRUE)
+      graphics::par(bty = "n")
+      #add the raster legend outside the plot
+      raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
                      axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, 
                                       cex.lab = 0.5, cex.axis = 0.5, col.axis = NA),
                      legend.args = list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, 
                                         col = col.grid[base::length(col.grid) / 2]))
-        raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
+      raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
                      axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, 
                                       cex.axis = 0.5, col.axis = col.grid[base::length(col.grid) / 2]))
-        graphics::par(bty = "o")
-
+      graphics::par(bty = "o")
+    #if user wants to have plot saved as pdf start pdf device
       if(!base::is.null(save.as) && save.as == "pdf"){
         filename <- base::paste0("mapocc-", curma, "mya_", model, ".pdf")
         grDevices::pdf(filename, width= 8.385417, height = 4.791667)
@@ -1157,23 +1194,21 @@ mapocc <- function(data, model = "SETON2012",
         graphics::par(bty = "o")
         print(plotmap)
       }
-        
-        if(!base::is.null(save.as)){
+      #if plot was saved, close device
+      if(!base::is.null(save.as)){
           grDevices::dev.off()
-        }
-     
+      }
       #restore default margin settings
       graphics::par(mar = def.mar)
     }
-  
   }
+  #if there was more than was occurrence raster created save them as RasterStack, otherwise give back raster
   if(base::length(occraster) > 1){
     occstack <- raster::stack(occraster)
   }else{
     occstack <- occraster[[1]]
   }
-  
-  #return the raster
+  #return the raster or rasterstack
   return(occstack)
 }
 
