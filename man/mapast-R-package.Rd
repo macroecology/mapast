@@ -8,9 +8,9 @@
 \description{
 We have developed mapast (MAp the PAST), an R-package designed to make paleontolgical maps available to 
 visualise the fossil occurrences from the Paleobiology Database onto their corresponding maps and analyse them.
-We programmed functions for getting the SpatialPolygonsDaraFrame of the paleontological maps, 
-functions to get a data.frame of fossil occurrences from the Paleobilogy Database, analysing the diversity of the past 
-and plotting this data on the maps.
+We programmed functions for getting the SpatialPolygonsDataFrame of the paleontological maps, 
+functions to modify the data.frame from the Paleobiology Database and getting the paleocoordinates, analysing the 
+diversity of the past and plotting this data on the corresponding paleogeographical maps.
 }
 \details{
 \tabular{ll}{

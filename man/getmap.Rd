@@ -18,25 +18,27 @@ getmap(ma, model = "SETON2012", show.plates = FALSE,
 \item{show.plates}{boolean. Defines if the user wants to get the continental plate borders. By default show.plates = FALSE.}
 
 \item{save.as}{character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png". 
-By default save.as = NULL, plots are only shown not saved automatically as a file.}
+By default save.as = NULL, plots are only shown not automatically saved as a file.}
 
 \item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
 
 \item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
 
-\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
+\item{do.plot}{logical. Defines if a plot of the map is created or not. By default do.plot = TRUE.}
 
-\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title" or main.col="red".}
+\item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main = "my own title" or main.col = "red".}
 }
 \value{
 SpatialPolygonsDataFrame
 }
 \description{
-Downloads a map of a specific age from a model specified by the user.
-Available models and ages can be found at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models .
+Downloads a map of a specific age or a list of maps of specific ages from a model specified by the user.
+Available models and ages can be found at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models.
 }
 \examples{
 \dontrun{
+
+library(mapast)
 
 #with continental plates
 map <- getmap(ma = 100, model = "SETON2012", show.plates = T)
@@ -44,7 +46,7 @@ coastlines <- map[[1]]
 plates <- map[[2]]
 
 #without continental plates
-coastlines <- getmap(ma = 100, model = "SETON2012")
+coastline <- getmap(ma = 100, model = "SETON2012")
 
 #save map directly as pdf
 getmap(ma = 100, model = "SETON2012", save.as="pdf")
@@ -55,7 +57,6 @@ par(mfrow = c(2, 1))
 getmap(ma = c(1, 2))
 dev.off()
 par(mfrow = c(1, 1))
-
 
 }
 }

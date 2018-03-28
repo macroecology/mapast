@@ -21,7 +21,7 @@ latdivgrad (data, method, rank = "genus",
 
 \item{res}{numeric. Defining the spatial resolution. By default res = 1.}
 
-\item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
+\item{map}{(list of) SpatialPolygonDataFrame(s). Containing map(s) which can be created by getmap.}
 
 \item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
@@ -47,7 +47,7 @@ such as main = "my own title" or main.col = "red".}
 data.frame
 }
 \description{
-Calculates the latitudinal diversity of taxa (species, genera, families, orders) and creates a plot of the continental masses with the fossil occurrences and the latitudinal diversity.
+Calculates the latitudinal diversity of taxa (species, genera, ...) and creates a plot of the paleogeographical continental masses with the fossil occurrences and the latitudinal diversity.
 }
 \examples{
 \dontrun{
@@ -59,8 +59,8 @@ data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis",
                                                         min_ma = 0, max_ma = 10, 
                                                         show = c("coords", "phylo"), 
                                                         vocab = "pbdb", limit = 100))
-df <- formatdata(data)
-df_auto <- paleocoords(df, time = "automatic")
+df <- formatdata(data = data)
+df_auto <- paleocoords(data = df, time = "automatic")
                                                         
 #create a plot with fossils on the paleogeographical map
 latrich <- latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1,
@@ -75,11 +75,10 @@ latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, map =
 latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps,
                       model = "SETON2012")
 
-#save maps as pdf
+#save maps with latitudinal diversity as pdf
 latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, map = maps,
                       model = "SETON2012", save.as = "pdf")
 latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps,
                       model = "SETON2012", save.as = "pdf")
-
 }
 }

@@ -7,7 +7,7 @@
 formatdata(data, db = "pbdb")
 }
 \arguments{
-\item{data}{data.frame. Fossil occurrences dat, from the Paleoiology Database.}
+\item{data}{data.frame. Fossil occurrences data, from the Paleoiology Database.}
 
 \item{db}{character. Name of the database where the data is from. Only db = "pbdb" possible.}
 }
@@ -15,16 +15,19 @@ formatdata(data, db = "pbdb")
 data.frame
 }
 \description{
-Changes and adds columns of your data.frame from the Paleobiology Database to the names needed for the functions in this package.
-It also calculates the average age of the fossil occurrences from given early_age and late_age parameter.
+Changes and adds columns to your data.frame from the Paleobiology Database to the names needed for the functions in this package.
+It also calculates the average age of the fossil occurrences from the data.frame columns early_age and late_age parameter.
 }
 \examples{
 \dontrun{
+
+library(mapast)
 
 data  <-  base::data.frame(paleobioDB::pbdb_occurrences(limit = 100, base_name = "Canis", 
   min_ma = 0, max_ma = 10, 
   show = c("coords", "phylo"), 
   vocab = "pbdb"))
+  
 fdata <- formatdata(data, db = "pbdb")
 
 }

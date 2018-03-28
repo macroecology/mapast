@@ -15,14 +15,14 @@ mapdiv  (data, unity, rank = "genus", res = 1, map = NULL,
 
 \item{unity}{character. Either "fossilsite" or "cell".}
 
-\item{rank}{character. Taxnomic rank. By default rank = "genus".}
+\item{rank}{character. Taxonomic rank. By default rank = "genus".}
 
 \item{res}{numeric. Defining the spatial resolution. By default res = 1.}
 
 \item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
 
 \item{fun}{function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
-You can use functions such as min, max, or mean, or the character value 'count'.}
+You can use functions such as min, max, or mean, or the character value 'count'. By default fun = mean.}
 
 \item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
@@ -31,7 +31,7 @@ You can use functions such as min, max, or mean, or the character value 'count'.
 
 \item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
 
-\item{col.grid}{character. Defines the color of the raster.}
+\item{col.grid}{character. Defines the color of the raster. By default col.grid = mycols(100).}
 
 \item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
 
@@ -45,7 +45,7 @@ RasterLayer
 }
 \description{
 Calculates the Shannon diversity per cell or fossilsite 
-(taking into account relative abundances of all the fossil records 
+(taking into account relative abundances of all fossil records 
 whithin the cell) and creates a plot of the map with a RasterLayer of the diversity.
 }
 \examples{
@@ -58,8 +58,8 @@ data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis",
                                                         min_ma = 0, max_ma = 10, 
                                                         show = c("coords", "phylo"), 
                                                         vocab = "pbdb", limit = 100))
-df <- formatdata(data)
-df_auto <- paleocoords(df, time = "automatic")
+df <- formatdata(data = data)
+df_auto <- paleocoords(data = df, time = "automatic")
                                                         
 #create a plot with fossils on the paleogeographical map
 div_fossilsite <- mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10,

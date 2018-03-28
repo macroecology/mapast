@@ -14,7 +14,7 @@ paleocoords(data, time = "automatic", timevector = NULL,
 
 \item{timevector}{vector. Defining the borders of the time bins. Not allowed to be NULL if time = "timevector".}
 
-\item{stepsize}{numeric. Defining the stepsize of the time bins if time = "automatic".}
+\item{stepsize}{numeric. Defining the stepsize of the time bins if time = "automatic". By default stepsize = 10.}
 
 \item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
@@ -29,15 +29,20 @@ taking the rounded average age (avg_age) of the fossils or by using user defined
 \examples{
 \dontrun{
 
-occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma = 0, max_ma = 10, 
-                                                     show = c("coords", "phylo"), 
-                                                     vocab = "pbdb", limit = 100))
+library(mapast)
+
+data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+                                                       min_ma = 0, max_ma = 10, 
+                                                       show = c("coords", "phylo"), 
+                                                       vocab = "pbdb", limit = 100))
+df <- formatdata(data = data)
 
 #reconstruct paleocoordinates with midpoint of appearance time
-occ_ma <- paleoocoords(occ, time="automatic", model = "SETON2012")
+occ_ma <- paleocoords(data = df, time = "automatic", model = "SETON2012")
 
 #reconstruct paleocoordinates with specific time
-occ_matime <- paleoocoords(occ, time = "timevector", timevector = c(0.10), model = "SETON2012")
+occ_matime <- paleocoords(data = df, time = "timevector", timevector = c(0.10), 
+                         model = "SETON2012")
 
                     
 }

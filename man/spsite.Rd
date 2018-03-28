@@ -12,7 +12,7 @@ spsite(data, unity, res = 1, rank = "genus", pa = FALSE)
 \item{unity}{character. unity = "fossilsite" or unity = "cell" defining if the user wants the occurrences per 
 cell or per fossilsite.}
 
-\item{res}{numeric. Defining the spatial resolution. By default res = 1. Only used if unity = "cell".}
+\item{res}{numeric. Defining the spatial resolution. Only used if unity = "cell". By default res = 1.}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"}
@@ -23,7 +23,7 @@ cell or per fossilsite.}
 data.frame
 }
 \description{
-Generates a diversity data.frame, with the number occurrences of a taxon per locality or a presence/absence data.frame.
+Generates a diversity data.frame, with the number occurrences of taxa per locality or a presence/absence data.frame.
 }
 \examples{
 \dontrun{
@@ -35,8 +35,8 @@ data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis",
                                                         min_ma = 0, max_ma = 10, 
                                                         show = c("coords", "phylo"), 
                                                         vocab = "pbdb", limit = 100))
-df <- formatdata(data)
-df_auto <- paleocoords(df, time = "automatic")
+df <- formatdata(data = data)
+df_auto <- paleocoords(data = df, time = "automatic")
                                                         
 #create a plot with fossils on the paleogeographical map
 sp_fossilsite <- spsite(data = df_auto, unity = "fossilsite", rank = "species", res = 10)

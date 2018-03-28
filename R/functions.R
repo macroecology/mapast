@@ -2,22 +2,25 @@
 
 #' formatdata
 #' 
-#' Changes and adds columns of your data.frame from the Paleobiology Database to the names needed for the functions in this package.
-#' It also calculates the average age of the fossil occurrences from given early_age and late_age parameter.
+#' Changes and adds columns to your data.frame from the Paleobiology Database to the names needed for the functions in this package.
+#' It also calculates the average age of the fossil occurrences from the data.frame columns early_age and late_age parameter.
 #' 
 #' @usage formatdata(data, db = "pbdb")
 #' 
-#' @param data data.frame. Fossil occurrences dat, from the Paleoiology Database.
+#' @param data data.frame. Fossil occurrences data, from the Paleoiology Database.
 #' @param db character. Name of the database where the data is from. Only db = "pbdb" possible.
 #' @return data.frame
 #' @export
 #' @examples 
 #' \dontrun{
 #' 
+#' library(mapast)
+#' 
 #' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(limit = 100, base_name = "Canis", 
 #'   min_ma = 0, max_ma = 10, 
 #'   show = c("coords", "phylo"), 
 #'   vocab = "pbdb"))
+#'   
 #' fdata <- formatdata(data, db = "pbdb")
 #' 
 #' }
@@ -35,7 +38,7 @@ formatdata <- function(data, db = "pbdb"){
     #if mathced rank is not species, species of the fossil is not known -> add NA
     for(rank in 1:base::length(data$matched_rank)){
       if(data$matched_rank[rank] == "species"){
-        species <- c(species, as.character(data$matched_name[rank][[1]]))
+        species <- c(species, base::as.character(data$matched_name[rank][[1]]))
       }else{
         species <- c(species, NA)
       }
@@ -48,7 +51,7 @@ formatdata <- function(data, db = "pbdb"){
     
   }else{
     # if user types in other db -> print message that at the moment only paleobiodb is possible
-    print("Sorry, function is at the moment only available for db = \"pbdb\".")
+    base::print("Sorry, function is at the moment only available for db = \"pbdb\".")
   }
   
   #return the data.frame with species and average_age columns
@@ -68,7 +71,7 @@ formatdata <- function(data, db = "pbdb"){
 #' @param data data.frame. Fossil occurrences data.
 #' @param time character. Defines how the reconstruction time is specified. Can be "automatic", "average" or "timevector". By default time = "automatic".
 #' @param timevector vector. Defining the borders of the time bins. Not allowed to be NULL if time = "timevector".
-#' @param stepsize numeric. Defining the stepsize of the time bins if time = "automatic".
+#' @param stepsize numeric. Defining the stepsize of the time bins if time = "automatic". By default stepsize = 10.
 #' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
 #' @return data.frame
@@ -76,15 +79,20 @@ formatdata <- function(data, db = "pbdb"){
 #' @examples 
 #' \dontrun{
 #' 
-#' occ <- base::data.frame(paleobioDB::pbdb_occurrences(base_name="Canis", min_ma = 0, max_ma = 10, 
-#'                                                      show = c("coords", "phylo"), 
-#'                                                      vocab = "pbdb", limit = 100))
+#' library(mapast)
 #' 
+#' data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis", 
+#'                                                        min_ma = 0, max_ma = 10, 
+#'                                                        show = c("coords", "phylo"), 
+#'                                                        vocab = "pbdb", limit = 100))
+#' df <- formatdata(data = data)
+#'
 #' #reconstruct paleocoordinates with midpoint of appearance time
-#' occ_ma <- paleoocoords(occ, time="automatic", model = "SETON2012")
-#' 
+#' occ_ma <- paleocoords(data = df, time = "automatic", model = "SETON2012")
+#'
 #' #reconstruct paleocoordinates with specific time
-#' occ_matime <- paleoocoords(occ, time = "timevector", timevector = c(0.10), model = "SETON2012")
+#' occ_matime <- paleocoords(data = df, time = "timevector", timevector = c(0.10), 
+#'                          model = "SETON2012")
 #' 
 #'                     
 #'}
@@ -101,7 +109,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
     data2[ ,"recon_age"] <- NA
     data2[ ,"paleolng"] <- NA
     data2[ ,"paleolat"] <- NA
-    print(paste0("There are ", base::length(data2$lng), " points out of the lat long boundaries (-180, 180, -90, 90). Those points can not be projected into the past. Please, check them and correct them in order to be able to project them correctly into the past."))
+    base::print(base::paste0("There are ", base::length(data2$lng), " points out of the lat long boundaries (-180, 180, -90, 90). Those points can not be projected into the past. Please, check them and correct them in order to be able to project them correctly into the past."))
     #save only fossils with lat/lng inside range to go on with reconstructing the paleocoordinates
     data <- base::rbind(data[base::which(data$lng >= -180), ], data[base::which(data$lng < 180), ], data[base::which(data$lat >= -90), ], data[base::which(data$lat < 90), ])
   }
@@ -159,12 +167,12 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
             pts <- ""
             part2 <- part[((round - 1) * 200 + 1):base::length(part$recon_age), ]
             for( j in 1:base::length(part2$recon_age)){
-              pts <- paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
+              pts <- base::paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
             }
             #remove comma before first point
             pts <- base::substring(pts, 2)
             #create url with points, areconstruction age and model
-            url <- paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[curma], "&model=", model, "&return_null_points")
+            url <- base::paste0("http://gws.gplates.org/reconstruct/reconstruct_points/?points=", pts, "&time=", uma[curma], "&model=", model, "&return_null_points")
             paleopts <- rjson::fromJSON(file = url)
             for (k in 1:base::length(paleopts$coordinates)){
               if(base::is.null(paleopts$coordinates[[k]])){
@@ -389,7 +397,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
               part2 <- part[((round - 1) * 200 + 1):(round * 200), ]
               #save points of current subset with this reconstruction age
               for( j in 1:base::length(part2$recon_age)){
-                pts <- paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
+                pts <- base::paste0(pts, ",", part2$lng[j], ",", part2$lat[j])
               }
               #remove comma before points
               pts <- base::substring(pts, 2)
@@ -462,7 +470,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
   #add reconstructed paleocoordinates to the data.frame
   data <- base::cbind(data, paleolng, paleolat)
   #get the number of different reconstruction ages
-  num_reconage <- unique(stats::na.omit(data$recon_age))
+  num_reconage <- base::unique(stats::na.omit(data$recon_age))
   #if there is more than one reconstruction age, save list of reconstruction ages and give the user a note that there are several ages
   if(base::length(num_reconage)>1){
     #ages: list of different reconstruction ages
@@ -472,7 +480,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
     }
     #string for giving the user a note
     printstr <- base::paste0("[NOTE]: You can not plot all of these points in a single map. You have ", base::length(num_reconage), " different maps, which are ", base::substring(ages, 2), ".")
-    print(printstr)
+    base::print(printstr)
   }
   #if there where points that werent reconstructed because they where not in a time bin add them to the data.frame again
   if(base::nrow(data2) > 0){
@@ -486,8 +494,8 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 
 #' getmap
 #' 
-#' Downloads a map of a specific age from a model specified by the user.
-#' Available models and ages can be found at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models .
+#' Downloads a map of a specific age or a list of maps of specific ages from a model specified by the user.
+#' Available models and ages can be found at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models.
 #' 
 #' @usage getmap(ma, model = "SETON2012", show.plates = FALSE, 
 #'                   save.as = NULL, colland = "#66666660", 
@@ -499,15 +507,17 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
 #' @param show.plates boolean. Defines if the user wants to get the continental plate borders. By default show.plates = FALSE.
 #' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png". 
-#' By default save.as = NULL, plots are only shown not saved automatically as a file.
+#' By default save.as = NULL, plots are only shown not automatically saved as a file.
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
-#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title" or main.col="red".
+#' @param do.plot logical. Defines if a plot of the map is created or not. By default do.plot = TRUE. 
+#' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main = "my own title" or main.col = "red".
 #' @return SpatialPolygonsDataFrame
 #' @export
 #' @examples
 #' \dontrun{
+#' 
+#' library(mapast)
 #' 
 #' #with continental plates
 #' map <- getmap(ma = 100, model = "SETON2012", show.plates = T)
@@ -515,7 +525,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 #' plates <- map[[2]]
 #' 
 #' #without continental plates
-#' coastlines <- getmap(ma = 100, model = "SETON2012")
+#' coastline <- getmap(ma = 100, model = "SETON2012")
 #' 
 #' #save map directly as pdf
 #' getmap(ma = 100, model = "SETON2012", save.as="pdf")
@@ -527,15 +537,14 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 #' dev.off()
 #' par(mfrow = c(1, 1))
 #' 
-#' 
 #'}
 
 getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL, colland = "#66666660", 
                    colsea = "#00509010", 
                    do.plot = TRUE, ...) {
   #create empty list of shapes and plates
-  shapes <- list()
-  plates <- list()
+  shapes <- base::list()
+  plates <- base::list()
   #go through the ages given by the user
   for(ages in 1:base::length(ma)){
     #url for api request
@@ -688,7 +697,7 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
                                     col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
           #add the landmasses to the plot
           plotmap <- sp::plot(shape, col = colland, border = FALSE, add = TRUE)
-          print(plotmap)
+          base::print(plotmap)
           #restore the former graphical mar parameters
           graphics::par(mar = def.mar)
         }
@@ -702,7 +711,7 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
   # return the shape file/ list of shapes
   # if there was/were plate/s also return plate/s
   if(!errplate && show.plates){
-    return(list(shapes, plates))
+    return(base::list(shapes, plates))
   }else{
     #if there is only one map: return the SpatialPolygonDataFrame instead of a list of SpatialPolygonsDataFrames
     if(base::length(shapes)==1){
@@ -758,11 +767,11 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
 #' mapast(model = "SETON2012", data = df_auto)
 #' 
 #' #save the maps before so the function does not need to load them
-#' maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
+#' maps <- getmap(ma = 2.5, model = "SETON2012", do.plot = FALSE)
 #' mapast(model = "SETON2012", data = df_auto, map = maps)
 #' 
 #' #save maps as pdf
-#' mapast(model = "SETON2012", data = df_auto, map = maps, save.as = "pdf)
+#' mapast(model = "SETON2012", data = df_auto, map = maps, save.as = "pdf")
 #' 
 #' 
 #'}
@@ -781,8 +790,10 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
     stop("Range of Latitude and/or Longitude is not allowed.")
   }
   #check if the shape is a SpatialPolygonsDataFrame
-  if(!.checkShape(map)){
-    stop("Maps need to be SpatialPolygonsDataFrames.")
+  if(!base::is.null(map)){
+    if(!.checkShape(map)){
+      stop("Maps need to be SpatialPolygonsDataFrames.")
+    }
   }
   #get ages of input maps
   mapages <-c()
@@ -805,13 +816,13 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
   toload <- 0
   #go through unique reconstruction ages and see if map of the age is available. If not add 1 to toload.
   for(a in 1:base::length(uage)){
-      if(!as.character(uage[a]) %in% mapages){
+      if(!base::as.character(uage[a]) %in% mapages){
       toload <- toload + 1
     }
   }
   #if toload is not 0, give user a note how many maps need to get loaded.
   if(toload > 0){
-    print(paste0("[NOTE]: You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
   }
   #go through the reconstruction ages
    for(age in 1:base::length(uage)){
@@ -899,7 +910,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
                            cex = cex)
           #if user wants to have plot saved as pdf start pdf device
         if(!base::is.null(save.as) && save.as == "pdf"){
-          filename <- paste0("mapast-", curma, "mya_", model, ".pdf")
+          filename <- base::paste0("mapast-", curma, "mya_", model, ".pdf")
           grDevices::pdf(filename, width = 6.885417, height = 4.291667)
           graphics::par(mar = c(1.5, 2, 2, 1.5))
           #plot with the parameter list which includes users graphical parameter
@@ -930,7 +941,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
                            subdata$paleolat, 
                            pch = pch, col = colpoints, 
                            cex = cex)
-          print(plotmap)
+          base::print(plotmap)
         }
           #if user wanted to save the plot close graphic device after creating the plot
         if(!base::is.null(save.as)){
@@ -946,8 +957,8 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
 #####################mapocc##############################
 #' mapocc
 #' 
-#' Creates a RasterLayer, containing the number of occurrences per cell, and a plot of the fossil 
-#' occurrences by taxonomic rank per cell (a proxy for the sampling effort).
+#' Creates a RasterLayer, containing the number of occurrences per cell and a plot of the fossil 
+#' occurrences by the taxonomic rank per cell (a proxy for the sampling effort).
 #' 
 #' @usage mapocc(data, model = "SETON2012",
 #'                    rank = "genus", map = NULL,
@@ -959,13 +970,13 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
 #' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
 #' @param rank character. Defining the taxonomic rank of interest. 
-#' "species", "genus", "family", "order", "class" or "phylum".
+#' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".
 #' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.
 #' @param res numeric. Defining the spatial resolution. By default res = 1. 
 #' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param col.grid character. Defines the color of the raster.
+#' @param col.grid character. Defines the color of the raster. By default col.grid = mycols(100),
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
 #' plot, such as main = "my own title" or main.col = "red".
@@ -981,8 +992,8 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
 #'                                                         min_ma = 0, max_ma = 10, 
 #'                                                         show = c("coords", "phylo"), 
 #'                                                         vocab = "pbdb", limit = 100))
-#' df <- formatdata(data)
-#' df_auto <- paleocoords(df, time = "automatic")
+#' df <- formatdata(data = data)
+#' df_auto <- paleocoords(data = df, time = "automatic")
 #'                                                         
 #' # create a plot with fossils on the paleogeographical map
 #' occras <- mapocc(data = df_auto, model = "SETON2012", rank = "species")
@@ -1018,9 +1029,12 @@ mapocc <- function(data, model = "SETON2012",
       stop(base::paste("There is no column ", rank,  " in the data frame.", sep = ""))
   }
   #check if the shape is a SpatialPolygonsDataFrame
-  if(!.checkShape(map)){
-    stop("Map is/ Maps are not SpatialPolygonsDataFrame.")
+  if(!base::is.null(map)){
+    if(!.checkShape(map)){
+      stop("Map is/ Maps are not SpatialPolygonsDataFrame.")
+    } 
   }
+
   #get ages of input maps
   mapages <-c()
   if(!base::is.null(map)){
@@ -1043,13 +1057,13 @@ mapocc <- function(data, model = "SETON2012",
   #toload: count how many maps need to get loaded because there was no input
   toload <- 0
   for(a in 1:base::length(uage)){
-      if(!as.character(uage[a]) %in% mapages){
+      if(!base::as.character(uage[a]) %in% mapages){
       toload <- toload + 1
     }
   }
   #if map/s need to get loaded print a note for the user how many maps need to get loaded.
   if(toload > 0){
-    print(base::paste0("[NOTE]: You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
   }
   #go through the reconstruction ages
   for(age in 1:base::length(uage)){
@@ -1143,12 +1157,12 @@ mapocc <- function(data, model = "SETON2012",
       graphics::par(bty = "n")
       #add the raster legend outside the plot
       raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, 
+                     axis.args = base::list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, 
                                       cex.lab = 0.5, cex.axis = 0.5, col.axis = NA),
-                     legend.args = list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, 
+                     legend.args = base::list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, 
                                         col = col.grid[base::length(col.grid) / 2]))
       raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, 
+                     axis.args = base::list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, 
                                       cex.axis = 0.5, col.axis = col.grid[base::length(col.grid) / 2]))
       graphics::par(bty = "o")
     #if user wants to have plot saved as pdf start pdf device
@@ -1184,15 +1198,15 @@ mapocc <- function(data, model = "SETON2012",
         graphics::par(bty = "n")
         #add the raster legend outside the plot
         plotmap <- raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, 
+                     axis.args = base::list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, cex.lab = 0.5, 
                                       cex.axis = 0.5, col.axis = NA),
-                     legend.args = list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, 
+                     legend.args = base::list(text = "occurrences", line = 1, side = 3, adj = 0.25, cex = 0.6, 
                                         col = col.grid[base::length(col.grid) / 2]))
         plotmap <- raster::plot(curoccraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, 
+                     axis.args = base::list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, 
                                       cex.axis = 0.5, col.axis = col.grid[base::length(col.grid) / 2]))
         graphics::par(bty = "o")
-        print(plotmap)
+        base::print(plotmap)
       }
       #if plot was saved, close device
       if(!base::is.null(save.as)){
@@ -1216,7 +1230,7 @@ mapocc <- function(data, model = "SETON2012",
 #' maprich
 #' 
 #' Creates a RasterLayer of taxon richness
-#' and makes a plot of the map and the richness raster.
+#' and makes a plot of the map with the richness raster.
 #' 
 #' @usage maprich(data, rank = "genus", res = 1, model = "SETON2012", map = NULL, save.as = NULL,
 #'                     colland = "#66666660",
@@ -1232,8 +1246,8 @@ mapocc <- function(data, model = "SETON2012",
 #' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param do.plot logical. Defines if a plot is created or not. By default do.plot=TRUE. 
-#' @param col.grid character. Defines the color of the raster.
+#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
+#' @param col.grid character. Defines the color of the raster. By default col.grid = mycols(100).
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
 #' plot, such as main = "my own title" or main.col = "red".
 #' @return RasterLayer
@@ -1248,8 +1262,8 @@ mapocc <- function(data, model = "SETON2012",
 #'                                                         min_ma = 0, max_ma = 10, 
 #'                                                         show = c("coords", "phylo"), 
 #'                                                         vocab = "pbdb", limit = 100))
-#' df <- formatdata(data)
-#' df_auto <- paleocoords(df, time = "automatic")
+#' df <- formatdata(data = data)
+#' df_auto <- paleocoords(data = df, time = "automatic")
 #'                                                         
 #' #create a plot with fossils on the paleogeographical map
 #' rich <- maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012")
@@ -1288,10 +1302,11 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
     }
   }
   #check if the shape is a SpatialPolygonsDataFrame
-  if(!.checkShape(map)){
-    stop("Map is/ Maps are not SpatialPolygonsDataFrame.")
+  if(!base::is.null(map)){
+    if(!.checkShape(map)){
+      stop("Map is/ Maps are not SpatialPolygonsDataFrame.")
+    }
   }
-  
   
   #get ages of maps
   mapages <-c()
@@ -1307,31 +1322,34 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
   
   #count how many maps will be created
   #print warning
+  #num_recon: number of different reconstruction ages
   num_recon <- base::length(base::unique(stats::na.omit(data$recon_age)))
-  #through revcon_age -> for each one map and the corresponding points#
-  #getting the shape file with getmap
+  #uage: unique reconstruction ages
   uage <- base::unique(data$recon_age)
+  #toload: count how many maps need to get loaded
   toload <- 0
+  #go through reconstruction ages, if not given as input count toload +1
   for(a in 1:base::length(uage)){
-      if(!as.character(uage[a]) %in% mapages){
+      if(!base::as.character(uage[a]) %in% mapages){
       toload <- toload + 1
     }
   }
+  #if at least one map needs to get loaded -> print note for the user
   if(toload > 0){
-    print(base::paste0("[NOTE]: You have ", num_recon, " reconstruction times (meaning ", num_recon, " maps). ", toload, " map(s) need(s) to get loaded. This is going to take about ", toload, " minutes for loading."))
+    base::print(base::paste0("[NOTE]: You have ", num_recon, " reconstruction time(s) (meaning ", num_recon, " map(s)). ", toload, " map(s) need(s) to get loaded. This is going to take about ", toload, " minutes for loading."))
   }
-  
-  #creating a raster in size of the shape file
+  #creating a raster in size of a map
   spatialext <- raster::extent(c(-180, 180, -90, 90))
   ras <- raster::raster(spatialext, res = res)
-  uage <- base::unique(data$recon_age)
+  #richlist: for saving the richness raster
   richlist <- c()
+  #go through reconstruction ages and get all fossil data of the current reconstruction age
   for(age in 1:base::length(uage)){
+    #curma: current reconstruction age
     curma <- uage[age]
-    
-    subdata <- subset(data, data$recon_age == curma)
-    
-    
+    #subdata: subset of data which have the current reconstruction age
+    subdata <- base::subset(data, data$recon_age == curma)
+    #if a map with the current reconstruction age is given save it in shape, otherwise load it with getmap
     if(curma %in% mapages){
       if(class(map) == "list"){
         shape <- map[[match(curma, mapages)]]
@@ -1341,9 +1359,9 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
     }else{
       shape <- getmap(ma = curma, model = model, show.plates = FALSE, do.plot = FALSE)
     }
-    
-    #getting the raster of the species richness
+    #getting the raster of the taxon richnes
     richraster <- .rank_filter(ras, subdata, res = res, rank)
+    #save richness raster as richlist
     richlist <- c(richlist, richraster)
     #default graphical parameters
     graphparams.def <- base::list(x = shape, col = "white", border = FALSE, col.grid = col.grid
@@ -1365,6 +1383,7 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
     if(do.plot){
       #save current margin values and define it as needed
       def.mar <- graphics::par("mar")
+      #if user wants to save the plots, start graphic device
       if(!base::is.null(save.as)){
         if(save.as == "tiff"){
           grDevices::tiff(base::paste0("maprich-", curma, "mya_", model, ".tiff"), 
@@ -1379,6 +1398,7 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
                height = 10.5, width = 17, units = "cm", res = 300)
         }
       }
+      #set margins
         graphics::par(mar = c(1, 2, 2, 4))
         #plot with the default and user defined graphical parameter
         base::do.call(raster::plot, graphparams)
@@ -1412,16 +1432,15 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
         graphics::par(bty = "n")
         #add raster legend outside the plot
         raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5,
+                     axis.args = base::list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5,
                                       cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
-                     legend.args = list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, 
+                     legend.args = base::list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, 
                                         col = col.grid[base::length(col.grid) / 2]))
         raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, 
+                     axis.args = base::list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, 
                                       cex.lab = 0.5, cex.axis = 0.5, col.axis = col.grid[base::length(col.grid) / 2]))
         graphics::par(bty = "o")
-        
-        
+        #if user wants to save as pdf start pdf device
       if(!base::is.null(save.as) && save.as == "pdf"){
         filename <- base::paste0("maprich-", curma, "mya_", model, ".pdf")
         grDevices::pdf(filename, width = 8.385417, height = 4.791667)
@@ -1450,7 +1469,6 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
                                   col.axis = "darkgrey", cex.axis = 1)
         plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), 
                                   col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-        
         #add the raster without legend
         plotmap <- raster::plot(richraster, add = T, axes = F, box = F, col = gridcol, legend = FALSE, bty = "L")
         #allow to draw outside the plot
@@ -1458,31 +1476,30 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
         graphics::par(bty = "n")
         #add raster legend outside the plot
         plotmap <- raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, 
+                     axis.args = base::list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, 
                                       cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
-                     legend.args = list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, 
+                     legend.args = base::list(text = "richness", line = 1, side = 3, adj = 0.25, cex = 0.6, 
                                         col = col.grid[base::length(col.grid) / 2]))
         plotmap <- raster::plot(richraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, 
+                     axis.args = base::list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, 
                                       cex.axis = 0.5, col.axis = col.grid[base::length(col.grid) / 2]))
         graphics::par(bty = "o")
-        print(plotmap)
+        base::print(plotmap)
       }
-      
+      #if file was created close graphic device
       if(!base::is.null(save.as)){
         grDevices::dev.off()
       }
       #restore prior margin values
       graphics::par(mar = def.mar)
     }
-  
   }
+  #if there is more than one raster create a RasterStack, otherwise oly return raster
   if(base::length(richlist) > 1){
     rasterstack <- raster::stack(richlist)
   }else{
     rasterstack <- richlist[[1]]
   }
- 
   #return the raster
   return(rasterstack)
 }
@@ -1490,14 +1507,14 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
 ########spsite###################
 #' spsite
 #' 
-#' Generates a diversity data.frame, with the number occurrences of a taxon per locality or a presence/absence data.frame.
+#' Generates a diversity data.frame, with the number occurrences of taxa per locality or a presence/absence data.frame.
 #' 
 #' @usage spsite(data, unity, res = 1, rank = "genus", pa = FALSE)
 #' 
 #' @param data data.frame. Fossil occurrences data.
 #' @param unity character. unity = "fossilsite" or unity = "cell" defining if the user wants the occurrences per 
 #' cell or per fossilsite.
-#' @param res numeric. Defining the spatial resolution. By default res = 1. Only used if unity = "cell".
+#' @param res numeric. Defining the spatial resolution. Only used if unity = "cell". By default res = 1.
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
 #' @param pa boolean. Defines if the user wants presence/absence or counted data. By default pa = FALSE.
@@ -1513,8 +1530,8 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
 #'                                                         min_ma = 0, max_ma = 10, 
 #'                                                         show = c("coords", "phylo"), 
 #'                                                         vocab = "pbdb", limit = 100))
-#' df <- formatdata(data)
-#' df_auto <- paleocoords(df, time = "automatic")
+#' df <- formatdata(data = data)
+#' df_auto <- paleocoords(data = df, time = "automatic")
 #'                                                         
 #' #create a plot with fossils on the paleogeographical map
 #' sp_fossilsite <- spsite(data = df_auto, unity = "fossilsite", rank = "species", res = 10)
@@ -1540,23 +1557,24 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
   if(!.checkDataRank(data, rank)){
       stop(base::paste("There is no column ", rank, " in the data frame.", sep=""))
   }
-  
-  #count how many maps will be created
-  #print warning
-  
+  #if unity fossilsite calculate the diversity for each fossilsite
   if(unity == "fossilsite"){
+    #numdf: help variable which is counting in which round we are for saving the data.frames in the list dflist
     numdf <- 1
-    dflist <- list()
+    dflist <- base::list()
+    #uage: reconstruction ages
     uage <- base::unique(data$recon_age)
+    #go through reconstruction ages
     for(age in 1:base::length(uage)){
+      #curma: current reconstruction age
       curma <- uage[age]
-      
+      #subdata: fossil data with the current reconstruction age
       subdata <- base::subset(data, data$recon_age == curma)
-      
       #filter data for the rank
       rankdata <- .rfilter(subdata, rank)
       #create a data. frame with all the locations once
       latlng <- base::data.frame(paleolng = rankdata$paleolng, paleolat = rankdata$paleolat)
+      #ulatlng: unique fossilsites
       ulatlng <- base::unique(latlng)
       #getting list of unique taxa
       if(rank == "species"){
@@ -1611,49 +1629,60 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
           occ[curloc, curtaxon + 2] <- count
         }
       }
+      #if user wants to have a presence/absence matrix change numbers to 0 or 1
       if(pa){
+        #cnames: column names of the occ (lat, lng, taxa)
         cnames <- colnames(occ)
+        #save data without coordinates
         occnoloc <- occ[ , 3:base::length(occ)]
+        #put a 1 where occurrences are
         occnoloc[occnoloc > 0] <- 1
+        #bind lat & lng to it
         occ <- base::cbind(paleolng = occ$paleolng, paleolat = occ$paleolat, occnoloc)
+        #save correct column names
         colnames(occ) <- cnames
       }
-      # occ <- occ[with(occ, order(paleolng, -paleolat)), ]
+      #save counted occurrences in dflist
       dflist[[numdf]] <- occ
       numdf <- numdf + 1
     }
-    
-    #return the data.frame
+    #return the data.frame/list
     if(base::length(dflist) > 1){
       return(dflist)
     }else{
       return(dflist[[1]])
     }
-
   }
+  #if unity is cell calculate the number of fossils per cell
   if(unity == "cell"){
-    dflist <- list()
+    #dflist: list for savong the occurrences
+    #numdf: help counting variable
+    dflist <- base::list()
     numdf <- 1
-    uage <- unique(data$recon_age)
+    #uage: unique reconstruction ages
+    uage <- base::unique(data$recon_age)
+    #go through reconstruction ages
     for(age in 1:base::length(uage)){
+      #curma: current reconstruction age
       curma <- uage[age]
-      
-      subdata <- subset(data, data$recon_age == curma)
+      #subdata: fossils with the current reconstruction age
+      subdata <- base::subset(data, data$recon_age == curma)
+      #filter the data for the rank
       if(rank == "species"){
-        subdata <- subdata[which(!is.na(subdata$species)), ]
+        subdata <- subdata[which(!base::is.na(subdata$species)), ]
       }else if(rank == "genus"){
-        subdata <- subdata[which(!is.na(subdata$genus)), ]
+        subdata <- subdata[which(!base::is.na(subdata$genus)), ]
       }else if(rank == "order"){
-        subdata <- subdata[which(!is.na(subdata$order)), ]
+        subdata <- subdata[which(!base::is.na(subdata$order)), ]
       }else if(rank == "family"){
-        subdata <- subdata[which(!is.na(subdata$family)), ]
+        subdata <- subdata[which(!base::is.na(subdata$family)), ]
       }else if(rank == "class"){
-        subdata <- subdata[which(!is.na(subdata$class)), ]
+        subdata <- subdata[which(!base::is.na(subdata$class)), ]
       }else{
-        subdata <- subdata[which(!is.na(subdata$phylum)), ]
+        subdata <- subdata[which(!base::is.na(subdata$phylum)), ]
       }
       #remove NA columns that don't have the chosen rank
-      subdata <- subdata[!is.na(subdata[[rank]]), ]
+      subdata <- subdata[!base::is.na(subdata[[rank]]), ]
       #only getting occurences with a known genus
       rankdata <- .rfilter(subdata, rank)
       #getting list of unique taxa
@@ -1674,70 +1703,76 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
       #define lat/lng sequence using the resolution
       lat <- base::seq(-90 + (res / 2) , 90 - (res / 2), res)
       long <- base::seq(-180 + (res / 2), 180 - (res / 2), res)
+      #occ: occurrence raster
       occ <- base::expand.grid(long, lat)
       base::colnames(occ) <- c("paleolng", "paleolat")
+      #order by paleolat and paleolng
       occ <- occ[with(occ, order(paleolng, -paleolat)), ]
       #fill with default values 0 and add lat, lng and column names
       def.values <- base::matrix(0, nrow = base::nrow(occ), ncol = base::length(urank))
+      #add default values to lat and lng
       occ <- base::cbind(occ, def.values)
+      #add the different rank names
       base::colnames(occ) <- c("paleolng", "paleolat", urank)
       rankcol <- rank
+      latbord <- base::seq(90, -90, -res)
       #getting the number of occurrences of a taxa for each locality
-      latbord <- seq(90, -90, -res)
       for(curocc in 1:base::length(subdata$paleolng)){
-        curtaxon <- as.character(subdata[[rankcol]][curocc])
+        #curtaxon: taxa in the current locality
+        curtaxon <- base::as.character(subdata[[rankcol]][curocc])
+        #current lat and lng
         curlat <- data$paleolat[curocc]
         curlng <- data$paleolng[curocc]
-        if(!is.na(curlng) && !is.na(curlat)){
+        #calculate in which cell we are at the moment
+        if(!base::is.na(curlng) && !base::is.na(curlat)){
           if(!(curlat %in% latbord)){
             if(curlng == 180){
               if(curlat >= (90 - (res / 2))){
-                row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+                row <- base::abs(base::ceiling((curlat - 90) / res) + 1) + base::abs(base::floor((curlng + 180) / res) - 1) * (180 / res)
               }else{
-                row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+                row <- base::abs(base::ceiling((curlat - 90) / res)) + base::abs(base::floor((curlng + 180) / res) - 1) * (180 / res)
               }
-              
             }else if(curlng == -180){
               if(curlat >= (90 - (res / 2))){
-                row <- abs(ceiling((curlat - 90) / res) + 1) + abs(floor((curlng + 180) / res)) * (180 / res)
+                row <- base::abs(base::ceiling((curlat - 90) / res) + 1) + base::abs(base::floor((curlng + 180) / res)) * (180 / res)
               }else{
-                row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
+                row <- base::abs(base::ceiling((curlat - 90) / res)) + base::abs(base::floor((curlng + 180) / res)) * (180 / res)
               }
-              
             }else{
-              row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res))*(180 / res)
+              row <- base::abs(base::ceiling((curlat - 90) / res)) + 1 + base::abs(base::floor((curlng + 180) / res))*(180 / res)
             }
           }else{
             if(curlng == 180){
-              row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+              row <- base::abs(base::ceiling((curlat - 90) / res)) + 1 + base::abs(base::floor((curlng + 180) / res) - 1) * (180 / res)
             }else if(curlng == -180){
               if(curlat >= 90 - (res / 2)){
-                row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+                row <- base::abs(base::ceiling((curlat - 90) / res)) + base::abs(base::floor((curlng + 180) / res) - 1) * (180 / res)
               }else{
-                row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res) - 1) * (180 / res)
+                row <- base::abs(base::ceiling((curlat - 90) / res)) + base::abs(base::floor((curlng + 180) / res) - 1) * (180 / res)
               }
             }else{
               if(curlat <= -90 + (res / 2)){
                 if(curlng <= -180 + (res / 2)){
-                  row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
+                  row <- base::abs(base::ceiling((curlat - 90) / res)) + base::abs(base::floor((curlng + 180) / res)) * (180 / res)
                 }else{
-                  row <- abs(ceiling((curlat - 90) / res)) + abs(floor((curlng + 180) / res)) * (180 / res)
+                  row <- base::abs(base::ceiling((curlat - 90) / res)) + base::abs(base::floor((curlng + 180) / res)) * (180 / res)
                 } 
               }else if (curlat >= 90 - (res / 2)){
-                row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res)) * (180 / res)
+                row <- base::abs(base::ceiling((curlat - 90) / res)) + 1 + base::abs(base::floor((curlng + 180) / res)) * (180 / res)
               }else{
-                row <- abs(ceiling((curlat - 90) / res)) + 1 + abs(floor((curlng + 180) / res)) * (180 / res)
+                row <- base::abs(base::ceiling((curlat - 90) / res)) + 1 + base::abs(base::floor((curlng + 180) / res)) * (180 / res)
               }
             }
           }
-          
+          #if row is 0 set row to 1
           if(row == 0){
             row <- 1
           }
+          #increase the value in the row and the column of the current taxon by one
           occ[row, curtaxon] <- (occ[row, curtaxon] + 1)
         }
-
       }
+      #if user wants presence absence data set all values bigger than zero to one
       if(pa){
         cnames <- colnames(occ)
         occnoloc <- occ[ , 3:base::length(occ)]
@@ -1745,19 +1780,17 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
         occ <- base::cbind(paleolng = occ$paleolng, paleolat = occ$paleolat, occnoloc)
         colnames(occ) <- cnames
       }
+      #add the matrix to the list
       dflist[[numdf]] <- (base::as.data.frame(occ))
       numdf <- numdf + 1
-      
     }
-    
+    #if more than one return list of matrices, otherwise return only the one matrix
     if(base::length(dflist) > 1){
       return(dflist)
     }else{
       return(dflist[[1]])
     }
-    
   }
-  
 }
 
 
@@ -1766,7 +1799,7 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #' mapdiv
 #' 
 #' Calculates the Shannon diversity per cell or fossilsite 
-#' (taking into account relative abundances of all the fossil records 
+#' (taking into account relative abundances of all fossil records 
 #' whithin the cell) and creates a plot of the map with a RasterLayer of the diversity.
 #' 
 #' @usage mapdiv  (data, unity, rank = "genus", res = 1, map = NULL, 
@@ -1777,16 +1810,16 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #' 
 #' @param data data.frame. Fossil occurrences data.
 #' @param unity character. Either "fossilsite" or "cell".
-#' @param rank character. Taxnomic rank. By default rank = "genus".
+#' @param rank character. Taxonomic rank. By default rank = "genus".
 #' @param res numeric. Defining the spatial resolution. By default res = 1. 
 #' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.
 #' @param fun function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
-#' You can use functions such as min, max, or mean, or the character value 'count'. 
+#' You can use functions such as min, max, or mean, or the character value 'count'. By default fun = mean.
 #' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
 #' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param col.grid character. Defines the color of the raster.
+#' @param col.grid character. Defines the color of the raster. By default col.grid = mycols(100).
 #' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
 #' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
@@ -1803,8 +1836,8 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #'                                                         min_ma = 0, max_ma = 10, 
 #'                                                         show = c("coords", "phylo"), 
 #'                                                         vocab = "pbdb", limit = 100))
-#' df <- formatdata(data)
-#' df_auto <- paleocoords(df, time = "automatic")
+#' df <- formatdata(data = data)
+#' df_auto <- paleocoords(data = df, time = "automatic")
 #'                                                         
 #' #create a plot with fossils on the paleogeographical map
 #' div_fossilsite <- mapdiv(data = df_auto, unity = "fossilsite", rank = "species", res = 10,
@@ -1832,11 +1865,11 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
                    col.grid = mycols(100), 
                    do.plot = TRUE, save.as = NULL, ...) {
   # check user input data
-  if(!.checkShape(map)){
-    stop("Map is/ Maps are not SpatialPolygonsDataFrame.")
+  if(!base::is.null(map)){
+    if(!.checkShape(map)){
+      stop("Map is/ Maps are not SpatialPolygonsDataFrame.")
+    }
   }
-  
-  
   #get ages of maps
   mapages <-c()
   if(!base::is.null(map)){
@@ -1848,46 +1881,46 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
       mapages <- c(map@data$age[1])
     }
   }
-  
-  #count how many maps will be created
+  #count how many maps need to get loaded
   #print warning
+  #num_recon: number of different reconstruction ages
   num_recon <- base::length(base::unique(stats::na.omit(data$recon_age)))
-  #through revcon_age -> for each one map and the corresponding points#
-  #getting the shape file with getmap
+  #uage: unique reconstruction ages
   uage <- base::unique(data$recon_age)
+  #toload: count number of maps that need to get loaded
   toload <- 0
+  #go through input maps and check if the reconstruction ages are given as map, count how many we need to load
   for(a in 1:base::length(uage)){
-      if(!as.character(uage[a]) %in% mapages){
+      if(!base::as.character(uage[a]) %in% mapages){
       toload <- toload + 1
     }
   }
+  #if maps need to get loaded print note
   if(toload > 0){
-    print(base::paste0("[NOTE]: You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
   }
-  
-  
   #creating a raster in size of the shape file
   spatialext <- raster::extent(c(-180, 180, -90, 90))
   ras <- raster::raster(spatialext, res = res)
- 
+ #divlist: list for saving  the diversity values
   divlist <- c()
+  #go through reconstruction ages
   for(age in 1:base::length(uage)){
+    #curma: current reconstruction age
     curma <- uage[age]
-    
-    subdata <- subset(data, data$recon_age == curma)
-    
-    
+    #subdata: fossils with the current reconstruction age
+    subdata <- base::subset(data, data$recon_age == curma)
+    #if unity is cell calculate diversity per cell
     if(unity == "cell"){
-      # occ_df_cell <- mapast::spsite(subdata, unity = unity, res = res, rank = rank)
-      occ_df_cell <- spsite(subdata, unity = unity, res = res, rank = rank)
-      # occ_df_cell <- occ_df_cell[[1]]
+      #get the number of fossils per cell
+      occ_df_cell <- mapast::spsite(subdata, unity = unity, res = res, rank = rank)
       #remove lat and lng from data frame
       drops <- c("paleolat", "paleolng")
       rawocc <- occ_df_cell[ , !(base::names(occ_df_cell) %in% drops)]
-      # rawocc <- subset(occ_df_cell, select = -c(paleolng,paleolat))
       rawocc <- base::data.frame(base::rep(0, base::length(occ_df_cell$paleolat)), rawocc)
       #calculate the diversity and save diversity, lat and lng in new data frame
       div <- vegan::diversity(rawocc)
+      #create a data.frame with paleolat, paleolng and diversity
       divlatlng <- base::data.frame(occ_df_cell$paleolat, 
                                     occ_df_cell$paleolng, div = div)
       base::colnames(divlatlng) <- c("paleolat", "paleolng", "div")
@@ -1902,12 +1935,13 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
       }else{
         occurrences <- occ_df_cell[ , 3]
       }
+      #set al cells with more than one fossil occurrence to one
       occurrences[occurrences > 0] <- 1
+      #create a diversity data.frame where the columns called genus is a presence absence column and get the diversity of it
       div.df <- base::data.frame(paleolat = occ_df_cell$paleolat, paleolng = occ_df_cell$paleolng, 
                                  genus = occurrences, recon_age= base::rep(1, base::length(occ_df_cell$paleolng)))
-      # base::colnames(div.df)[5] <- "recon_age"
-      # div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
-      div_cell <- spsite(div.df, unity = "cell", res = res, rank = "genus")
+      div_cell <- mapast::spsite(div.df, unity = "cell", res = res, rank = "genus")
+      #set all values that are 0 to NULL
       if(base::length(div_cell) > 3){
         div_cell$`0` <- NULL
       }
@@ -1922,10 +1956,11 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
         }
       }
     }
+    #create diverity per fossilsite
     if(unity == "fossilsite"){
-      
-      # occ_df <- mapast::spsite(subdata, unity = unity, res = res, rank = rank)
-      occ_df <- spsite(subdata, unity = unity, res = res, rank = rank)
+      #get number of occurrences per fossilsite
+      occ_df <- mapast::spsite(subdata, unity = unity, res = res, rank = rank)
+      #remove lat and lng from data.frame
       drops <- c("paleolat", "paleolng")
       rawocc <- base::data.frame(occ_df[ , !(base::names(occ_df) %in% drops)])
       #calculate the diversity from the fossil occurrences
@@ -1964,7 +1999,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
         }
       }
     }
-    
+    #check if the map of the current reconstruction age is given, if not load the map
     if(curma %in% mapages){
       if(class(map) == "list"){
         shape <- map[[match(curma, mapages)]]
@@ -1995,23 +2030,22 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
     if(do.plot){
       #save current margin settings and define margin as needed
       def.mar <- graphics::par("mar")
-
-      
+      #if user wants to get plot saved start graphic device
       if(!base::is.null(save.as)){
         if(save.as == "tiff"){
-          grDevices::tiff(paste0("mapdiv-",curma,"mya_",model,".tiff"), 
+          grDevices::tiff(base::paste0("mapdiv-", unity, "_", curma,"mya_",model,".tiff"), 
                height = 9.5, width = 17.5, units = "cm", res = 300)
         }
         if(save.as == "jpeg"){
-          grDevices::jpeg(paste0("mapdiv-",curma,"mya_",model,".jpeg"), 
+          grDevices::jpeg(base::paste0("mapdiv-", unity, "_", curma,"mya_",model,".jpeg"), 
                height = 9.5, width = 17.5, units = "cm", res = 300)
         }
         if(save.as == "png"){
-          grDevices::png(paste0("mapdiv-",curma,"mya_",model,".png"), 
+          grDevices::png(base::paste0("mapdiv-", unity, "_", curma,"mya_",model,".png"), 
                height = 9.5, width = 17.5, units = "cm", res = 300)
         }
       }
-      
+      #change margins
       graphics::par(mar = c(1.5, 1.5, 2, 5))
         #plot with parameter list
         base::do.call(raster::plot, graphparams)
@@ -2042,19 +2076,18 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
         graphics::par(xpd = TRUE)
         graphics::par(bty = "n")
         #add legend outside the plot
-        # divraster.range <- c(min(na.omit(divraster@data@values)), max(na.omit(divraster@data@values)))
         raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, 
+                     axis.args = base::list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, 
                                       cex = 0.5, cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
-                    legend.args = list(text = "diversity", line = 1, side = 3, adj = 0.25, 
+                    legend.args = base::list(text = "diversity", line = 1, side = 3, adj = 0.25, 
                                                          cex = 0.6, col = gridcol[base::length(gridcol) / 2]))
         raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, 
+                     axis.args = base::list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, 
                                       cex.lab = 0.5, cex.axis = 0.5, col.axis = gridcol[base::length(gridcol) / 2]))
         graphics::par(bty = "o")
-
+      #create pdf
       if(!base::is.null(save.as) && save.as == "pdf"){
-        filename <- paste0("mapdiv-",curma,"mya_",model,".pdf")
+        filename <- base::paste0("mapdiv-", unity, "_", curma,"mya_",model,".pdf")
         grDevices::pdf(filename, width = 8.385417, height = 4.291667, pagecentre = F)
         graphics::par(mar = c(3,0,3,7), xpd = NA)
         
@@ -2087,34 +2120,32 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
         graphics::par(bty = "n")
         #add legend outside the plot
         plotmap <- raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, 
+                     axis.args = base::list(tck = -0.2, col = NA, col.ticks = "darkgrey", col.lab = NA, cex = 0.5, 
                                       cex.lab = 0.5, cex.axis = 0.5, col.axis = NA), 
-                     legend.args = list(text = "diversity", line = 1, side = 3, adj = 0.25, cex = 0.6, 
+                     legend.args = base::list(text = "diversity", line = 1, side = 3, adj = 0.25, cex = 0.6, 
                                         col = gridcol[base::length(gridcol) / 2]))
         plotmap <- raster::plot(divraster, legend.only = TRUE, col = gridcol, smallplot = c(0.92, 0.96, 0.3, 0.7), 
-                     axis.args = list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, 
+                     axis.args = base::list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, 
                                       cex.lab = 0.5, cex.axis = 0.5, col.axis = gridcol[base::length(gridcol) / 2]))
         graphics::par(bty = "o")
-        print(plotmap)
-        
-        
+        base::print(plotmap)
       }
+        #close graphic device after creating plot
         if(!base::is.null(save.as)){
           grDevices::dev.off()
         }
       #restore prior margin settings
       graphics::par(mar = def.mar)
     }
-    
+    #save diversity raster in list
     divlist <- c(divlist, divraster)
-    
   }
+  #check if there is more than one diversity raster and create rasterstack or only raster
   if(base::length(divlist) > 1){
     divstack <- raster::stack(divlist)
   }else{
     divstack <- divlist[[1]]
   }
-  
   #return the raster
   return(divstack)
 }
@@ -2123,7 +2154,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
 ###################################latdivgrad###################
 #' latdivgrad
 #' 
-#' Calculates the latitudinal diversity of taxa (species, genera, families, orders) and creates a plot of the continental masses with the fossil occurrences and the latitudinal diversity.
+#' Calculates the latitudinal diversity of taxa (species, genera, ...) and creates a plot of the paleogeographical continental masses with the fossil occurrences and the latitudinal diversity.
 #' 
 #' @usage latdivgrad (data, method, rank = "genus",
 #'                         res = 1, map = NULL, model = "SETON2012",
@@ -2137,7 +2168,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
 #' @param rank character. Defining the taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".
 #' @param res numeric. Defining the spatial resolution. By default res = 1. 
-#' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.
+#' @param map (list of) SpatialPolygonDataFrame(s). Containing map(s) which can be created by getmap.
 #' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
 #' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
@@ -2161,8 +2192,8 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
 #'                                                         min_ma = 0, max_ma = 10, 
 #'                                                         show = c("coords", "phylo"), 
 #'                                                         vocab = "pbdb", limit = 100))
-#' df <- formatdata(data)
-#' df_auto <- paleocoords(df, time = "automatic")
+#' df <- formatdata(data = data)
+#' df_auto <- paleocoords(data = df, time = "automatic")
 #'                                                         
 #' #create a plot with fossils on the paleogeographical map
 #' latrich <- latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1,
@@ -2177,12 +2208,11 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
 #' latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps,
 #'                       model = "SETON2012")
 #' 
-#' #save maps as pdf
+#' #save maps with latitudinal diversity as pdf
 #' latdivgrad(data = df_auto, method = "richness", rank = "species", res = 1, map = maps,
 #'                       model = "SETON2012", save.as = "pdf")
 #' latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps,
 #'                       model = "SETON2012", save.as = "pdf")
-#' 
 #'}
 
 
@@ -2203,9 +2233,12 @@ latdivgrad <- function(data, method, rank = "genus",
   if(!.checkRank(rank, data)){
     stop(base::paste("Rank: \"", rank, "\" is not a valid rank or a column called \"", rank, "\" is missing in the data.", sep = ""))
   }
-  if(!.checkShape(map)){
-    stop("Map is/ Maps are not SpatialPolygonsDataFrame.")
+  if(!base::is.null(map)){
+    if(!.checkShape(map)){
+      stop("Map is/ Maps are not SpatialPolygonsDataFrame.")
+    }
   }
+  
   #get ages of maps
   mapages <-c()
   if(!base::is.null(map)){
@@ -2217,31 +2250,34 @@ latdivgrad <- function(data, method, rank = "genus",
       mapages <- c(map@data$age[1])
     }
   }
-  
   #count how many maps will be created
   #print warning
-  num_recon <- base::length(unique(stats::na.omit(data$recon_age)))
-  #through revcon_age -> for each one map and the corresponding points#
-  #getting the shape file with getmap
-  uage <- unique(data$recon_age)
+  #num_recon: number of different reconstruction ages
+  num_recon <- base::length(base::unique(stats::na.omit(data$recon_age)))
+  #uage: unique reconstruction ages
+  uage <- base::unique(data$recon_age)
+  #toload: count how many maps need to get loaded
   toload <- 0
   for(a in 1:base::length(uage)){
-      if(!as.character(uage[a]) %in% mapages){
+    if(!base::as.character(uage[a]) %in% mapages){
       toload <- toload+1
     }
   }
+  #if at least one map needs to get loaded print note for the user
   if(toload > 0){
-    print(base::paste0("[NOTE]: You have ", num_recon," reconstruction times (meaning ", num_recon," maps). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
   }
-
-  latdivlist <- list()
+  #latdivlist: save latitudinal diversity dfs
+  latdivlist <- base::list()
+  #numlist: which round we are
   numlist <- 1
+  #go through different reconstruction ages and calculate the latitudinal diversity for each age
   for(age in 1:base::length(uage)){
+    #curma: current reconstruction age
     curma <- uage[age]
-
-    
-    subdata <- subset(data, data$recon_age == curma)
-    
+    #subdata: fossils with the current reconstruction age
+    subdata <- base::subset(data, data$recon_age == curma)
+    #check if the map with the current reconstruction age is given or if it needs to get loaded
     if(curma %in% mapages){
       if(class(map)=="list"){
         shape <- map[[match(curma, mapages)]]
@@ -2251,7 +2287,6 @@ latdivgrad <- function(data, method, rank = "genus",
     }else{
       shape <- getmap(ma=curma, model = model, show.plates=FALSE, do.plot = FALSE)
     }
-
     #define default graphical parameters
     graphparams.def <- base::list(x = shape, col = "white", border = FALSE
                                   , xlim = c(-180,180), ylim = c(-90,90)
@@ -2266,7 +2301,7 @@ latdivgrad <- function(data, method, rank = "genus",
     }
     #create argument list with default and user values
     graphparams <- c(graphparams.def, graphparams.user)
-    
+    #calculate richness
     if(method == "richness"){
       #filter the data for the taxonomic rank
       rankdata <-.rfilter(subdata, rank)
@@ -2292,10 +2327,10 @@ latdivgrad <- function(data, method, rank = "genus",
       #combine min,max lat and richness in a data frame
       latdiv <- base::data.frame(paleolat = c(base::seq(-90 + (res / 2), 90 - (res / 2), res)), div = richn)
     }
+    #calulating shannon diversity
     if(method == "shannon"){
-      # rankdata <- mapast::spsite(data, unity = "fossilsite", res = res, rank = rank)
-      rankdata <- spsite(subdata, unity = "fossilsite", res = res, rank = rank)
-      # rankdata <- rankdata[[1]]
+      rankdata <- mapast::spsite(subdata, unity = "fossilsite", res = res, rank = rank)
+      #create empty diversity vector
       div <- c()
       for(lat in base::seq(-90, 90 - res, res)){
         if(lat == -90){
@@ -2314,38 +2349,32 @@ latdivgrad <- function(data, method, rank = "genus",
       #create data frame with paleolat and diversity
       latdiv <- base::data.frame(paleolat = c(base::seq(-90 + (res / 2), 90 - (res / 2), res)), div = div)
     }
-    
     #calculate the center of each range
     centros<- (base::seq(-90, 90 - res, res) + (base::seq(-90, 90 - res, res) + res)) / 2
     #save the diversity, x and y value for plotting
     rich<- 180 + (latdiv$div*magn)
     yrich<- c(180, rich, 180)
     xrich<- c(-90, centros, 90)
-    
+    #save default marginvalues
     def.mar <- graphics::par("mar")
     #if do.plot is true create a plot
     if(do.plot){
-      #save current margin settings and define needed margin values 
-
-      # graphics::par(mar = c(1.5,1.5,2,10), xpd = NA)
-      
+      #if user wants to save plot start graphic device
       if(!base::is.null(save.as)){
         if(save.as=="tiff"){
-          grDevices::tiff(paste0("latdivgrad-",curma,"mya_",model,".tiff"), 
+          grDevices::tiff(base::paste0("latdivgrad_",method, "_",curma,"mya_",model,".tiff"), 
                height = 8.5, width = 17, units = "cm", res = 300)
         }
         if(save.as=="jpeg"){
-          grDevices::jpeg(paste0("latdivgrad-",curma,"mya_",model,".jpeg"), 
+          grDevices::jpeg(base::paste0("latdivgrad_",method, "_",curma,"mya_",model,".jpeg"), 
                height = 8.5, width = 17, units = "cm", res = 300)
         }
         if(save.as=="png"){
-          grDevices::png(paste0("latdivgrad-",curma,"mya_",model,".png"), 
+          grDevices::png(base::paste0("latdivgrad_",method, "_",curma,"mya_",model,".png"), 
                height = 8.5, width = 17, units = "cm", res = 300)
         }
       }
-      
-        # def.mar <- graphics::par("mar")
-        # graphics::par(mar = c(1.5,1.5,2,10), xpd = NA)
+      #set margin so plot and latitudinal diversity fit on the plot
       graphics::par(mar = c(2,2,3,11), xpd = NA)
         #create a plot with the parameter list
         do.call(raster::plot, graphparams)
@@ -2367,7 +2396,7 @@ latdivgrad <- function(data, method, rank = "genus",
         #add name, model and age at the top right of the plot
         graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
         graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-        if(!is.nan(base::min(yrich))){
+        if(!base::is.nan(base::min(yrich))){
           #add the richness curve at the right side of the plot
           graphics::polygon (yrich, xrich, col = rich.col, border = F, xpd = T)
           #get the parameters for the richness axis
@@ -2379,15 +2408,13 @@ latdivgrad <- function(data, method, rank = "genus",
                          col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
           graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , col.ticks = rich.col ,
                          col.axis = rich.col , col = rich.col , cex.axis = 0.6, tck = -0.01)
-          graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(base::length(ax_seq) / 2)], 
+          graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[base::round(base::length(ax_seq) / 2)], 
                          labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, 
                          cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)  
         }
-    
+      #if user wants to have it saved as pdf
         if(!base::is.null(save.as) && save.as == "pdf"){
-          # def.mar <- graphics::par("mar")
-
-          filename <- paste0("latdivgrad-",curma,"mya_",model,".pdf")
+          filename <- base::paste0("latdivgrad_",method, "_",curma,"mya_",model,".pdf")
           grDevices::pdf(filename, width= 9.385417, height = 4.291667, pagecentre=F)
           graphics::par(mar = c(3,0,3,11), xpd = NA)
           # graphics::par(mar = c(2,0,10,20), xpd = NA)
@@ -2411,7 +2438,7 @@ latdivgrad <- function(data, method, rank = "genus",
           #add name, model and age at the top right of the plot
           plotmap <- graphics::axis(side = 3, pos = 89, lwd = 0, at = 135 , labels = model, col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 1)
           plotmap <- graphics::axis(side = 3, pos = 81, lwd = 0, at = 135 , labels = paste(curma, " mya", sep = ""), col.ticks = "darkgrey", col.axis = "darkgrey", cex.axis = 0.7)
-          if(!is.nan(base::min(yrich))){
+          if(!base::is.nan(base::min(yrich))){
             graphics::par(xpd=TRUE)
             #add the richness curve at the right side of the plot
             plotmap <- graphics::polygon (yrich, xrich, col = rich.col, border = F, xpd = T)
@@ -2426,38 +2453,29 @@ latdivgrad <- function(data, method, rank = "genus",
             plotmap <- graphics::axis(side = 3, pos = 80, lwd = 0, xpd = TRUE, at = ax_seq, labels = ax_lab , 
                                       col.ticks = rich.col ,col.axis = rich.col , col = rich.col , cex.axis = 0.6, 
                                       tck = -0.01)
-            plotmap <- graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[round(base::length(ax_seq) / 2)], 
+            plotmap <- graphics::axis(side = 3, pos = 90, lwd = 0, xpd = TRUE, at = ax_seq[base::round(base::length(ax_seq) / 2)], 
                                       labels = method, col.ticks = rich.col, col.axis = rich.col, col = rich.col, 
                                       cex.axis = 0.8, tck = -0.01, cex.lab = 0.8)
           }
-          print(plotmap)
+          base::print(plotmap)
         }
-        
+        #after creating file, close graphic device
         if(!base::is.null(save.as)){
           grDevices::dev.off()
         }
-        
-
     }
     #restore the prior margin settings
     graphics::par(mar = def.mar) 
-    
     #return latitudinal richness
     latdiv <- latdiv[base::length(latdiv$paleolat):1, ]
     latdivlist[[numlist]] <- latdiv
     numlist <- numlist + 1
     
   }
-  
+  #if there is only one diversity return it, otherwise return the list of diversities
   if(base::length(latdivlist) > 1){
     return(latdivlist)
   }else{
     return(latdivlist[[1]])
   }
-  
 }
-
-
-
-
-

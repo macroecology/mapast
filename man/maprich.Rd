@@ -27,9 +27,9 @@ maprich(data, rank = "genus", res = 1, model = "SETON2012", map = NULL, save.as 
 
 \item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
 
-\item{col.grid}{character. Defines the color of the raster.}
+\item{col.grid}{character. Defines the color of the raster. By default col.grid = mycols(100).}
 
-\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot=TRUE.}
+\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to
 plot, such as main = "my own title" or main.col = "red".}
@@ -39,7 +39,7 @@ RasterLayer
 }
 \description{
 Creates a RasterLayer of taxon richness
-and makes a plot of the map and the richness raster.
+and makes a plot of the map with the richness raster.
 }
 \examples{
 \dontrun{
@@ -51,8 +51,8 @@ data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis",
                                                         min_ma = 0, max_ma = 10, 
                                                         show = c("coords", "phylo"), 
                                                         vocab = "pbdb", limit = 100))
-df <- formatdata(data)
-df_auto <- paleocoords(df, time = "automatic")
+df <- formatdata(data = data)
+df_auto <- paleocoords(data = df, time = "automatic")
                                                         
 #create a plot with fossils on the paleogeographical map
 rich <- maprich(data = df_auto, rank = "species", res = 10, model = "SETON2012")

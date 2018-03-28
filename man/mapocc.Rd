@@ -17,7 +17,7 @@ mapocc(data, model = "SETON2012",
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
 \item{rank}{character. Defining the taxonomic rank of interest. 
-"species", "genus", "family", "order", "class" or "phylum".}
+"species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".}
 
 \item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
 
@@ -29,7 +29,7 @@ mapocc(data, model = "SETON2012",
 
 \item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
 
-\item{col.grid}{character. Defines the color of the raster.}
+\item{col.grid}{character. Defines the color of the raster. By default col.grid = mycols(100),}
 
 \item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
 
@@ -40,8 +40,8 @@ plot, such as main = "my own title" or main.col = "red".}
 RasterLayer
 }
 \description{
-Creates a RasterLayer, containing the number of occurrences per cell, and a plot of the fossil 
-occurrences by taxonomic rank per cell (a proxy for the sampling effort).
+Creates a RasterLayer, containing the number of occurrences per cell and a plot of the fossil 
+occurrences by the taxonomic rank per cell (a proxy for the sampling effort).
 }
 \examples{
 \dontrun{
@@ -53,8 +53,8 @@ data  <-  base::data.frame(paleobioDB::pbdb_occurrences(base_name = "Canis",
                                                         min_ma = 0, max_ma = 10, 
                                                         show = c("coords", "phylo"), 
                                                         vocab = "pbdb", limit = 100))
-df <- formatdata(data)
-df_auto <- paleocoords(df, time = "automatic")
+df <- formatdata(data = data)
+df_auto <- paleocoords(data = df, time = "automatic")
                                                         
 # create a plot with fossils on the paleogeographical map
 occras <- mapocc(data = df_auto, model = "SETON2012", rank = "species")

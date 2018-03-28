@@ -57,11 +57,11 @@ df_auto <- paleocoords(df, time = "automatic")
 mapast(model = "SETON2012", data = df_auto)
 
 #save the maps before so the function does not need to load them
-maps <- getmap(ma = 2.5, model = "SETON2012, do.plot = FALSE)
+maps <- getmap(ma = 2.5, model = "SETON2012", do.plot = FALSE)
 mapast(model = "SETON2012", data = df_auto, map = maps)
 
 #save maps as pdf
-mapast(model = "SETON2012", data = df_auto, map = maps, save.as = "pdf)
+mapast(model = "SETON2012", data = df_auto, map = maps, save.as = "pdf")
 
 
 }
