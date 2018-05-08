@@ -1,5 +1,4 @@
 ####################formatdata#############################
-
 #' formatdata
 #' 
 #' Changes and adds columns to your data.frame from the Paleobiology Database to the names needed for the functions in this package.
@@ -24,14 +23,12 @@
 #' fdata <- formatdata(data, db = "pbdb")
 #' 
 #' }
-
 formatdata <- function(data, db = "pbdb"){
   # check if paleobiodb is given as database
   # at the moment only pbdb possible
   if(db == "pbdb"){
     #calculate the average age from early_age and late_age of the fossils
     avg_age <- (data$early_age + data$late_age) / 2
-    
     #create a species column (not given by paleobiodb)
     species <- c()
     #go through matched_rank, if it is species add the matched name to the species column
@@ -43,23 +40,18 @@ formatdata <- function(data, db = "pbdb"){
         species <- c(species, NA)
       }
     }
-    
     #add average_age of the fossil and species to the data.frame
     data <- base::cbind(data, species, avg_age)
     #sort data.frame by average age
     data <- data[base::order(-base::as.numeric(data$avg_age)), ]
-    
   }else{
     # if user types in other db -> print message that at the moment only paleobiodb is possible
     base::print("Sorry, function is at the moment only available for db = \"pbdb\".")
   }
-  
   #return the data.frame with species and average_age columns
   return(data)
 }
-
 ################paleocoords##############################
-
 #' paleocoords
 #' 
 #' Calculating the paleocoordinates of the fossil data. Either calculating timebins by looking at the early_age and late_age column,
@@ -96,10 +88,7 @@ formatdata <- function(data, db = "pbdb"){
 #' 
 #'                     
 #'}
-
 paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, model = "SETON2012") {
-  
-
   #remove data with lat or lng outside of range
   #data2: data.frame for saving occurrences with lat/lng outside of range
   data2 <- NULL
@@ -126,7 +115,6 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
     data <- base::cbind(data, recon_age)
     #list of reconstruction ages
     uma <- base::unique(recon_age)
-    
     #go through the reconstruction ages
     for( curma in 1:base::length(uma)){
       #take all fossils with the current reconstruction age
@@ -161,7 +149,6 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
                 paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
               }
             }
-            
           }else{
             #pass the last points of the subsets for one reconstruction age to the api
             pts <- ""
@@ -183,13 +170,10 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
                 paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
               }
             }
-            
           }
-          #increase number of rounds to get next subset of points for current reconstruction age
-          round <- round + 1
-          
+        #increase number of rounds to get next subset of points for current reconstruction age
+        round <- round + 1
         }
-        
       }else{
         #if not more than 200 fossils: calculate all paleocoordinates in one step and save them
         for( j in 1:base::length(part$recon_age)){
@@ -211,9 +195,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
             paleolat <- c(paleolat, paleopts$coordinates[[k]][2])
           }
         }
-        
       }
-      
     }
   }else if(time == "automatic"){
     #take min/max from early/late age as min and max from time bin (abgerundet/aufgerundet)
@@ -317,7 +299,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
           #count round up
           round <- round + 1
         }
-      #if it is not more than 200 build request for all fossils for the current reconstruction age
+        #if it is not more than 200 build request for all fossils for the current reconstruction age
       }else{
         #save string with lng lat for each fossil
         for( j in 1:base::length(part$recon_age)){
@@ -363,7 +345,6 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
           }
         }
       }
-
     }
     #save the bin_ages as recon_age in the data.frame
     recon_age <- bin_ages
@@ -489,9 +470,7 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
   #return the data frame with the reconstructed ages
   return(data)
 }
-
 ###########################getmap#############################
-
 #' getmap
 #' 
 #' Downloads a map of a specific age or a list of maps of specific ages from a model specified by the user.
@@ -521,8 +500,8 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 #' 
 #' #with continental plates
 #' map <- getmap(ma = 100, model = "SETON2012", show.plates = T)
-#' coastlines <- map[[1]]
-#' plates <- map[[2]]
+#' coastlines <- map[[1]][[1]]
+#' plates <- map[[2]][[1]]
 #' 
 #' #without continental plates
 #' coastline <- getmap(ma = 100, model = "SETON2012")
@@ -538,7 +517,6 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 #' par(mfrow = c(1, 1))
 #' 
 #'}
-
 getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL, colland = "#66666660", 
                    colsea = "#00509010", 
                    do.plot = TRUE, ...) {
@@ -568,7 +546,6 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
     shape@data$model <- model
     #save shape in list of shapes
     shapes[[ages]] <- shape
-    
     #errplate: boolean if there was an error getting the plates
     errplate <- FALSE
     #if user wants to get the plates
@@ -721,8 +698,6 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
     }
   }
 }
-
-
 ####################mapast#################################
 #' mapast
 #' 
@@ -775,13 +750,11 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
 #' 
 #' 
 #'}
-
 mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.as = NULL,
                     colland = "#66666660",
                     colsea = "#00509010", 
                     colpoints = "#65432190", 
                     pch = 16, cex = 1, ...) {
-  
   #check if inut data has needed columns (paleolat/paleolng)
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
@@ -822,7 +795,7 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
   }
   #if toload is not 0, give user a note how many maps need to get loaded.
   if(toload > 0){
-    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minute(s) for loading."))
   }
   #go through the reconstruction ages
    for(age in 1:base::length(uage)){
@@ -953,7 +926,6 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
     }
   }
 }
-
 #####################mapocc##############################
 #' mapocc
 #' 
@@ -1006,7 +978,6 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
 #' mapocc(data = df_auto, model = "SETON2012", rank = "species", map = maps, save.as = "pdf")
 #' 
 #'}
-
 mapocc <- function(data, model = "SETON2012",
                          rank = "genus", map = NULL,
                          res = 1, save.as = NULL,
@@ -1034,7 +1005,6 @@ mapocc <- function(data, model = "SETON2012",
       stop("Map is/ Maps are not SpatialPolygonsDataFrame.")
     } 
   }
-
   #get ages of input maps
   mapages <-c()
   if(!base::is.null(map)){
@@ -1063,7 +1033,7 @@ mapocc <- function(data, model = "SETON2012",
   }
   #if map/s need to get loaded print a note for the user how many maps need to get loaded.
   if(toload > 0){
-    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minute(s) for loading."))
   }
   #go through the reconstruction ages
   for(age in 1:base::length(uage)){
@@ -1165,7 +1135,7 @@ mapocc <- function(data, model = "SETON2012",
                      axis.args = base::list(line = -0.5, col = NA, col.ticks = NA, col.lab = NA, cex = 0.5, cex.lab = 0.5, 
                                       cex.axis = 0.5, col.axis = col.grid[base::length(col.grid) / 2]))
       graphics::par(bty = "o")
-    #if user wants to have plot saved as pdf start pdf device
+      #if user wants to have plot saved as pdf start pdf device
       if(!base::is.null(save.as) && save.as == "pdf"){
         filename <- base::paste0("mapocc-", curma, "mya_", model, ".pdf")
         grDevices::pdf(filename, width= 8.385417, height = 4.791667)
@@ -1225,7 +1195,6 @@ mapocc <- function(data, model = "SETON2012",
   #return the raster or rasterstack
   return(occstack)
 }
-
 #####################maprich####################
 #' maprich
 #' 
@@ -1277,7 +1246,6 @@ mapocc <- function(data, model = "SETON2012",
 #'                       save.as = "pdf")
 #' 
 #'}
-
 maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = NULL, save.as = NULL,
                            colland = "#66666660",
                            colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...) {
@@ -1336,7 +1304,7 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
   }
   #if at least one map needs to get loaded -> print note for the user
   if(toload > 0){
-    base::print(base::paste0("[NOTE]: You have ", num_recon, " reconstruction time(s) (meaning ", num_recon, " map(s)). ", toload, " map(s) need(s) to get loaded. This is going to take about ", toload, " minutes for loading."))
+    base::print(base::paste0("[NOTE]: You have ", num_recon, " reconstruction time(s) (meaning ", num_recon, " map(s)). ", toload, " map(s) need(s) to get loaded. This is going to take about ", toload, " minute(s) for loading."))
   }
   #creating a raster in size of a map
   spatialext <- raster::extent(c(-180, 180, -90, 90))
@@ -1503,7 +1471,6 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
   #return the raster
   return(rasterstack)
 }
-
 ########spsite###################
 #' spsite
 #' 
@@ -1539,7 +1506,6 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
 #' 
 #' 
 #'}
-
 spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
   #check users input data
   #check if lat/lng columns are in the data frame
@@ -1792,9 +1758,6 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
     }
   }
 }
-
-
-
 #####################mapdiv####################
 #' mapdiv
 #' 
@@ -1859,7 +1822,6 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #'                       model = "SETON2012", save.as = "pdf")
 #' 
 #' }
-
 mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean, model = "SETON2012",
                    colland = "#66666660", colsea = "#00509010", 
                    col.grid = mycols(100), 
@@ -1897,7 +1859,7 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
   }
   #if maps need to get loaded print note
   if(toload > 0){
-    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minute(s) for loading."))
   }
   #creating a raster in size of the shape file
   spatialext <- raster::extent(c(-180, 180, -90, 90))
@@ -2149,8 +2111,6 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
   #return the raster
   return(divstack)
 }
-
-
 ###################################latdivgrad###################
 #' latdivgrad
 #' 
@@ -2214,8 +2174,6 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
 #' latdivgrad(data = df_auto, method = "shannon", rank = "species", res = 1, map = maps,
 #'                       model = "SETON2012", save.as = "pdf")
 #'}
-
-
 latdivgrad <- function(data, method, rank = "genus",
                        res = 1, map=NULL, model="SETON2012",
                        colland = "#66666680", colsea = "#00509010", 
@@ -2226,6 +2184,7 @@ latdivgrad <- function(data, method, rank = "genus",
   if(!.checkLatLng(data)){
     stop("Column/s paleolat and/or paleolng are missing in the input data.")
   }
+  #check if lat is in -90/90 ans lng is in -180/180
   if(!.checkRange(data)){
     stop("Range of Latitude and/or Longitude is not allowed.")
   }
@@ -2233,13 +2192,13 @@ latdivgrad <- function(data, method, rank = "genus",
   if(!.checkRank(rank, data)){
     stop(base::paste("Rank: \"", rank, "\" is not a valid rank or a column called \"", rank, "\" is missing in the data.", sep = ""))
   }
+  #check when there is an imput maps/are input maps if the format is a SpatialPolygonsDataFrame
   if(!base::is.null(map)){
     if(!.checkShape(map)){
       stop("Map is/ Maps are not SpatialPolygonsDataFrame.")
     }
   }
-  
-  #get ages of maps
+  #get ages of given input maps and save them in mapages
   mapages <-c()
   if(!base::is.null(map)){
     if(class(map)=="list"){
@@ -2265,7 +2224,7 @@ latdivgrad <- function(data, method, rank = "genus",
   }
   #if at least one map needs to get loaded print note for the user
   if(toload > 0){
-    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minutes for loading."))
+    base::print(base::paste0("[NOTE]: You have ", num_recon," reconstruction time(s) (meaning ", num_recon," map(s)). ",toload, " map(s) need(s) to get loaded. This is going to take about ",toload," minute(s) for loading."))
   }
   #latdivlist: save latitudinal diversity dfs
   latdivlist <- base::list()
@@ -2278,6 +2237,7 @@ latdivgrad <- function(data, method, rank = "genus",
     #subdata: fossils with the current reconstruction age
     subdata <- base::subset(data, data$recon_age == curma)
     #check if the map with the current reconstruction age is given or if it needs to get loaded
+    #shape: current map (SpatialPolygonsDataFrame)
     if(curma %in% mapages){
       if(class(map)=="list"){
         shape <- map[[match(curma, mapages)]]
@@ -2299,14 +2259,16 @@ latdivgrad <- function(data, method, rank = "genus",
     for( i in names_graphparams.user){
       if(i %in% names_graphparams.def) graphparams.def <- graphparams.def[ - base::which(base::names(graphparams.def) == i)] 
     }
-    #create argument list with default and user values
+    #graphparams: argument list with default and user values
     graphparams <- c(graphparams.def, graphparams.user)
     #calculate richness
     if(method == "richness"){
       #filter the data for the taxonomic rank
+      #rankdata: all fossils that have a defined chosen rank (e.g. all fossils where the species is known)
       rankdata <-.rfilter(subdata, rank)
       #setting min and max value for lat
       #creating empty richness data frame
+      #richn: save latitudinal richness
       richn <- NULL
       #going through lats
       for(lat in base::seq(-90, 90-res, res)) {
@@ -2322,15 +2284,16 @@ latdivgrad <- function(data, method, rank = "genus",
         #count and save the number of different taxa at each latitude
         richn <- c(richn, base::length(latocc))
       }
-      #define the magnitude of the richness graph
+      #magn: define the magnitude of the richness graph
       magn <- 140/base::max(richn)
-      #combine min,max lat and richness in a data frame
+      #latdiv: combine min,max lat and richness in a data frame
       latdiv <- base::data.frame(paleolat = c(base::seq(-90 + (res / 2), 90 - (res / 2), res)), div = richn)
     }
     #calulating shannon diversity
     if(method == "shannon"){
+      #rankdata: number of fossils of given rank per fossilsite
       rankdata <- mapast::spsite(subdata, unity = "fossilsite", res = res, rank = rank)
-      #create empty diversity vector
+      #div: create empty diversity vector
       div <- c()
       for(lat in base::seq(-90, 90 - res, res)){
         if(lat == -90){
@@ -2344,12 +2307,12 @@ latdivgrad <- function(data, method, rank = "genus",
         sum_occ <- base::colSums(rawocc)
         div <- c(div , vegan::diversity(sum_occ))
       }
-      #calculate the magnitude by taking the max of the diversity
+      #magn: calculate the magnitude by taking the max of the diversity
       magn <- 140/base::max(div)
-      #create data frame with paleolat and diversity
+      #latdiv: create data frame with paleolat and diversity
       latdiv <- base::data.frame(paleolat = c(base::seq(-90 + (res / 2), 90 - (res / 2), res)), div = div)
     }
-    #calculate the center of each range
+    #centros: calculate the center of each range
     centros<- (base::seq(-90, 90 - res, res) + (base::seq(-90, 90 - res, res) + res)) / 2
     #save the diversity, x and y value for plotting
     rich<- 180 + (latdiv$div*magn)

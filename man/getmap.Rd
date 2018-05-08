@@ -42,8 +42,8 @@ library(mapast)
 
 #with continental plates
 map <- getmap(ma = 100, model = "SETON2012", show.plates = T)
-coastlines <- map[[1]]
-plates <- map[[2]]
+coastlines <- map[[1]][[1]]
+plates <- map[[2]][[1]]
 
 #without continental plates
 coastline <- getmap(ma = 100, model = "SETON2012")
