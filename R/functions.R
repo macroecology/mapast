@@ -1,12 +1,12 @@
 ####################formatdata#############################
 #' formatdata
 #' 
-#' Changes and adds columns to your data.frame from the Paleobiology Database to the names needed for the functions in this package.
-#' It also calculates the average age of the fossil occurrences from the data.frame columns early_age and late_age parameter.
+#' Changes and adds columns to your fossil occurrences data.frame from the Paleobiology Database to the names needed for the functions in this package.
+#' It also calculates the average age of the fossil occurrences from the data.frame columns early_age and late_age.
 #' 
 #' @usage formatdata(data, db = "pbdb")
 #' 
-#' @param data data.frame. Fossil occurrences data, from the Paleoiology Database.
+#' @param data data.frame. Fossil occurrences data from the Paleoiology Database.
 #' @param db character. Name of the database where the data is from. Only db = "pbdb" possible.
 #' @return data.frame
 #' @export
@@ -62,9 +62,9 @@ formatdata <- function(data, db = "pbdb"){
 #' 
 #' @param data data.frame. Fossil occurrences data.
 #' @param time character. Defines how the reconstruction time is specified. Can be "automatic", "average" or "timevector". By default time = "automatic".
-#' @param timevector vector. Defining the borders of the time bins. Not allowed to be NULL if time = "timevector".
-#' @param stepsize numeric. Defining the stepsize of the time bins if time = "automatic". By default stepsize = 10.
-#' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
+#' @param timevector vector. The borders of the time bins. Not allowed to be NULL if time = "timevector".
+#' @param stepsize numeric. The stepsize of the time bins if time = "automatic". By default stepsize = 10.
+#' @param model character. The model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
 #' @return data.frame
 #' @export 
@@ -474,24 +474,24 @@ paleocoords <- function(data, time = "automatic", timevector=NULL, stepsize=10, 
 #' getmap
 #' 
 #' Downloads a map of a specific age or a list of maps of specific ages from a model specified by the user.
-#' Available models and ages can be found at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models.
+#' Available models and ages can be found at 
+#' https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models.
 #' 
 #' @usage getmap(ma, model = "SETON2012", show.plates = FALSE, 
 #'                   save.as = NULL, colland = "#66666660", 
 #'                   colsea = "#00509010", 
 #'                   do.plot = TRUE, ...)
 #' 
-#' @param ma numeric. Age in ma(million years ago). Can also be a vector of ages.
-#' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
+#' @param ma numeric. Age in ma(million years ago). Can also be a vector of ages (vector of numeric age values).
+#' @param model character. The model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
-#' @param show.plates boolean. Defines if the user wants to get the continental plate borders. By default show.plates = FALSE.
-#' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png". 
-#' By default save.as = NULL, plots are only shown not automatically saved as a file.
-#' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
-#' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param do.plot logical. Defines if a plot of the map is created or not. By default do.plot = TRUE. 
+#' @param show.plates boolean. If the user wants to get the continental plate borders or not. By default show.plates = FALSE.
+#' @param save.as character. The format the plots should be saved. "tiff", "pdf", "jpeg" or "png". 
+#' By default save.as = NULL, plots are only shown and are not automatically saved as a file.
+#' @param colland character. The color of the land masses. By default colland = "#66666660".
+#' @param colsea character. The color of the sea. By default colsea = "#00509010".
+#' @param do.plot logical. If a plot of the map is created or not. By default do.plot = TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main = "my own title" or main.col = "red".
-#' @return SpatialPolygonsDataFrame
 #' @export
 #' @examples
 #' \dontrun{
@@ -711,17 +711,17 @@ getmap <- function(ma, model = "SETON2012", show.plates = FALSE, save.as = NULL,
 #'                          colpoints = "#65432190", 
 #'                          pch = 16, cex = 1, ...)
 #' 
-#' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
+#' @param model character. The model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
 #' @param data data.frame. Fossil occurrences data.
 #' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.
-#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
-#' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
-#' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
-#' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param colpoints character. Defines the color of the occurrence-points. By default colpoints = "#65432190".
+#' @param do.plot logical. If a plot is created or not. By default do.plot = TRUE. 
+#' @param save.as character. The format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
+#' @param colland character. The color of the land masses. By default colland = "#66666660".
+#' @param colsea character. The color of the sea. By default colsea = "#00509010".
+#' @param colpoints character. The color of the occurrence-points. By default colpoints = "#65432190".
 #' @param pch numeric. Point symbol for plotting the occurences. By default pch = 16 (filled circle).
-#' @param cex numeric. Size of the points. By default cex = 1.
+#' @param cex numeric. Size of the fossil occurrences points. By default cex = 1.
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title" or main.col="red".
 #' @return Plot
 #' @export 
@@ -939,17 +939,17 @@ mapast <- function(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.a
 #'                    colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...) 
 #' 
 #' @param data data.frame. Fossil occurrences data.
-#' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
+#' @param model character. The model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
-#' @param rank character. Defining the taxonomic rank of interest. 
+#' @param rank character. The taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".
-#' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.
-#' @param res numeric. Defining the spatial resolution. By default res = 1. 
-#' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
-#' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
-#' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param col.grid character. Defines the color of the raster. By default col.grid = mycols(100),
-#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
+#' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by mapast::getmap(ma, model).
+#' @param res numeric. The spatial resolution. By default res = 1. 
+#' @param save.as character. The format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
+#' @param colland character. The color of the land masses. By default colland = "#66666660".
+#' @param colsea character. The color of the sea. By default colsea = "#00509010".
+#' @param col.grid character. The color of the raster. By default col.grid = mycols(100),
+#' @param do.plot logical. If a plot is created or not. By default do.plot = TRUE. 
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
 #' plot, such as main = "my own title" or main.col = "red".
 #' @return RasterLayer
@@ -1206,17 +1206,17 @@ mapocc <- function(data, model = "SETON2012",
 #'                     colsea = "#00509010", col.grid = mycols(100), do.plot = TRUE, ...)
 #' 
 #' @param data data.frame. Fossil occurrences data.
-#' @param rank character. Defining the taxonomic rank of interest. 
+#' @param rank character. The taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank="genus".
-#' @param res numeric. Defining the spatial resolution. By default res = 1. 
+#' @param res numeric. The spatial resolution. By default res = 1. 
 #' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
-#' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.
-#' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
-#' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
-#' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
-#' @param col.grid character. Defines the color of the raster. By default col.grid = mycols(100).
+#' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by mapast::getmap(ma, model).
+#' @param save.as character. The format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
+#' @param colland character. The color of the land masses. By default colland = "#66666660".
+#' @param colsea character. The color of the sea. By default colsea = "#00509010".
+#' @param do.plot logical. If a plot is created or not. By default do.plot = TRUE. 
+#' @param col.grid character. The color of the raster. By default col.grid = mycols(100).
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
 #' plot, such as main = "my own title" or main.col = "red".
 #' @return RasterLayer
@@ -1479,12 +1479,12 @@ maprich <- function (data, rank = "genus", res = 1, model = "SETON2012", map = N
 #' @usage spsite(data, unity, res = 1, rank = "genus", pa = FALSE)
 #' 
 #' @param data data.frame. Fossil occurrences data.
-#' @param unity character. unity = "fossilsite" or unity = "cell" defining if the user wants the occurrences per 
-#' cell or per fossilsite.
-#' @param res numeric. Defining the spatial resolution. Only used if unity = "cell". By default res = 1.
-#' @param rank character. Defining the taxonomic rank of interest. 
+#' @param unity character. If the user wants the occurrences per 
+#' cell (unity = "cell") or per fossilsite (unity = "fossilsite). 
+#' @param res numeric. The spatial resolution. Only used if unity = "cell". By default res = 1.
+#' @param rank character. The taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"
-#' @param pa boolean. Defines if the user wants presence/absence or counted data. By default pa = FALSE.
+#' @param pa boolean. Defines if the user wants presence/absence or counted data. By default pa = FALSE, which means the function returns counted data.
 #' @return data.frame
 #' @export 
 #' @examples 
@@ -1773,18 +1773,19 @@ spsite <- function(data, unity, res = 1, rank = "genus", pa = FALSE) {
 #' 
 #' @param data data.frame. Fossil occurrences data.
 #' @param unity character. Either "fossilsite" or "cell".
-#' @param rank character. Taxonomic rank. By default rank = "genus".
-#' @param res numeric. Defining the spatial resolution. By default res = 1. 
-#' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.
+#' @param rank character. The taxonomic rank of interest. 
+#' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".
+#' @param res numeric. The spatial resolution. By default res = 1. 
+#' @param map (list of) SpatialPolygonDataFrames. Containing map(s) which can be created by mapast::getmap(ma, model).
 #' @param fun function or character. To determine what values to assign to cells that are covered by multiple spatial features. 
 #' You can use functions such as min, max, or mean, or the character value 'count'. By default fun = mean.
-#' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
+#' @param model character. The model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
-#' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
-#' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param col.grid character. Defines the color of the raster. By default col.grid = mycols(100).
-#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
-#' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
+#' @param colland character. The color of the land masses. By default colland = "#66666660".
+#' @param colsea character. The color of the sea. By default colsea = "#00509010".
+#' @param col.grid character. The color of the raster. By default col.grid = mycols(100).
+#' @param do.plot logical. If a plot is created or not. By default do.plot = TRUE. 
+#' @param save.as character. The format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to
 #' plot, such as main = "my own title" or main.col = "red".
 #' @return RasterLayer
@@ -2124,20 +2125,21 @@ mapdiv <- function(data, unity, rank = "genus", res = 1, map = NULL, fun = mean,
 #'                         do.plot = TRUE, save.as = NULL,...)
 #' 
 #' @param data data.frame. Fossil occurrence data.
-#' @param method character. Defining the method of diversity measure, method = "shannon" or method = "richness".
-#' @param rank character. Defining the taxonomic rank of interest. 
+#' @param method character. The method of diversity measure, method = "shannon" or method = "richness".
+#' Must be defined by the user.
+#' @param rank character. The taxonomic rank of interest. 
 #' "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".
-#' @param res numeric. Defining the spatial resolution. By default res = 1. 
-#' @param map (list of) SpatialPolygonDataFrame(s). Containing map(s) which can be created by getmap.
-#' @param model character. Defining the model the map should be created with. "SETON2012" (default), 
+#' @param res numeric. The spatial resolution. By default res = 1. 
+#' @param map (list of) SpatialPolygonDataFrame(s). Containing map(s) which can be created with the function mapast::getmap(ma, model).
+#' @param model character. The model the map should be created with. "SETON2012" (default), 
 #' "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".
-#' @param colland character. Defines the color of the land masses. By default colland = "#66666660".
-#' @param colsea character. Defines the color of the sea. By default colsea = "#00509010".
-#' @param colpoints character. Defines the color of the fossil occurrence-points. By default colpoints = "#65432190". 
-#' @param rich.col character. Defines the color of the richness curve. By default rich.col = "#654321".
+#' @param colland character. The color of the land masses. By default colland = "#66666660".
+#' @param colsea character. The color of the sea. By default colsea = "#00509010".
+#' @param colpoints character. The color of the fossil occurrence-points. By default colpoints = "#65432190". 
+#' @param rich.col character. The color of the richness curve. By default rich.col = "#654321".
 #' @param pch numeric. Point symbol for plotting the occurences. By default pch = 21.
-#' @param do.plot logical. Defines if a plot is created or not. By default do.plot = TRUE. 
-#' @param save.as character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
+#' @param do.plot logical. If a plot is created or not. By default do.plot = TRUE. 
+#' @param save.as character. The format the plots should be saved. "tiff", "pdf", "jpeg" or "png".
 #' @param ... Graphical parameters. Any argument that can be passed to image.plot and to plot, 
 #' such as main = "my own title" or main.col = "red".
 #' @return data.frame 

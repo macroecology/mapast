@@ -11,26 +11,26 @@ mapast(model = "SETON2012", data, map = NULL, do.plot = TRUE, save.as = NULL,
                          pch = 16, cex = 1, ...)
 }
 \arguments{
-\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+\item{model}{character. The model the map should be created with. "SETON2012" (default), 
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
 \item{data}{data.frame. Fossil occurrences data.}
 
 \item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
 
-\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
+\item{do.plot}{logical. If a plot is created or not. By default do.plot = TRUE.}
 
-\item{save.as}{character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".}
+\item{save.as}{character. The format the plots should be saved. "tiff", "pdf", "jpeg" or "png".}
 
-\item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
+\item{colland}{character. The color of the land masses. By default colland = "#66666660".}
 
-\item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
+\item{colsea}{character. The color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{character. Defines the color of the occurrence-points. By default colpoints = "#65432190".}
+\item{colpoints}{character. The color of the occurrence-points. By default colpoints = "#65432190".}
 
 \item{pch}{numeric. Point symbol for plotting the occurences. By default pch = 16 (filled circle).}
 
-\item{cex}{numeric. Size of the points. By default cex = 1.}
+\item{cex}{numeric. Size of the fossil occurrences points. By default cex = 1.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main="my own title" or main.col="red".}
 }

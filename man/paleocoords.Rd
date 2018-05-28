@@ -12,11 +12,11 @@ paleocoords(data, time = "automatic", timevector = NULL,
 
 \item{time}{character. Defines how the reconstruction time is specified. Can be "automatic", "average" or "timevector". By default time = "automatic".}
 
-\item{timevector}{vector. Defining the borders of the time bins. Not allowed to be NULL if time = "timevector".}
+\item{timevector}{vector. The borders of the time bins. Not allowed to be NULL if time = "timevector".}
 
-\item{stepsize}{numeric. Defining the stepsize of the time bins if time = "automatic". By default stepsize = 10.}
+\item{stepsize}{numeric. The stepsize of the time bins if time = "automatic". By default stepsize = 10.}
 
-\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+\item{model}{character. The model the map should be created with. "SETON2012" (default), 
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 }
 \value{

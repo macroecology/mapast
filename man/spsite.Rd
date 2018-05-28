@@ -9,15 +9,15 @@ spsite(data, unity, res = 1, rank = "genus", pa = FALSE)
 \arguments{
 \item{data}{data.frame. Fossil occurrences data.}
 
-\item{unity}{character. unity = "fossilsite" or unity = "cell" defining if the user wants the occurrences per 
-cell or per fossilsite.}
+\item{unity}{character. If the user wants the occurrences per 
+cell (unity = "cell") or per fossilsite (unity = "fossilsite).}
 
-\item{res}{numeric. Defining the spatial resolution. Only used if unity = "cell". By default res = 1.}
+\item{res}{numeric. The spatial resolution. Only used if unity = "cell". By default res = 1.}
 
-\item{rank}{character. Defining the taxonomic rank of interest. 
+\item{rank}{character. The taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus"}
 
-\item{pa}{boolean. Defines if the user wants presence/absence or counted data. By default pa = FALSE.}
+\item{pa}{boolean. Defines if the user wants presence/absence or counted data. By default pa = FALSE, which means the function returns counted data.}
 }
 \value{
 data.frame

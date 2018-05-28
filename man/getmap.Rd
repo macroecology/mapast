@@ -10,30 +10,28 @@ getmap(ma, model = "SETON2012", show.plates = FALSE,
                   do.plot = TRUE, ...)
 }
 \arguments{
-\item{ma}{numeric. Age in ma(million years ago). Can also be a vector of ages.}
+\item{ma}{numeric. Age in ma(million years ago). Can also be a vector of ages (vector of numeric age values).}
 
-\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+\item{model}{character. The model the map should be created with. "SETON2012" (default), 
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
-\item{show.plates}{boolean. Defines if the user wants to get the continental plate borders. By default show.plates = FALSE.}
+\item{show.plates}{boolean. If the user wants to get the continental plate borders or not. By default show.plates = FALSE.}
 
-\item{save.as}{character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png". 
-By default save.as = NULL, plots are only shown not automatically saved as a file.}
+\item{save.as}{character. The format the plots should be saved. "tiff", "pdf", "jpeg" or "png". 
+By default save.as = NULL, plots are only shown and are not automatically saved as a file.}
 
-\item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
+\item{colland}{character. The color of the land masses. By default colland = "#66666660".}
 
-\item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
+\item{colsea}{character. The color of the sea. By default colsea = "#00509010".}
 
-\item{do.plot}{logical. Defines if a plot of the map is created or not. By default do.plot = TRUE.}
+\item{do.plot}{logical. If a plot of the map is created or not. By default do.plot = TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, such as main = "my own title" or main.col = "red".}
 }
-\value{
-SpatialPolygonsDataFrame
-}
 \description{
 Downloads a map of a specific age or a list of maps of specific ages from a model specified by the user.
-Available models and ages can be found at https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models.
+Available models and ages can be found at 
+https://github.com/GPlates/gplates_web_service_doc/wiki/Reconstruction-Models.
 }
 \examples{
 \dontrun{

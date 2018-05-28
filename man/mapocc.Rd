@@ -13,25 +13,25 @@ mapocc(data, model = "SETON2012",
 \arguments{
 \item{data}{data.frame. Fossil occurrences data.}
 
-\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+\item{model}{character. The model the map should be created with. "SETON2012" (default), 
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
-\item{rank}{character. Defining the taxonomic rank of interest. 
+\item{rank}{character. The taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".}
 
-\item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by getmap.}
+\item{map}{(list of) SpatialPolygonDataFrames. Containing map(s) which can be created by mapast::getmap(ma, model).}
 
-\item{res}{numeric. Defining the spatial resolution. By default res = 1.}
+\item{res}{numeric. The spatial resolution. By default res = 1.}
 
-\item{save.as}{character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".}
+\item{save.as}{character. The format the plots should be saved. "tiff", "pdf", "jpeg" or "png".}
 
-\item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
+\item{colland}{character. The color of the land masses. By default colland = "#66666660".}
 
-\item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
+\item{colsea}{character. The color of the sea. By default colsea = "#00509010".}
 
-\item{col.grid}{character. Defines the color of the raster. By default col.grid = mycols(100),}
+\item{col.grid}{character. The color of the raster. By default col.grid = mycols(100),}
 
-\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
+\item{do.plot}{logical. If a plot is created or not. By default do.plot = TRUE.}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to
 plot, such as main = "my own title" or main.col = "red".}

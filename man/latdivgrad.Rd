@@ -14,31 +14,32 @@ latdivgrad (data, method, rank = "genus",
 \arguments{
 \item{data}{data.frame. Fossil occurrence data.}
 
-\item{method}{character. Defining the method of diversity measure, method = "shannon" or method = "richness".}
+\item{method}{character. The method of diversity measure, method = "shannon" or method = "richness".
+Must be defined by the user.}
 
-\item{rank}{character. Defining the taxonomic rank of interest. 
+\item{rank}{character. The taxonomic rank of interest. 
 "species", "genus", "family", "order", "class" or "phylum". By default rank = "genus".}
 
-\item{res}{numeric. Defining the spatial resolution. By default res = 1.}
+\item{res}{numeric. The spatial resolution. By default res = 1.}
 
-\item{map}{(list of) SpatialPolygonDataFrame(s). Containing map(s) which can be created by getmap.}
+\item{map}{(list of) SpatialPolygonDataFrame(s). Containing map(s) which can be created with the function mapast::getmap(ma, model).}
 
-\item{model}{character. Defining the model the map should be created with. "SETON2012" (default), 
+\item{model}{character. The model the map should be created with. "SETON2012" (default), 
 "MULLER2016", "GOLONKA", "PALEOMAP" or "MATTHEWS2016".}
 
-\item{colland}{character. Defines the color of the land masses. By default colland = "#66666660".}
+\item{colland}{character. The color of the land masses. By default colland = "#66666660".}
 
-\item{colsea}{character. Defines the color of the sea. By default colsea = "#00509010".}
+\item{colsea}{character. The color of the sea. By default colsea = "#00509010".}
 
-\item{colpoints}{character. Defines the color of the fossil occurrence-points. By default colpoints = "#65432190".}
+\item{colpoints}{character. The color of the fossil occurrence-points. By default colpoints = "#65432190".}
 
-\item{rich.col}{character. Defines the color of the richness curve. By default rich.col = "#654321".}
+\item{rich.col}{character. The color of the richness curve. By default rich.col = "#654321".}
 
 \item{pch}{numeric. Point symbol for plotting the occurences. By default pch = 21.}
 
-\item{do.plot}{logical. Defines if a plot is created or not. By default do.plot = TRUE.}
+\item{do.plot}{logical. If a plot is created or not. By default do.plot = TRUE.}
 
-\item{save.as}{character. Defines the format the plots should be saved. "tiff", "pdf", "jpeg" or "png".}
+\item{save.as}{character. The format the plots should be saved. "tiff", "pdf", "jpeg" or "png".}
 
 \item{...}{Graphical parameters. Any argument that can be passed to image.plot and to plot, 
 such as main = "my own title" or main.col = "red".}
