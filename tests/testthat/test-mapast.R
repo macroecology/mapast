@@ -1,5 +1,6 @@
 #get the data
 base::load(base::system.file("testdata", "testdata.rda", package = "mapast"))
+#base::load(base::system.file("testdata", "testdata2.rda", package = "mapast"))
 
 df <- formatdata(data)
 #####formatdata#####
@@ -11,7 +12,6 @@ testthat::test_that("test on formatdata, if output has all columns needed.", {
                         && "family" %in% coln_df && "order" %in% coln_df && "phylum" %in% coln_df)
   rm(coln_df)
 })
-
 
 
 #####paleocoords#####
@@ -121,6 +121,8 @@ testthat::test_that("test that spsite gives correct output for family", {
 
 testthat::test_that("test that spsite gives correct output for order", {
   coln_order <- base::colnames(occ_order)
+  nums_order <- base::as.vector(t(occ_order[3:base::length(occ_order)]))
+  testthat::expect_true(base::is.numeric(nums_order))
   testthat::expect_true("paleolat" %in% coln_order && "paleolng" %in% coln_order)
   testthat::expect_true(base::min(occ_order$paleolat)>=-90 && base::max(occ_order$paleolat)<=90
               && base::min(occ_order$paleolng)>=-180 && base::max(occ_order$paleolng<=180))
@@ -216,6 +218,13 @@ testthat::test_that("test that spsite gives correct output for phylum", {
               && base::min(occ_cell_phylum$paleolng)>=-180 && base::max(occ_cell_phylum$paleolng<=180))
 })
 
+testthat::test_that("test spsite with unity = cell on simple dataset for correct output", {
+  #create dataframe
+  sp_cell <- mapast::spsite(data = t.data, unity="cell", rank="species", res = 10)
+  testthat::expect_equal(sp_cell, sp_cell_test)
+  #rm(sp_fossilsite)
+})
+
 rm(occ_cell_genus, occ_cell_family, occ_cell_order, occ_cell_class, occ_cell_phylum, occ_cell_genus_list)
 
 
@@ -259,7 +268,6 @@ testthat::test_that("test that diversity has only numeric values", {
 })
 
 rm(latrich_species, names_species)
-#rm(nums_latrich)
 
 #get max and mean latitudinal diversity
 latdiv_max <- mapast::latdivgrad(data=df_auto, map=map, method="shannon")
