@@ -1,6 +1,5 @@
 #get the data
 base::load(base::system.file("testdata", "testdata.rda", package = "mapast"))
-#base::load(base::system.file("testdata", "testdata2.rda", package = "mapast"))
 
 df <- formatdata(data)
 #####formatdata#####
@@ -245,8 +244,31 @@ testthat::test_that("test that mapdiv with cell output is a RasterLayer", {
   testthat::expect_that(div_cell@class[1], equals("RasterLayer"))
   testthat::expect_that(div_stack@class[1], equals("RasterStack"))
 })
-
 rm(div_cell, div_stack)
+
+testthat::test_that("test mapdiv with unity = fossilsite on simple dataset for correct output", {
+  #create dataframe
+  div_fossilsite <- mapdiv(data = t.data, unity = "fossilsite", rank = "species", res = 10, map = t.maps,
+                           fun = mean, model = "SETON2012")
+  a <- div_fossilsite@data@values
+  index_div_fossilsite_test <- which(a!="NA")
+  occurence_div_fossilsite_test <- a[which(a!="NA")]
+  testthat::expect_equal(index_div_fossilsite_test, index_div_fossilsite)
+  testthat::expect_equal(occurence_div_fossilsite_test, occurence_div_fossilsite)
+  #rm(sp_fossilsite)
+})
+
+testthat::test_that("test mapdiv with unity = cell on simple dataset for correct output", {
+  #create dataframe
+  div_cell <- mapdiv(data = t.data, unity = "cell", rank = "species", res = 10, map = t.maps, fun = mean,
+                     model = "SETON2012")
+  a <- div_cell@data@values
+  index_div_cell_test <- which(a!="NA")
+  occurence_div_cell_test <- a[which(a!="NA")]
+  testthat::expect_equal(index_div_cell_test, index_div_cell)
+  testthat::expect_equal(occurence_div_cell_test, occurence_div_cell)
+  #rm(sp_fossilsite)
+})
 
 
 ####latdivgrad#####
