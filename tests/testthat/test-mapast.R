@@ -221,7 +221,6 @@ testthat::test_that("test spsite with unity = cell on simple dataset for correct
   #create dataframe
   sp_cell <- mapast::spsite(data = t.data, unity="cell", rank="species", res = 10)
   testthat::expect_equal(sp_cell, sp_cell_test)
-  #rm(sp_fossilsite)
 })
 
 rm(occ_cell_genus, occ_cell_family, occ_cell_order, occ_cell_class, occ_cell_phylum, occ_cell_genus_list)
@@ -255,7 +254,6 @@ testthat::test_that("test mapdiv with unity = fossilsite on simple dataset for c
   occurence_div_fossilsite_test <- a[which(a!="NA")]
   testthat::expect_equal(index_div_fossilsite_test, index_div_fossilsite)
   testthat::expect_equal(occurence_div_fossilsite_test, occurence_div_fossilsite)
-  #rm(sp_fossilsite)
 })
 
 testthat::test_that("test mapdiv with unity = cell on simple dataset for correct output", {
@@ -267,7 +265,6 @@ testthat::test_that("test mapdiv with unity = cell on simple dataset for correct
   occurence_div_cell_test <- a[which(a!="NA")]
   testthat::expect_equal(index_div_cell_test, index_div_cell)
   testthat::expect_equal(occurence_div_cell_test, occurence_div_cell)
-  #rm(sp_fossilsite)
 })
 
 
@@ -316,5 +313,16 @@ testthat::test_that("test that diversity column has only numeric values", {
 rm(latdiv_max, latdiv_mean, names_max, names_mean)
 rm(occ_species, occ_cell_species)
 
+testthat::test_that("test latdivgrad with method = richness on simple dataset for correct output", {
+  #create dataframe
+  divlist_richness_test <- latdivgrad(data = t.data, method = "richness", rank = "species", res = 1, map = t.maps, model = "SETON2012")
+  testthat::expect_equal(divlist_richness_test, divlist_richness)
+})
+
+testthat::test_that("test latdivgrad with method = shannon on simple dataset for correct output", {
+  #create dataframe
+  divlist_shannon_test <- latdivgrad(data = t.data, method = "shannon", rank = "species", res = 1, map = t.maps, model = "SETON2012")
+  testthat::expect_equal(divlist_shannon_test, divlist_shannon)
+})
 
 rm(map, data, df)
