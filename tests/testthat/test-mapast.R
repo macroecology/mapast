@@ -51,8 +51,8 @@ testthat::test_that("test mapocc on simple dataset for correct output", {
   a <- ras@data@values
   indexb <- which(a!="NA")
   occurenceb <- a[which(a!="NA")]
-  testthat::expect_equal(indexa, indexb)
-  testthat::expect_equal(occurencea, occurenceb)
+  testthat::expect_equal(indexocc, indexb)
+  testthat::expect_equal(occurence, occurenceb)
   rm(ras, indexb, occurenceb)
 })
 
@@ -72,6 +72,16 @@ testthat::test_that("test on maprich, if output is rasterstack",{
   #test if class of raster is RasterLayer
   testthat::expect_that(spras@class[1], equals("RasterStack"))
   rm(spras)
+})
+testthat::test_that("test maprich on simple dataset for correct output", {
+  #create raster
+  ras <- mapast::maprich(t.data, model="SETON2012", rank="species", map=t.maps, res = 10)
+  a <- ras@data@values
+  indexb <- which(a!="NA")
+  occurenceb <- a[which(a!="NA")]
+  testthat::expect_equal(indexrich, indexb)
+  testthat::expect_equal(richness, occurenceb)
+  rm(ras, indexb, occurenceb)
 })
 
 ######spsite#####
@@ -144,6 +154,7 @@ testthat::test_that("test spsite with unity = fossilsite on simple dataset for c
 })
 rm(occ_genus, occ_family, occ_order, occ_class, occ_phylum, occ_genus_list)
 
+
 ######spsite######
 testthat::context("spsite")
 # #get output of function
@@ -169,7 +180,6 @@ testthat::test_that("test that spsite gives correct output for species", {
   testthat::expect_true("paleolat" %in% coln_cell_species && "paleolng" %in% coln_cell_species)
   testthat::expect_true(base::min(occ_cell_species$paleolat)>=-90 && base::max(occ_cell_species$paleolat)<=90
             && base::min(occ_cell_species$paleolng)>=-180 && base::max(occ_cell_species$paleolng<=180))
-
 })
 
 testthat::test_that("test that spsite gives correct output for genus", {
