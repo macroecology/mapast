@@ -46,6 +46,17 @@ testthat::test_that("test on mapocc, if output is rasterstack", {
   testthat::expect_that(ras@class[1], equals("RasterStack"))
   rm(ras)
 })
+testthat::test_that("test mapocc on simple dataset for correct output", {
+  #create raster
+  ras <- mapast::mapocc(t.data, model="SETON2012", rank="species", map=t.maps, res = 10)
+  a <- ras@data@values
+  indexb <- which(a!="NA")
+  occurenceb <- a[which(a!="NA")]
+  testthat::expect_equal(indexa, indexb)
+  testthat::expect_equal(occurencea, occurenceb)
+  rm(ras, indexb, occurenceb)
+})
+
 
 #####maprich#####
 testthat::context("maprich")
@@ -123,9 +134,14 @@ testthat::test_that("test that spsite gives correct output for phylum", {
   testthat::expect_true(base::min(occ_phylum$paleolat)>=-90 && base::max(occ_phylum$paleolat)<=90
               && base::min(occ_phylum$paleolng)>=-180 && base::max(occ_phylum$paleolng<=180))
 })
+
+testthat::test_that("test spsite with unity = fossilsite on simple dataset for correct output", {
+  #create dataframe
+  sp_fossilsite <- mapast::spsite(data = t.data, unity="fossilsite", rank="species", res = 10)
+  testthat::expect_equal(sp_fossilsite, sp_fossilsite_test)
+  #rm(sp_fossilsite)
+})
 rm(occ_genus, occ_family, occ_order, occ_class, occ_phylum, occ_genus_list)
-rm(coln_species, coln_genus, coln_family, coln_order, coln_class, coln_phylum)
-rm(nums_species, nums_genus, nums_family, nums_order, nums_class, nums_phylum)
 
 ######spsite######
 testthat::context("spsite")
@@ -139,11 +155,11 @@ occ_cell_phylum <-mapast::spsite(df_auto, unity="cell", rank="phylum")
 
 occ_cell_genus_list <- mapast::spsite(df_avg, unity="cell", rank="genus")
   
-  testthat::test_that("function returns data.frame or list of data frames", {
-    testthat::expect_that(class(occ_cell_genus), equals("data.frame"))
-    testthat::expect_that(class(occ_cell_genus_list), equals("list"))
-    testthat::expect_that(class(occ_cell_genus_list[[1]]), equals("data.frame"))
-  })
+testthat::test_that("function returns data.frame or list of data frames", {
+  testthat::expect_that(class(occ_cell_genus), equals("data.frame"))
+  testthat::expect_that(class(occ_cell_genus_list), equals("list"))
+  testthat::expect_that(class(occ_cell_genus_list[[1]]), equals("data.frame"))
+})
 #test if paleolat and paleolng are inside and correct
 testthat::test_that("test that spsite gives correct output for species", {
   coln_cell_species <- base::colnames(occ_cell_species)
@@ -201,8 +217,6 @@ testthat::test_that("test that spsite gives correct output for phylum", {
 })
 
 rm(occ_cell_genus, occ_cell_family, occ_cell_order, occ_cell_class, occ_cell_phylum, occ_cell_genus_list)
-rm(coln_cell_species, coln_cell_genus, coln_cell_family, coln_cell_order, coln_cell_class, coln_cell_phylum)
-rm(nums_cell_species, nums_cell_genus, nums_cell_family, nums_cell_order, nums_cell_class, nums_cell_phylum)
 
 
 #####mapdiv#####
@@ -244,11 +258,12 @@ testthat::test_that("test that diversity has only numeric values", {
   testthat::expect_true(base::is.numeric(nums_latrich))
 })
 
-rm(latrich_species, nums_latrich, names_species)
+rm(latrich_species, names_species)
+#rm(nums_latrich)
 
 #get max and mean latitudinal diversity
-latdiv_max <- mapast::latdivgrad(data=df_auto, map=map, method="shannon", fun=max)
-latdiv_mean <- mapast::latdivgrad(data=df_auto, map=map, method="shannon", fun=mean)
+latdiv_max <- mapast::latdivgrad(data=df_auto, map=map, method="shannon")
+latdiv_mean <- mapast::latdivgrad(data=df_auto, map=map, method="shannon")
 names_max <- base::names(latdiv_max)
 names_mean <- base::names(latdiv_mean)
 testthat::test_that("test that output has columns minlat, maxlat, div", {
@@ -268,7 +283,7 @@ testthat::test_that("test that diversity column has only numeric values", {
   nums_latdiv_mean <- base::as.vector(t(latdiv_mean$div))
   testthat::expect_true(base::is.numeric(nums_latdiv_mean))
 })
-rm(latdiv_max, latdiv_mean, nums_latdiv_max, nums_latdiv_mean, names_max, names_mean)
+rm(latdiv_max, latdiv_mean, names_max, names_mean)
 rm(occ_species, occ_cell_species)
 
 
